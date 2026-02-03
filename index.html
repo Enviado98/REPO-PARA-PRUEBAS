@@ -2,125 +2,335 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus AI | Magic UI Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- PWA Settings (Para que parezca app al guardar en inicio) -->
+    <meta name="theme-color" content="#FDFBF7">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <title>Roidel's App</title>
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&family=Great+Vibes&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        script: ['Great Vibes', 'cursive'],
+                    },
+                    colors: {
+                        'app-bg': '#F8F9FA',
+                        'app-pink': '#FF8FA3',
+                        'app-dark': '#2D2D2D',
+                        'app-gold': '#D4AF37',
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 30px -10px rgba(0,0,0,0.08)',
+                        'float': '0 15px 40px -10px rgba(255, 143, 163, 0.4)',
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #000; color: white; overflow-x: hidden; }
-        
-        /* Efecto de resplandor animado (Magic UI Border Beam) */
-        .magic-border {
+        body {
+            background-color: #f0f2f5; /* Fondo escritorio */
+            height: 100vh;
+            overflow: hidden; /* Evita scroll en el body principal */
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Simulación de Pantalla de Móvil */
+        .app-container {
+            width: 100%;
+            max-width: 480px; /* Ancho máximo de móvil */
+            height: 100%;
+            background-color: #FDFBF7;
             position: relative;
-            overflow: hidden;
-            border-radius: 1rem;
-        }
-        .magic-border::before {
-            content: "";
-            position: absolute;
-            inset: -2px;
-            background: conic-gradient(from 0deg, transparent 0%, #3b82f6 25%, #a855f7 50%, #3b82f6 75%, transparent 100%);
-            animation: rotate 4s linear infinite;
-            z-index: -1;
-        }
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            overflow-y: auto; /* Scroll interno */
+            overflow-x: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.1);
         }
 
-        /* Grid de fondo tipo Magic UI */
-        .bg-grid {
-            background-image: radial-gradient(#ffffff15 1px, transparent 1px);
-            background-size: 30px 30px;
+        /* Ocultar barra de scroll pero permitir scroll */
+        .app-container::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
         }
 
-        .shimmer {
-            background: linear-gradient(90deg, #ffffff00, #ffffff20, #ffffff00);
-            background-size: 200% 100%;
-            animation: shimmer 3s infinite;
+        /* Glassmorphism Bottom Nav */
+        .bottom-nav {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding-bottom: env(safe-area-inset-bottom); /* Para iPhone X+ */
         }
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
+
+        .nav-item.active i {
+            color: #FF8FA3;
+            transform: translateY(-2px);
+        }
+        .nav-item.active span {
+            color: #FF8FA3;
+            font-weight: 700;
+        }
+
+        /* Animaciones de Transición entre "Páginas" */
+        .view-section {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Scroll Horizontal Invisible */
+        .hide-scroll::-webkit-scrollbar {
+            display: none;
         }
     </style>
 </head>
 <body>
 
-    <div class="fixed inset-0 bg-grid -z-10"></div>
-    <div class="fixed inset-0 bg-gradient-to-t from-black via-transparent to-transparent -z-10"></div>
-
-    <nav class="flex justify-between items-center p-6 max-w-7xl mx-auto">
-        <div class="text-xl font-extrabold tracking-tighter">NEXUS<span class="text-blue-500">.AI</span></div>
-        <div class="hidden md:flex gap-8 text-sm text-gray-400">
-            <a href="#" class="hover:text-white transition">Features</a>
-            <a href="#" class="hover:text-white transition">Showcase</a>
-            <a href="#" class="hover:text-white transition">Pricing</a>
-        </div>
-        <button class="bg-white text-black px-4 py-2 rounded-full text-sm font-bold hover:bg-gray-200 transition">Get Started</button>
-    </nav>
-
-    <section class="flex flex-col items-center justify-center text-center px-4 pt-20 pb-32">
-        <div class="inline-block px-4 py-1.5 mb-6 border border-white/10 rounded-full bg-white/5 backdrop-blur-sm">
-            <span class="text-xs font-medium tracking-widest text-blue-400 uppercase shimmer">✨ Nueva versión 2.0 disponible</span>
-        </div>
-
-        <h1 class="text-6xl md:text-8xl font-extrabold tracking-tighter mb-6 bg-gradient-to-b from-white to-white/30 bg-clip-text text-transparent">
-            La IA que <br> parece magia.
-        </h1>
-
-        <p class="max-w-2xl text-gray-400 text-lg md:text-xl mb-10 leading-relaxed">
-            Magic UI te permite crear interfaces de alta fidelidad en minutos. 
-            Diseños optimizados para conversión con animaciones de grado profesional.
-        </p>
-
-        <div class="flex flex-col md:flex-row gap-4">
-            <button class="px-8 py-4 bg-blue-600 rounded-xl font-bold text-lg hover:bg-blue-500 transition shadow-[0_0_30px_-5px_rgba(59,130,246,0.5)]">
-                Empezar a Crear
-            </button>
-            <button class="px-8 py-4 bg-white/5 border border-white/10 rounded-xl font-bold text-lg hover:bg-white/10 transition backdrop-blur-md">
-                Ver Demo
-            </button>
-        </div>
-
-        <div class="mt-20 max-w-5xl w-full mx-auto p-[2px] magic-border">
-            <div class="bg-neutral-900 rounded-[calc(1rem-2px)] overflow-hidden border border-white/5">
-                <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=2000" alt="App Preview" class="w-full opacity-80 group-hover:opacity-100 transition">
+    <!-- APP CONTAINER (Simula el teléfono) -->
+    <div class="app-container relative">
+        
+        <!-- HEADER (Sticky) -->
+        <header class="sticky top-0 z-40 bg-[#FDFBF7]/90 backdrop-blur-md px-6 py-4 flex justify-between items-center shadow-sm">
+            <div>
+                <p class="text-xs text-gray-400 font-bold uppercase tracking-widest lang" data-es="BIENVENIDO" data-en="WELCOME">BIENVENIDO</p>
+                <h1 class="font-script text-2xl text-app-dark">Roidel's Cake</h1>
             </div>
-        </div>
-    </section>
-
-    <section class="max-w-7xl mx-auto px-6 py-20">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="md:col-span-2 p-8 rounded-3xl bg-neutral-900/50 border border-white/10 backdrop-blur-sm hover:border-blue-500/50 transition duration-500">
-                <div class="text-3xl mb-4">🚀</div>
-                <h3 class="text-2xl font-bold mb-2">Velocidad Extrema</h3>
-                <p class="text-gray-400">Optimizado para cargar en menos de 100ms utilizando componentes ligeros y eficientes.</p>
-            </div>
-            <div class="p-8 rounded-3xl bg-neutral-900/50 border border-white/10 backdrop-blur-sm hover:border-purple-500/50 transition duration-500">
-                <div class="text-3xl mb-4">💎</div>
-                <h3 class="text-2xl font-bold mb-2">Diseño Premium</h3>
-                <p class="text-gray-400">Componentes de alta fidelidad que elevan tu marca.</p>
-            </div>
-            <div class="p-8 rounded-3xl bg-neutral-900/50 border border-white/10 backdrop-blur-sm hover:border-emerald-500/50 transition duration-500">
-                <div class="text-3xl mb-4">🛡️</div>
-                <h3 class="text-2xl font-bold mb-2">Seguro</h3>
-                <p class="text-gray-400">Privacidad nativa en cada línea de código.</p>
-            </div>
-            <div class="md:col-span-2 p-8 rounded-3xl bg-neutral-900/50 border border-white/10 backdrop-blur-sm hover:border-orange-500/50 transition duration-500 flex flex-col justify-between">
-                <div>
-                    <h3 class="text-2xl font-bold mb-2">Integración con IA</h3>
-                    <p class="text-gray-400">Conecta tus modelos favoritos (GPT-4, Claude, Gemini) sin fricción.</p>
+            <div class="flex items-center gap-3">
+                <button onclick="toggleLang()" class="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-xs font-bold text-gray-500 shadow-sm">ES</button>
+                <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-app-pink p-0.5">
+                    <img src="https://raw.githubusercontent.com/Enviado98/Roidel-s-cake/main/pastel.jpg" class="w-full h-full object-cover rounded-full">
                 </div>
-                <div class="mt-8 h-20 bg-gradient-to-r from-orange-500/20 to-transparent rounded-lg border border-orange-500/20"></div>
             </div>
-        </div>
-    </section>
+        </header>
 
-    <footer class="py-20 text-center text-gray-600 text-sm border-t border-white/5">
-        &copy; 2026 Nexus AI - Hecho con inspiración en Magic UI
-    </footer>
+        <!-- VIEW: HOME -->
+        <main id="view-home" class="view-section active pb-28 px-6 pt-4">
+            
+            <!-- Hero Card -->
+            <div class="relative w-full h-80 rounded-[2rem] overflow-hidden shadow-float mb-8 group">
+                <img src="https://raw.githubusercontent.com/Enviado98/Roidel-s-cake/main/pastel7.jpg" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-6 text-white">
+                    <span class="bg-app-gold text-white text-[10px] font-bold px-2 py-1 rounded-md w-fit mb-2 uppercase">Premium</span>
+                    <h2 class="text-3xl font-bold leading-tight mb-1 lang" data-es="Pasteles de Ensueño" data-en="Dream Cakes">Pasteles de Ensueño</h2>
+                    <p class="text-sm opacity-90 mb-4 lang" data-es="Diseños personalizados para ti." data-en="Custom designs for you.">Diseños personalizados para ti.</p>
+                    <a href="https://wa.me/13059673668" class="bg-white text-app-dark py-3 rounded-xl text-center font-bold text-sm hover:bg-app-pink hover:text-white transition-colors">
+                        <span class="lang" data-es="Pedir Ahora" data-en="Order Now">Pedir Ahora</span>
+                    </a>
+                </div>
+            </div>
 
+            <!-- Categories (Horizontal Scroll) -->
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg text-app-dark lang" data-es="Categorías" data-en="Categories">Categorías</h3>
+                <span class="text-app-pink text-sm font-bold lang" data-es="Ver todo" data-en="See all">Ver todo</span>
+            </div>
+            
+            <div class="flex gap-4 overflow-x-auto hide-scroll mb-8 pb-2">
+                <!-- Cat 1 -->
+                <div class="flex flex-col items-center gap-2 min-w-[80px]">
+                    <div class="w-16 h-16 rounded-2xl bg-white shadow-soft flex items-center justify-center text-2xl border border-gray-100">🎂</div>
+                    <span class="text-xs font-medium text-gray-500">Cakes</span>
+                </div>
+                <!-- Cat 2 -->
+                <div class="flex flex-col items-center gap-2 min-w-[80px]">
+                    <div class="w-16 h-16 rounded-2xl bg-white shadow-soft flex items-center justify-center text-2xl border border-gray-100">🍪</div>
+                    <span class="text-xs font-medium text-gray-500">Cookies</span>
+                </div>
+                <!-- Cat 3 -->
+                <div class="flex flex-col items-center gap-2 min-w-[80px]">
+                    <div class="w-16 h-16 rounded-2xl bg-white shadow-soft flex items-center justify-center text-2xl border border-gray-100">🧁</div>
+                    <span class="text-xs font-medium text-gray-500">Cupcakes</span>
+                </div>
+                <!-- Cat 4 -->
+                <div class="flex flex-col items-center gap-2 min-w-[80px]">
+                    <div class="w-16 h-16 rounded-2xl bg-white shadow-soft flex items-center justify-center text-2xl border border-gray-100">🍫</div>
+                    <span class="text-xs font-medium text-gray-500">Choco</span>
+                </div>
+            </div>
+
+            <!-- Popular Items (Vertical) -->
+            <h3 class="font-bold text-lg text-app-dark mb-4 lang" data-es="Populares" data-en="Popular">Populares</h3>
+            <div class="space-y-4">
+                
+                <!-- Item 1 -->
+                <div class="bg-white p-3 rounded-2xl shadow-soft flex gap-4 items-center">
+                    <img src="https://raw.githubusercontent.com/Enviado98/Roidel-s-cake/main/pastel4.jpg" class="w-20 h-20 rounded-xl object-cover">
+                    <div class="flex-1">
+                        <h4 class="font-bold text-app-dark">Chocoflan</h4>
+                        <p class="text-xs text-gray-400 mb-2">Imposible Cake</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-app-pink font-bold">$ --</span>
+                            <button class="w-8 h-8 rounded-full bg-app-dark text-white flex items-center justify-center"><i class="ph-bold ph-plus"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item 2 -->
+                <div class="bg-white p-3 rounded-2xl shadow-soft flex gap-4 items-center">
+                    <img src="https://raw.githubusercontent.com/Enviado98/Roidel-s-cake/main/pastel6.jpg" class="w-20 h-20 rounded-xl object-cover">
+                    <div class="flex-1">
+                        <h4 class="font-bold text-app-dark">Macarons Box</h4>
+                        <p class="text-xs text-gray-400 mb-2">French Style</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-app-pink font-bold">$ --</span>
+                            <button class="w-8 h-8 rounded-full bg-app-dark text-white flex items-center justify-center"><i class="ph-bold ph-plus"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- VIEW: GALLERY -->
+        <main id="view-gallery" class="view-section pb-28 px-4 pt-4">
+            <h2 class="text-2xl font-bold text-app-dark mb-6 px-2 lang" data-es="Galería" data-en="Gallery">Galería</h2>
+            <div class="columns-2 gap-4 space-y-4">
+                <img src="https://raw.githubusercontent.com/Enviado98/Roidel-s-cake/main/pastel1.jpg" class="w-full rounded-2xl shadow-md">
+                <img src="https://raw.githubusercontent.com/Enviado98/Roidel-s-cake/main/pastel2.jpg" class="w-full rounded-2xl shadow-md">
+                <img src="https://raw.githubusercontent.com/Enviado98/Roidel-s-cake/main/pastel3.jpg" class="w-full rounded-2xl shadow-md">
+                <img src="https://raw.githubusercontent.com/Enviado98/Roidel-s-cake/main/pastel5.jpg" class="w-full rounded-2xl shadow-md">
+                <img src="https://raw.githubusercontent.com/Enviado98/Roidel-s-cake/main/pastel.jpg" class="w-full rounded-2xl shadow-md">
+            </div>
+        </main>
+
+        <!-- VIEW: LOCATION -->
+        <main id="view-location" class="view-section pb-28 px-6 pt-4 h-full flex flex-col">
+            <h2 class="text-2xl font-bold text-app-dark mb-6 lang" data-es="Ubicación" data-en="Location">Ubicación</h2>
+            
+            <div class="bg-white p-6 rounded-3xl shadow-soft mb-6 text-center">
+                <div class="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                    <i class="ph-fill ph-storefront"></i>
+                </div>
+                <h3 class="font-bold text-xl mb-1">Homestead, FL</h3>
+                <p class="text-gray-500 text-sm mb-4">27721 SW 132nd Ct, 33032</p>
+                <a href="https://maps.app.goo.gl/d4fka6dGtoSE8CpS9" target="_blank" class="block w-full py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-200">
+                    <span class="lang" data-es="Cómo Llegar" data-en="Get Directions">Cómo Llegar</span>
+                </a>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl shadow-soft">
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="font-bold text-app-dark lang" data-es="Horarios" data-en="Hours">Horarios</h4>
+                    <!-- Estado -->
+                    <span id="status-badge" class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold uppercase">Abierto</span>
+                </div>
+                <div class="space-y-3 text-sm text-gray-500">
+                    <div class="flex justify-between">
+                        <span class="lang" data-es="Lunes - Domingo" data-en="Mon - Sun">Lunes - Domingo</span>
+                        <span class="font-bold text-app-dark">08:00 - 20:00</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- BOTTOM NAVIGATION (Fixed) -->
+        <nav class="bottom-nav fixed bottom-0 w-full max-w-[480px] z-50 flex justify-around items-center py-3">
+            
+            <button onclick="switchTab('home')" class="nav-item active flex flex-col items-center gap-1 text-gray-400 w-16" id="btn-home">
+                <i class="ph-fill ph-house text-2xl transition-all"></i>
+                <span class="text-[10px] font-medium transition-all lang" data-es="Inicio" data-en="Home">Inicio</span>
+            </button>
+
+            <button onclick="switchTab('gallery')" class="nav-item flex flex-col items-center gap-1 text-gray-400 w-16" id="btn-gallery">
+                <i class="ph-fill ph-image text-2xl transition-all"></i>
+                <span class="text-[10px] font-medium transition-all lang" data-es="Galería" data-en="Gallery">Galería</span>
+            </button>
+
+            <!-- Botón Central Flotante -->
+            <div class="relative -top-6">
+                <a href="https://wa.me/13059673668" target="_blank" class="w-14 h-14 bg-app-pink rounded-full flex items-center justify-center text-white shadow-float transform transition hover:scale-110">
+                    <i class="ph-bold ph-whatsapp-logo text-3xl"></i>
+                </a>
+            </div>
+
+            <button onclick="switchTab('location')" class="nav-item flex flex-col items-center gap-1 text-gray-400 w-16" id="btn-location">
+                <i class="ph-fill ph-map-pin text-2xl transition-all"></i>
+                <span class="text-[10px] font-medium transition-all lang" data-es="Mapa" data-en="Map">Mapa</span>
+            </button>
+
+            <a href="tel:+13059673668" class="nav-item flex flex-col items-center gap-1 text-gray-400 w-16">
+                <i class="ph-fill ph-phone text-2xl transition-all"></i>
+                <span class="text-[10px] font-medium transition-all lang" data-es="Llamar" data-en="Call">Llamar</span>
+            </a>
+
+        </nav>
+
+    </div>
+
+    <!-- LOGIC -->
+    <script>
+        // 1. Tab Switching Logic
+        function switchTab(tabName) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            // Mostrar la seleccionada
+            document.getElementById(`view-${tabName}`).classList.add('active');
+
+            // Actualizar botones del nav
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const btn = document.getElementById(`btn-${tabName}`);
+            if(btn) btn.classList.add('active');
+
+            // Scroll al top
+            document.querySelector('.app-container').scrollTo(0,0);
+        }
+
+        // 2. Language Toggle
+        let currentLang = 'es';
+        function toggleLang() {
+            currentLang = currentLang === 'es' ? 'en' : 'es';
+            const btn = document.querySelector('header button');
+            btn.innerText = currentLang.toUpperCase();
+
+            document.querySelectorAll('.lang').forEach(el => {
+                el.innerText = el.getAttribute(`data-${currentLang}`);
+            });
+            checkStatus(); // Update status text language
+        }
+
+        // 3. Status Logic (08:00 - 20:00 Daily)
+        function checkStatus() {
+            const now = new Date();
+            const hour = now.getHours();
+            const isOpen = hour >= 8 && hour < 20;
+            
+            const badge = document.getElementById('status-badge');
+            if(badge) {
+                if(isOpen) {
+                    badge.className = "bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold uppercase";
+                    badge.innerText = currentLang === 'es' ? "ABIERTO" : "OPEN";
+                } else {
+                    badge.className = "bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold uppercase";
+                    badge.innerText = currentLang === 'es' ? "CERRADO" : "CLOSED";
+                }
+            }
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', checkStatus);
+    </script>
 </body>
 </html>
