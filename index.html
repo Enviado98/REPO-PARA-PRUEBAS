@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SS_MADARAS | Bitunix Partner</title>
+    <title>SS_MADARAS | Pro Trading Hub</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <!-- Fonts: Space Grotesk (Titulos) & Inter (Texto) -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     
     <!-- Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -19,29 +19,19 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
                     },
                     colors: {
                         'brand': '#CCFF00', /* Verde Bitunix */
-                        'brand-dark': '#A3CC00',
-                        'telegram': '#229ED9', /* Azul Telegram */
-                        'telegram-dark': '#1c8ebf',
-                        'dark': '#111111',
+                        'brand-dark': '#B3E600',
+                        'dark': '#0F172A',
+                        'light': '#F8FAFC',
+                        'telegram': '#229ED9',
                     },
-                    animation: {
-                        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
-                        'float': 'float 6s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        fadeInUp: {
-                            '0%': { opacity: '0', transform: 'translateY(20px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' },
-                        },
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-10px)' },
-                        }
+                    boxShadow: {
+                        'card': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                        'glow': '0 0 15px rgba(204, 255, 0, 0.4)',
                     }
                 }
             }
@@ -49,190 +39,305 @@
     </script>
 
     <style>
-        body { background-color: #F8FAFC; color: #0F172A; }
+        body { background-color: #F1F5F9; color: #0F172A; }
         
-        /* Patrón de fondo sutil */
-        .bg-pattern {
-            background-image: radial-gradient(#E2E8F0 1px, transparent 1px);
-            background-size: 24px 24px;
+        /* Session Card Active Animation */
+        .session-active {
+            border-color: #CCFF00;
+            box-shadow: 0 4px 20px -5px rgba(163, 204, 0, 0.2);
         }
+        
+        /* Smooth Bar Transition */
+        .progress-bar { transition: width 1s linear; }
 
-        /* Sombras Suaves Premium */
-        .shadow-pro {
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.05), 0 0 2px rgba(0, 0, 0, 0.05);
-        }
-
-        /* Estilos Tabla */
-        .promo-table th { 
+        /* Custom Table */
+        .pro-table th { 
+            font-size: 0.7rem; 
             text-transform: uppercase; 
-            font-size: 0.75rem; 
-            color: #64748B; 
             letter-spacing: 0.05em; 
-            padding: 16px; 
-            border-bottom: 1px solid #F1F5F9;
+            color: #64748B; 
+            padding-bottom: 12px;
+            border-bottom: 1px solid #E2E8F0;
         }
-        .promo-table td { 
-            padding: 16px; 
-            border-bottom: 1px solid #F8FAFC; 
-            font-weight: 600;
+        .pro-table td { 
+            padding: 14px 0; 
+            border-bottom: 1px solid #F1F5F9; 
+            font-weight: 500;
         }
-        .promo-table tr:last-child td { border-bottom: none; }
-        .promo-table tr:hover { background-color: #FAFAFA; }
+        .pro-table tr:last-child td { border-bottom: none; }
     </style>
 </head>
-<body class="bg-pattern min-h-screen flex flex-col items-center justify-center py-10 px-4">
+<body class="min-h-screen flex flex-col items-center py-8 px-4">
 
-    <!-- HERO CONTAINER -->
-    <main class="w-full max-w-4xl animate-fade-in-up">
+    <!-- CONTAINER PRINCIPAL -->
+    <main class="w-full max-w-4xl space-y-6">
         
-        <!-- HEADER -->
-        <header class="flex flex-col items-center mb-10 text-center">
-            <div class="relative mb-4">
-                <div class="absolute inset-0 bg-brand rounded-full blur opacity-40 animate-pulse"></div>
-                <img src="https://raw.githubusercontent.com/69yoslin-dot/madaras/main/logoprofile.png" class="relative w-20 h-20 rounded-full border-4 border-white shadow-lg object-cover">
+        <!-- 1. HEADER & PROFILE -->
+        <header class="flex items-center justify-between bg-white p-4 rounded-2xl shadow-card">
+            <div class="flex items-center gap-4">
+                <div class="relative">
+                    <img src="https://raw.githubusercontent.com/69yoslin-dot/madaras/main/logoprofile.png" class="w-12 h-12 rounded-full object-cover border-2 border-slate-100">
+                    <div class="absolute -bottom-1 -right-1 bg-brand text-[10px] font-bold px-1.5 rounded-md border border-white">PRO</div>
+                </div>
+                <div>
+                    <h1 class="font-display font-bold text-xl leading-none">SS_MADARAS</h1>
+                    <span class="text-xs text-slate-400 font-medium">Bitunix Official Partner</span>
+                </div>
             </div>
-            <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">SS_MADARAS</h1>
-            <p class="text-slate-500 font-medium mt-1">Official Bitunix Partner</p>
+            <div class="text-right hidden sm:block">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Trading Dashboard</p>
+                <div class="flex items-center gap-1 justify-end text-emerald-600 text-xs font-bold">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sistema Online
+                </div>
+            </div>
         </header>
 
-        <!-- CARD PRINCIPAL: PROMO -->
-        <div class="bg-white rounded-3xl shadow-pro overflow-hidden border border-slate-100 relative">
-            <!-- Etiqueta Flotante -->
-            <div class="absolute top-0 right-0 bg-black text-brand text-[10px] font-bold px-4 py-2 rounded-bl-2xl font-mono uppercase tracking-widest z-10">
-                Exclusive Campaign
+        <!-- 2. SESIONES DE MERCADO (LIVE HUD) -->
+        <section>
+            <div class="flex items-center gap-2 mb-3 px-1">
+                <i class="ph-duotone ph-globe text-slate-400"></i>
+                <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Sesiones de Mercado (Tiempo Real)</h2>
             </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="sessions-container">
+                <!-- Se inyecta con JS -->
+            </div>
+        </section>
 
-            <div class="p-8 md:p-10">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+        <!-- 3. PROMO CARD -->
+        <section class="bg-white rounded-3xl shadow-card overflow-hidden border border-slate-100 relative">
+            <!-- Accent Top -->
+            <div class="h-1.5 w-full bg-gradient-to-r from-brand to-lime-500"></div>
+
+            <div class="p-6 md:p-8">
+                <!-- Promo Header -->
+                <div class="flex flex-col md:flex-row justify-between items-start mb-8 gap-4">
                     <div>
-                        <div class="flex items-center gap-2 text-slate-400 font-bold mb-2 text-sm">
-                            <span>BITUNIX</span>
-                            <span>✕</span>
-                            <span>SS.MADARA</span>
+                        <div class="flex items-center gap-2 text-slate-400 font-bold text-xs uppercase mb-2">
+                            <span>Bitunix</span> <span class="text-brand text-sm">✕</span> <span>SS.Madara</span>
                         </div>
-                        <h2 class="text-4xl font-extrabold text-slate-900 leading-tight">
-                            Bono de Depósito <span class="text-transparent bg-clip-text bg-gradient-to-r from-lime-500 to-green-600">20%</span>
+                        <h2 class="font-display text-3xl md:text-4xl font-bold text-dark leading-tight">
+                            Bono de Depósito <span class="bg-brand px-2 rounded-md transform -rotate-1 inline-block">20%</span>
                         </h2>
                     </div>
-                    
-                    <!-- Botón Registro -->
-                    <a href="https://bitunix.com/activity/exclusive/SSMadara0205?vipcode=Xn8W" target="_blank" class="w-full md:w-auto bg-black text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-2 group shadow-lg">
-                        Registrarse
-                        <i class="ph-bold ph-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    <a href="https://bitunix.com/activity/exclusive/SSMadara0205?vipcode=Xn8W" target="_blank" class="bg-black text-white text-xs font-bold px-6 py-3 rounded-xl hover:bg-slate-800 transition-all shadow-lg flex items-center gap-2 group">
+                        Reclamar Bono
+                        <i class="ph-bold ph-arrow-up-right group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
                     </a>
                 </div>
 
-                <!-- TABLA DE PREMIOS -->
-                <div class="border border-slate-100 rounded-2xl overflow-hidden mb-8">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left promo-table whitespace-nowrap">
-                            <thead class="bg-slate-50">
-                                <tr>
-                                    <th>Deposita</th>
-                                    <th>Mantén</th>
-                                    <th class="text-lime-600">Bono Futures</th>
-                                    <th class="text-right">Slots</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-sm md:text-base">
-                                <tr>
-                                    <td>100 USDT</td>
-                                    <td class="text-slate-500 font-normal">3 días</td>
-                                    <td class="text-lime-600 font-bold bg-lime-50/50">20 USDT</td>
-                                    <td class="text-right text-slate-400">20</td>
-                                </tr>
-                                <tr>
-                                    <td>500 USDT</td>
-                                    <td class="text-slate-500 font-normal">5 días</td>
-                                    <td class="text-lime-600 font-bold bg-lime-50/50">+80 USDT</td>
-                                    <td class="text-right text-slate-400">20</td>
-                                </tr>
-                                <tr>
-                                    <td>1,000 USDT</td>
-                                    <td class="text-slate-500 font-normal">7 días</td>
-                                    <td class="text-lime-600 font-bold bg-lime-50/50">+100 USDT</td>
-                                    <td class="text-right text-slate-400">20</td>
-                                </tr>
-                                <tr>
-                                    <td>2,000 USDT</td>
-                                    <td class="text-slate-500 font-normal">9 días</td>
-                                    <td class="text-lime-600 font-bold bg-lime-50/50">+200 USDT</td>
-                                    <td class="text-right text-slate-400">20</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <!-- Tabla de Datos -->
+                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                    <table class="w-full text-left pro-table">
+                        <thead>
+                            <tr>
+                                <th>Depósito</th>
+                                <th class="text-center">Hold</th>
+                                <th class="text-right text-emerald-600">Bono</th>
+                                <th class="text-right">Slots</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                            <tr>
+                                <td class="font-bold text-slate-800">100 USDT</td>
+                                <td class="text-center text-slate-500">3 días</td>
+                                <td class="text-right font-bold text-emerald-600">20 USDT</td>
+                                <td class="text-right text-slate-400">20</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold text-slate-800">500 USDT</td>
+                                <td class="text-center text-slate-500">5 días</td>
+                                <td class="text-right font-bold text-emerald-600">+80 USDT</td>
+                                <td class="text-right text-slate-400">20</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold text-slate-800">1,000 USDT</td>
+                                <td class="text-center text-slate-500">7 días</td>
+                                <td class="text-right font-bold text-emerald-600">+100 USDT</td>
+                                <td class="text-right text-slate-400">20</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold text-slate-800">2,000 USDT</td>
+                                <td class="text-center text-slate-500">9 días</td>
+                                <td class="text-right font-bold text-emerald-600">+200 USDT</td>
+                                <td class="text-right text-slate-400">20</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
 
-                <!-- PROGRESS BAR -->
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                    <div class="flex justify-between items-center mb-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <!-- Barra Progreso Campaña -->
+                <div class="mt-6 flex flex-col gap-2">
+                    <div class="flex justify-between text-[10px] font-bold text-slate-400 uppercase">
                         <span>Inicio: 5 Feb</span>
-                        <span class="text-slate-800" id="days-left">Calculando...</span>
+                        <span class="text-slate-800">Campaña Activa</span>
                         <span>Fin: 18 Feb</span>
                     </div>
-                    <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-                        <div id="promo-bar" class="h-full bg-slate-900 rounded-full transition-all duration-1000 w-0"></div>
+                    <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                        <div id="promo-progress" class="h-full bg-dark rounded-full w-0 transition-all duration-1000"></div>
                     </div>
-                    <p class="text-center text-slate-400 text-xs mt-2 font-medium">
-                        *El bono es limitado para los primeros 10 usuarios.
-                    </p>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- TELEGRAM COMMUNITY BUTTON -->
-        <div class="mt-8 flex justify-center animate-float">
-            <a href="https://t.me/bitunix_cuba" target="_blank" class="group relative w-full md:w-auto overflow-hidden rounded-2xl bg-telegram p-px shadow-xl shadow-blue-500/20 transition-all hover:shadow-2xl hover:shadow-blue-500/40 hover:-translate-y-1">
-                <div class="relative flex items-center justify-center gap-3 rounded-2xl bg-telegram px-8 py-4 transition-all group-hover:bg-telegram-dark">
-                    <div class="bg-white/20 p-2 rounded-full">
-                        <i class="ph-fill ph-telegram-logo text-3xl text-white"></i>
+        <!-- 4. COMUNIDAD TELEGRAM -->
+        <section class="flex justify-center">
+            <a href="https://t.me/bitunix_cuba" target="_blank" class="group relative w-full md:w-auto bg-telegram hover:bg-[#1d8dbf] text-white p-1 rounded-2xl transition-all shadow-lg hover:shadow-telegram/30 hover:-translate-y-1">
+                <div class="flex items-center gap-4 px-6 py-4 rounded-xl border border-white/20">
+                    <div class="bg-white/20 p-2.5 rounded-full">
+                        <i class="ph-fill ph-telegram-logo text-3xl"></i>
                     </div>
-                    <div class="text-left text-white">
-                        <p class="text-[10px] font-bold uppercase tracking-widest opacity-80">Comunidad Oficial</p>
-                        <p class="text-xl font-bold">BITUNIX_CUBA 🇨🇺</p>
+                    <div class="text-left">
+                        <p class="text-[10px] font-bold uppercase tracking-widest opacity-90">Únete al Canal</p>
+                        <p class="text-lg font-bold font-display">BITUNIX_CUBA 🇨🇺</p>
                     </div>
-                    <i class="ph-bold ph-arrow-right text-white opacity-0 -translate-x-2 transition-all group-hover:opacity-100 group-hover:translate-x-0 ml-2"></i>
+                    <div class="ml-2 bg-white/10 p-2 rounded-lg">
+                        <i class="ph-bold ph-caret-right"></i>
+                    </div>
                 </div>
             </a>
-        </div>
+        </section>
 
-        <!-- FOOTER SIMPLE -->
-        <footer class="mt-12 text-center text-slate-400 text-sm">
-            <p>&copy; 2026 SS_MADARAS. Todos los derechos reservados.</p>
+        <!-- FOOTER -->
+        <footer class="text-center text-slate-400 text-xs font-medium py-4">
+            &copy; 2026 SS_MADARAS. Todos los derechos reservados.
         </footer>
 
     </main>
 
     <!-- LOGIC -->
     <script>
-        function updatePromo() {
-            // Fechas campaña
-            const start = new Date('2024-02-05T00:00:00').getTime();
-            const end = new Date('2026-02-18T23:59:59').getTime(); // Ajustado a año actual para que se vea la barra
-            const now = new Date().getTime();
-            
-            // Barra de progreso
-            let pct = ((now - start) / (end - start)) * 100;
-            if(pct < 0) pct = 0; if(pct > 100) pct = 100;
-            document.getElementById('promo-bar').style.width = `${pct}%`;
+        // --- 1. SESSION LOGIC (Visual Bar System) ---
+        const sessions = {
+            'ny': { name: 'New York', start: 13, end: 22, color: 'bg-indigo-500' },
+            'ldn': { name: 'London', start: 8, end: 17, color: 'bg-blue-600' },
+            'tky': { name: 'Tokyo', start: 0, end: 9, color: 'bg-rose-500' },
+            'syd': { name: 'Sydney', start: 21, end: 6, color: 'bg-amber-500' }
+        };
 
-            // Días restantes
-            const diffTime = end - now;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            const daysLabel = document.getElementById('days-left');
-            if (diffTime <= 0) {
-                daysLabel.innerText = "Campaña Finalizada";
-                daysLabel.classList.add('text-red-500');
-            } else {
-                daysLabel.innerText = `Quedan ${diffDays} días`;
-                daysLabel.classList.add('text-brand-dark');
-            }
+        function renderSessions() {
+            const container = document.getElementById('sessions-container');
+            container.innerHTML = '';
+
+            Object.keys(sessions).forEach(key => {
+                const s = sessions[key];
+                const html = `
+                    <div id="card-${key}" class="bg-white border border-slate-100 rounded-xl p-4 relative overflow-hidden transition-all duration-300">
+                        <!-- Header -->
+                        <div class="flex justify-between items-start mb-3 relative z-10">
+                            <span class="font-bold text-sm text-slate-700">${s.name}</span>
+                            <div id="status-badge-${key}" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-400">WAIT</div>
+                        </div>
+                        
+                        <!-- Time Info -->
+                        <div class="relative z-10">
+                            <p id="info-${key}" class="text-xs font-bold text-slate-800">--</p>
+                            <p class="text-[10px] text-slate-400">UTC Time</p>
+                        </div>
+
+                        <!-- Progress Bar Background -->
+                        <div class="absolute bottom-0 left-0 w-full h-1 bg-slate-100">
+                            <div id="bar-${key}" class="h-full transition-all duration-1000 w-0"></div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
         }
 
-        // Ejecutar al cargar
-        setTimeout(updatePromo, 100);
+        function updateSessionLogic() {
+            const now = new Date();
+            const hour = now.getUTCHours();
+            const min = now.getUTCMinutes();
+            const totalMins = hour * 60 + min;
+            const isWeekend = now.getUTCDay() === 0 || now.getUTCDay() === 6;
+
+            Object.keys(sessions).forEach(key => {
+                const s = sessions[key];
+                let startM = s.start * 60;
+                let endM = s.end * 60;
+                let isOpen = false;
+
+                // Logica Apertura
+                if (!isWeekend) {
+                    if (s.start < s.end) {
+                        if (totalMins >= startM && totalMins < endM) isOpen = true;
+                    } else {
+                        if (totalMins >= startM || totalMins < endM) isOpen = true;
+                    }
+                }
+
+                const card = document.getElementById(`card-${key}`);
+                const badge = document.getElementById(`status-badge-${key}`);
+                const info = document.getElementById(`info-${key}`);
+                const bar = document.getElementById(`bar-${key}`);
+
+                if (isOpen) {
+                    // ABIERTO: Barra VERDE (Progreso de sesión)
+                    let duration = (s.start < s.end) ? (endM - startM) : ((24*60 - startM) + endM);
+                    let elapsed = (totalMins >= startM) ? (totalMins - startM) : ((24*60 - startM) + totalMins);
+                    let pct = (elapsed / duration) * 100;
+                    
+                    // Tiempo restante
+                    let timeLeft = duration - elapsed;
+                    let h = Math.floor(timeLeft / 60);
+                    let m = Math.floor(timeLeft % 60);
+
+                    card.classList.add('border-lime-300', 'shadow-sm');
+                    badge.className = "text-[9px] font-bold px-1.5 py-0.5 rounded bg-lime-100 text-lime-700 uppercase";
+                    badge.innerText = "ABIERTO";
+                    
+                    info.innerText = `Cierra en ${h}h ${m}m`;
+                    info.className = "text-xs font-bold text-lime-600";
+                    
+                    bar.className = "h-full bg-lime-500";
+                    bar.style.width = `${pct}%`;
+
+                } else {
+                    // CERRADO: Barra GRIS/ROJA (Cuenta regresiva apertura)
+                    let diffToOpen = (totalMins < startM) ? (startM - totalMins) : ((24*60 - totalMins) + startM);
+                    let h = Math.floor(diffToOpen / 60);
+                    let m = Math.floor(diffToOpen % 60);
+                    
+                    // Visual fill up effect as it gets closer (last 8 hours)
+                    let waitWindow = 8 * 60; 
+                    let pct = Math.max(0, (waitWindow - diffToOpen) / waitWindow * 100);
+
+                    card.classList.remove('border-lime-300', 'shadow-sm');
+                    badge.className = "text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-400 uppercase";
+                    badge.innerText = "CERRADO";
+                    
+                    info.innerText = `Abre en ${h}h ${m}m`;
+                    info.className = "text-xs font-bold text-slate-500";
+                    
+                    bar.className = "h-full bg-slate-300"; // Gris neutral
+                    bar.style.width = `${pct}%`;
+                }
+
+                if(isWeekend) {
+                    badge.innerText = "WEEKEND";
+                    info.innerText = "Mercado Cerrado";
+                    bar.style.width = "0%";
+                }
+            });
+        }
+
+        // --- 2. PROMO PROGRESS ---
+        function updatePromo() {
+            const start = new Date('2024-02-05').getTime();
+            const end = new Date('2026-02-18').getTime(); // Año extendido para demo visual
+            const now = new Date().getTime();
+            let pct = ((now - start) / (end - start)) * 100;
+            if(pct < 0) pct = 0; if(pct > 100) pct = 100;
+            document.getElementById('promo-progress').style.width = `${pct}%`;
+        }
+
+        // Init
+        renderSessions();
+        setInterval(updateSessionLogic, 1000);
+        updateSessionLogic();
+        updatePromo();
+
     </script>
 </body>
 </html>
