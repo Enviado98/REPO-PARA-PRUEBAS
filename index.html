@@ -2,41 +2,44 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SS_MADARAS | Trading & Crypto</title>
     
-    <!-- PWA Settings (Para que parezca app al guardar en inicio) -->
-    <meta name="theme-color" content="#FDFBF7">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-    <title>Roidel's App</title>
-
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&family=Great+Vibes&display=swap" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     
-    <!-- Icons -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Outfit', 'sans-serif'],
-                        script: ['Great Vibes', 'cursive'],
-                    },
                     colors: {
-                        'app-bg': '#F8F9FA',
-                        'app-pink': '#FF8FA3',
-                        'app-dark': '#2D2D2D',
-                        'app-gold': '#D4AF37',
+                        bitunix: '#ccff00', /* Verde Bitunix */
+                        bitunixDark: '#a3cc00',
+                        darkBg: '#0b0e11',
                     },
-                    boxShadow: {
-                        'soft': '0 10px 30px -10px rgba(0,0,0,0.08)',
-                        'float': '0 15px 40px -10px rgba(255, 143, 163, 0.4)',
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Rajdhani', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-green': 'pulseGreen 0.5s ease-in-out',
+                        'pulse-red': 'pulseRed 0.5s ease-in-out',
+                    },
+                    keyframes: {
+                        pulseGreen: {
+                            '0%, 100%': { backgroundColor: 'transparent', color: 'inherit' },
+                            '50%': { backgroundColor: 'rgba(204, 255, 0, 0.2)', color: '#16a34a' },
+                        },
+                        pulseRed: {
+                            '0%, 100%': { backgroundColor: 'transparent', color: 'inherit' },
+                            '50%': { backgroundColor: 'rgba(220, 38, 38, 0.2)', color: '#dc2626' },
+                        }
                     }
                 }
             }
@@ -44,293 +47,308 @@
     </script>
 
     <style>
-        body {
-            background-color: #f0f2f5; /* Fondo escritorio */
-            height: 100vh;
-            overflow: hidden; /* Evita scroll en el body principal */
-            display: flex;
-            justify-content: center;
-        }
-
-        /* Simulación de Pantalla de Móvil */
-        .app-container {
-            width: 100%;
-            max-width: 480px; /* Ancho máximo de móvil */
-            height: 100%;
-            background-color: #FDFBF7;
-            position: relative;
-            overflow-y: auto; /* Scroll interno */
-            overflow-x: hidden;
-            box-shadow: 0 0 50px rgba(0,0,0,0.1);
-        }
-
-        /* Ocultar barra de scroll pero permitir scroll */
-        .app-container::-webkit-scrollbar {
-            width: 0px;
-            background: transparent;
-        }
-
-        /* Glassmorphism Bottom Nav */
-        .bottom-nav {
+        /* Efecto Glassmorphism sutil para tema blanco */
+        .glass-card {
             background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(0,0,0,0.05);
-            padding-bottom: env(safe-area-inset-bottom); /* Para iPhone X+ */
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
         }
-
-        .nav-item.active i {
-            color: #FF8FA3;
-            transform: translateY(-2px);
+        
+        .market-badge {
+            transition: all 0.3s ease;
         }
-        .nav-item.active span {
-            color: #FF8FA3;
-            font-weight: 700;
+        
+        .market-open {
+            border-left: 4px solid #16a34a;
         }
-
-        /* Animaciones de Transición entre "Páginas" */
-        .view-section {
-            display: none;
-            animation: fadeIn 0.3s ease-out;
-        }
-        .view-section.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Scroll Horizontal Invisible */
-        .hide-scroll::-webkit-scrollbar {
-            display: none;
+        
+        .market-closed {
+            border-left: 4px solid #dc2626;
+            opacity: 0.7;
         }
     </style>
 </head>
-<body>
+<body class="bg-gray-50 text-gray-800 antialiased">
 
-    <!-- APP CONTAINER (Simula el teléfono) -->
-    <div class="app-container relative">
-        
-        <!-- HEADER (Sticky) -->
-        <header class="sticky top-0 z-40 bg-[#FDFBF7]/90 backdrop-blur-md px-6 py-4 flex justify-between items-center shadow-sm">
-            <div>
-                <p class="text-xs text-gray-400 font-bold uppercase tracking-widest lang" data-es="BIENVENIDO" data-en="WELCOME">BIENVENIDO</p>
-                <h1 class="font-script text-2xl text-app-dark">Roidel's Cake</h1>
-            </div>
-            <div class="flex items-center gap-3">
-                <button onclick="toggleLang()" class="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-xs font-bold text-gray-500 shadow-sm">ES</button>
-                <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-app-pink p-0.5">
-                    <img src="https://raw.githubusercontent.com/Enviado98/Roidel-s-cake/main/pastel.jpg" class="w-full h-full object-cover rounded-full">
+    <!-- NAVBAR -->
+    <nav class="fixed w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo Brand -->
+                <div class="flex items-center gap-3">
+                    <img src="https://raw.githubusercontent.com/69yoslin-dot/madaras/main/logoprofile.png" alt="Madara Profile" class="h-10 w-10 rounded-full border-2 border-bitunix object-cover">
+                    <span class="font-display font-bold text-2xl tracking-wider text-black">SS_<span class="text-black">MADARAS</span></span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#mercados" class="text-gray-600 hover:text-black font-medium transition">Mercados</a>
+                    <a href="#precios" class="text-gray-600 hover:text-black font-medium transition">Precios en Vivo</a>
+                    <a href="https://bitunix.com/activity/exclusive/SSMadara0205?vipcode=Xn8W" target="_blank" class="bg-black text-white px-5 py-2 rounded-full font-bold hover:bg-bitunix hover:text-black transition-all transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-gift mr-2"></i> Reclamar Bono
+                    </a>
                 </div>
             </div>
-        </header>
+        </div>
+    </nav>
 
-        <!-- VIEW: HOME -->
-        <main id="view-home" class="view-section active pb-28 px-6 pt-4">
+    <!-- HERO SECTION (PROMO) -->
+    <section class="pt-32 pb-20 px-4 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             
-            <!-- Hero Card -->
-            <div class="relative w-full h-80 rounded-[2rem] overflow-hidden shadow-float mb-8 group">
-                <img src="https://raw.githubusercontent.com/Enviado98/Roidel-s-cake/main/pastel7.jpg" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-6 text-white">
-                    <span class="bg-app-gold text-white text-[10px] font-bold px-2 py-1 rounded-md w-fit mb-2 uppercase">Premium</span>
-                    <h2 class="text-3xl font-bold leading-tight mb-1 lang" data-es="Pasteles de Ensueño" data-en="Dream Cakes">Pasteles de Ensueño</h2>
-                    <p class="text-sm opacity-90 mb-4 lang" data-es="Diseños personalizados para ti." data-en="Custom designs for you.">Diseños personalizados para ti.</p>
-                    <a href="https://wa.me/13059673668" class="bg-white text-app-dark py-3 rounded-xl text-center font-bold text-sm hover:bg-app-pink hover:text-white transition-colors">
-                        <span class="lang" data-es="Pedir Ahora" data-en="Order Now">Pedir Ahora</span>
+            <!-- Texto Hero -->
+            <div class="order-2 lg:order-1 space-y-6">
+                <div class="inline-flex items-center gap-2 bg-bitunix/20 border border-bitunix text-black px-4 py-1 rounded-full text-sm font-bold uppercase tracking-widest">
+                    <span class="w-2 h-2 rounded-full bg-black animate-pulse"></span> Promo Exclusiva
+                </div>
+                
+                <h1 class="font-display text-5xl md:text-7xl font-bold leading-tight text-black">
+                    Opera con <br>
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-black to-gray-600">SS_MADARAS</span>
+                </h1>
+                
+                <p class="text-lg text-gray-600 max-w-lg leading-relaxed">
+                    Únete a la comunidad de trading más potente. Aprovecha las condiciones exclusivas de Bitunix y potencia tu capital hoy mismo.
+                </p>
+
+                <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-xl relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-bitunix w-24 h-24 blur-[60px] opacity-50 rounded-full"></div>
+                    <h3 class="text-2xl font-bold mb-2">🎁 Bono de Depósito 20%</h3>
+                    <ul class="space-y-2 mb-6 text-gray-600">
+                        <li><i class="fas fa-check text-green-600 mr-2"></i> Deposita 100 USDT → Recibe 20 USDT</li>
+                        <li><i class="fas fa-check text-green-600 mr-2"></i> Deposita 1,000 USDT → Recibe 100 USDT</li>
+                        <li><i class="fas fa-check text-green-600 mr-2"></i> Válido del 5 al 18 de Febrero</li>
+                    </ul>
+                    <a href="https://bitunix.com/activity/exclusive/SSMadara0205?vipcode=Xn8W" target="_blank" class="block w-full text-center bg-bitunix text-black font-bold text-lg py-4 rounded-xl hover:shadow-[0_0_20px_rgba(204,255,0,0.6)] transition-all transform hover:-translate-y-1">
+                        REGISTRARSE AHORA <i class="fas fa-arrow-right ml-2"></i>
                     </a>
                 </div>
             </div>
 
-            <!-- Categories (Horizontal Scroll) -->
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-lg text-app-dark lang" data-es="Categorías" data-en="Categories">Categorías</h3>
-                <span class="text-app-pink text-sm font-bold lang" data-es="Ver todo" data-en="See all">Ver todo</span>
+            <!-- Imagen Hero -->
+            <div class="order-1 lg:order-2 flex justify-center relative">
+                <!-- Blob de fondo -->
+                <div class="absolute inset-0 bg-gradient-to-tr from-gray-200 to-white rounded-full blur-3xl opacity-50 z-0"></div>
+                <img src="https://raw.githubusercontent.com/69yoslin-dot/madaras/main/promo.jpg" alt="Bitunix Promo" class="relative z-10 rounded-2xl shadow-2xl border-4 border-white transform rotate-2 hover:rotate-0 transition-transform duration-500 max-w-full md:max-w-md">
             </div>
-            
-            <div class="flex gap-4 overflow-x-auto hide-scroll mb-8 pb-2">
-                <!-- Cat 1 -->
-                <div class="flex flex-col items-center gap-2 min-w-[80px]">
-                    <div class="w-16 h-16 rounded-2xl bg-white shadow-soft flex items-center justify-center text-2xl border border-gray-100">🎂</div>
-                    <span class="text-xs font-medium text-gray-500">Cakes</span>
-                </div>
-                <!-- Cat 2 -->
-                <div class="flex flex-col items-center gap-2 min-w-[80px]">
-                    <div class="w-16 h-16 rounded-2xl bg-white shadow-soft flex items-center justify-center text-2xl border border-gray-100">🍪</div>
-                    <span class="text-xs font-medium text-gray-500">Cookies</span>
-                </div>
-                <!-- Cat 3 -->
-                <div class="flex flex-col items-center gap-2 min-w-[80px]">
-                    <div class="w-16 h-16 rounded-2xl bg-white shadow-soft flex items-center justify-center text-2xl border border-gray-100">🧁</div>
-                    <span class="text-xs font-medium text-gray-500">Cupcakes</span>
-                </div>
-                <!-- Cat 4 -->
-                <div class="flex flex-col items-center gap-2 min-w-[80px]">
-                    <div class="w-16 h-16 rounded-2xl bg-white shadow-soft flex items-center justify-center text-2xl border border-gray-100">🍫</div>
-                    <span class="text-xs font-medium text-gray-500">Choco</span>
-                </div>
-            </div>
+        </div>
+    </section>
 
-            <!-- Popular Items (Vertical) -->
-            <h3 class="font-bold text-lg text-app-dark mb-4 lang" data-es="Populares" data-en="Popular">Populares</h3>
-            <div class="space-y-4">
-                
-                <!-- Item 1 -->
-                <div class="bg-white p-3 rounded-2xl shadow-soft flex gap-4 items-center">
-                    <img src="https://raw.githubusercontent.com/Enviado98/Roidel-s-cake/main/pastel4.jpg" class="w-20 h-20 rounded-xl object-cover">
-                    <div class="flex-1">
-                        <h4 class="font-bold text-app-dark">Chocoflan</h4>
-                        <p class="text-xs text-gray-400 mb-2">Imposible Cake</p>
-                        <div class="flex justify-between items-center">
-                            <span class="text-app-pink font-bold">$ --</span>
-                            <button class="w-8 h-8 rounded-full bg-app-dark text-white flex items-center justify-center"><i class="ph-bold ph-plus"></i></button>
+    <!-- LIVE TICKER (Precios) -->
+    <section id="precios" class="py-10 bg-white border-y border-gray-100">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-center font-display text-3xl font-bold mb-8 uppercase tracking-widest text-gray-400">Mercado en Vivo</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Bitcoin Card -->
+                <div id="btc-card" class="glass-card p-6 rounded-2xl flex items-center justify-between transition-colors duration-300">
+                    <div class="flex items-center gap-4">
+                        <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" class="w-12 h-12" alt="BTC">
+                        <div>
+                            <h3 class="font-bold text-xl text-gray-800">Bitcoin <span class="text-xs text-gray-400 font-normal">/ USDT</span></h3>
+                            <p class="text-xs text-gray-500">Actualización: 2s</p>
                         </div>
                     </div>
+                    <div class="text-right">
+                        <p id="btc-price" class="font-display text-4xl font-bold text-black tracking-tight">Loading...</p>
+                        <p id="btc-change" class="text-sm font-bold">--%</p>
+                    </div>
                 </div>
 
-                <!-- Item 2 -->
-                <div class="bg-white p-3 rounded-2xl shadow-soft flex gap-4 items-center">
-                    <img src="https://raw.githubusercontent.com/Enviado98/Roidel-s-cake/main/pastel6.jpg" class="w-20 h-20 rounded-xl object-cover">
-                    <div class="flex-1">
-                        <h4 class="font-bold text-app-dark">Macarons Box</h4>
-                        <p class="text-xs text-gray-400 mb-2">French Style</p>
-                        <div class="flex justify-between items-center">
-                            <span class="text-app-pink font-bold">$ --</span>
-                            <button class="w-8 h-8 rounded-full bg-app-dark text-white flex items-center justify-center"><i class="ph-bold ph-plus"></i></button>
+                <!-- Gold Card (PAXG como referencia) -->
+                <div id="gold-card" class="glass-card p-6 rounded-2xl flex items-center justify-between transition-colors duration-300">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600">
+                            <i class="fas fa-coins text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-xl text-gray-800">Oro (XAU) <span class="text-xs text-gray-400 font-normal">/ USD</span></h3>
+                            <p class="text-xs text-gray-500">Spot Market</p>
                         </div>
                     </div>
-                </div>
-
-            </div>
-        </main>
-
-        <!-- VIEW: GALLERY -->
-        <main id="view-gallery" class="view-section pb-28 px-4 pt-4">
-            <h2 class="text-2xl font-bold text-app-dark mb-6 px-2 lang" data-es="Galería" data-en="Gallery">Galería</h2>
-            <div class="columns-2 gap-4 space-y-4">
-                <img src="https://raw.githubusercontent.com/Enviado98/Roidel-s-cake/main/pastel1.jpg" class="w-full rounded-2xl shadow-md">
-                <img src="https://raw.githubusercontent.com/Enviado98/Roidel-s-cake/main/pastel2.jpg" class="w-full rounded-2xl shadow-md">
-                <img src="https://raw.githubusercontent.com/Enviado98/Roidel-s-cake/main/pastel3.jpg" class="w-full rounded-2xl shadow-md">
-                <img src="https://raw.githubusercontent.com/Enviado98/Roidel-s-cake/main/pastel5.jpg" class="w-full rounded-2xl shadow-md">
-                <img src="https://raw.githubusercontent.com/Enviado98/Roidel-s-cake/main/pastel.jpg" class="w-full rounded-2xl shadow-md">
-            </div>
-        </main>
-
-        <!-- VIEW: LOCATION -->
-        <main id="view-location" class="view-section pb-28 px-6 pt-4 h-full flex flex-col">
-            <h2 class="text-2xl font-bold text-app-dark mb-6 lang" data-es="Ubicación" data-en="Location">Ubicación</h2>
-            
-            <div class="bg-white p-6 rounded-3xl shadow-soft mb-6 text-center">
-                <div class="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
-                    <i class="ph-fill ph-storefront"></i>
-                </div>
-                <h3 class="font-bold text-xl mb-1">Homestead, FL</h3>
-                <p class="text-gray-500 text-sm mb-4">27721 SW 132nd Ct, 33032</p>
-                <a href="https://maps.app.goo.gl/d4fka6dGtoSE8CpS9" target="_blank" class="block w-full py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-200">
-                    <span class="lang" data-es="Cómo Llegar" data-en="Get Directions">Cómo Llegar</span>
-                </a>
-            </div>
-
-            <div class="bg-white p-6 rounded-3xl shadow-soft">
-                <div class="flex justify-between items-center mb-4">
-                    <h4 class="font-bold text-app-dark lang" data-es="Horarios" data-en="Hours">Horarios</h4>
-                    <!-- Estado -->
-                    <span id="status-badge" class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold uppercase">Abierto</span>
-                </div>
-                <div class="space-y-3 text-sm text-gray-500">
-                    <div class="flex justify-between">
-                        <span class="lang" data-es="Lunes - Domingo" data-en="Mon - Sun">Lunes - Domingo</span>
-                        <span class="font-bold text-app-dark">08:00 - 20:00</span>
+                    <div class="text-right">
+                        <p id="gold-price" class="font-display text-4xl font-bold text-black tracking-tight">Loading...</p>
+                        <p id="gold-change" class="text-sm font-bold">--%</p>
                     </div>
                 </div>
             </div>
-        </main>
+        </div>
+    </section>
 
-        <!-- BOTTOM NAVIGATION (Fixed) -->
-        <nav class="bottom-nav fixed bottom-0 w-full max-w-[480px] z-50 flex justify-around items-center py-3">
+    <!-- MARKET SESSIONS -->
+    <section id="mercados" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="font-display text-4xl font-bold mb-10 text-center">Sesiones de Mercado</h2>
             
-            <button onclick="switchTab('home')" class="nav-item active flex flex-col items-center gap-1 text-gray-400 w-16" id="btn-home">
-                <i class="ph-fill ph-house text-2xl transition-all"></i>
-                <span class="text-[10px] font-medium transition-all lang" data-es="Inicio" data-en="Home">Inicio</span>
-            </button>
-
-            <button onclick="switchTab('gallery')" class="nav-item flex flex-col items-center gap-1 text-gray-400 w-16" id="btn-gallery">
-                <i class="ph-fill ph-image text-2xl transition-all"></i>
-                <span class="text-[10px] font-medium transition-all lang" data-es="Galería" data-en="Gallery">Galería</span>
-            </button>
-
-            <!-- Botón Central Flotante -->
-            <div class="relative -top-6">
-                <a href="https://wa.me/13059673668" target="_blank" class="w-14 h-14 bg-app-pink rounded-full flex items-center justify-center text-white shadow-float transform transition hover:scale-110">
-                    <i class="ph-bold ph-whatsapp-logo text-3xl"></i>
-                </a>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="sessions-container">
+                <!-- Las sesiones se generan con JS -->
             </div>
+            
+            <div class="mt-8 text-center text-sm text-gray-500">
+                <i class="fas fa-info-circle mr-1"></i> Horarios basados en UTC. Fines de semana el mercado Forex está cerrado. Crypto opera 24/7.
+            </div>
+        </div>
+    </section>
 
-            <button onclick="switchTab('location')" class="nav-item flex flex-col items-center gap-1 text-gray-400 w-16" id="btn-location">
-                <i class="ph-fill ph-map-pin text-2xl transition-all"></i>
-                <span class="text-[10px] font-medium transition-all lang" data-es="Mapa" data-en="Map">Mapa</span>
-            </button>
+    <!-- FOOTER -->
+    <footer class="bg-black text-white py-12 border-t-4 border-bitunix">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-3">
+                <img src="https://raw.githubusercontent.com/69yoslin-dot/madaras/main/logoprofile.png" alt="Logo" class="w-12 h-12 rounded-full border border-gray-700">
+                <div>
+                    <h4 class="font-display font-bold text-xl">SS_MADARAS</h4>
+                    <p class="text-gray-500 text-xs">Official Bitunix Partner</p>
+                </div>
+            </div>
+            
+            <div class="text-center md:text-right">
+                <p class="text-gray-400 text-sm mb-2">Operar con criptomonedas conlleva riesgos. Investiga antes de invertir.</p>
+                <a href="https://bitunix.com/activity/exclusive/SSMadara0205?vipcode=Xn8W" class="text-bitunix hover:underline text-sm font-bold">Crear Cuenta en Bitunix</a>
+            </div>
+        </div>
+    </footer>
 
-            <a href="tel:+13059673668" class="nav-item flex flex-col items-center gap-1 text-gray-400 w-16">
-                <i class="ph-fill ph-phone text-2xl transition-all"></i>
-                <span class="text-[10px] font-medium transition-all lang" data-es="Llamar" data-en="Call">Llamar</span>
-            </a>
-
-        </nav>
-
-    </div>
-
-    <!-- LOGIC -->
+    <!-- JAVASCRIPT LOGIC -->
     <script>
-        // 1. Tab Switching Logic
-        function switchTab(tabName) {
-            // Ocultar todas las secciones
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            // Mostrar la seleccionada
-            document.getElementById(`view-${tabName}`).classList.add('active');
+        /* ----------------------------------------------------
+           1. MARKET SESSIONS LOGIC
+           ---------------------------------------------------- */
+        const sessions = [
+            { name: "New York (USA)", start: 13, end: 21, icon: "fa-flag-usa" }, // UTC aprox
+            { name: "Londres (UK)", start: 8, end: 16, icon: "fa-sterling-sign" },
+            { name: "Tokio (Asia)", start: 0, end: 9, icon: "fa-yen-sign" },
+            { name: "Sídney (Aus)", start: 22, end: 7, icon: "fa-globe-asia" }
+        ];
 
-            // Actualizar botones del nav
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            const btn = document.getElementById(`btn-${tabName}`);
-            if(btn) btn.classList.add('active');
-
-            // Scroll al top
-            document.querySelector('.app-container').scrollTo(0,0);
-        }
-
-        // 2. Language Toggle
-        let currentLang = 'es';
-        function toggleLang() {
-            currentLang = currentLang === 'es' ? 'en' : 'es';
-            const btn = document.querySelector('header button');
-            btn.innerText = currentLang.toUpperCase();
-
-            document.querySelectorAll('.lang').forEach(el => {
-                el.innerText = el.getAttribute(`data-${currentLang}`);
-            });
-            checkStatus(); // Update status text language
-        }
-
-        // 3. Status Logic (08:00 - 20:00 Daily)
-        function checkStatus() {
-            const now = new Date();
-            const hour = now.getHours();
-            const isOpen = hour >= 8 && hour < 20;
+        function updateSessions() {
+            const container = document.getElementById('sessions-container');
+            container.innerHTML = '';
             
-            const badge = document.getElementById('status-badge');
-            if(badge) {
-                if(isOpen) {
-                    badge.className = "bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold uppercase";
-                    badge.innerText = currentLang === 'es' ? "ABIERTO" : "OPEN";
+            const now = new Date();
+            const utcHour = now.getUTCHours();
+            const utcMin = now.getUTCMinutes();
+            const isWeekend = now.getUTCDay() === 0 || now.getUTCDay() === 6;
+
+            sessions.forEach(session => {
+                let isOpen = false;
+                let statusText = "CERRADO";
+                let timeText = "";
+                let colorClass = "market-closed bg-white";
+                let textClass = "text-gray-400";
+
+                // Lógica simple de horas (cruce de medianoche manejado)
+                if (!isWeekend) {
+                    if (session.start < session.end) {
+                        if (utcHour >= session.start && utcHour < session.end) isOpen = true;
+                    } else {
+                        // Cruza medianoche (ej: Sydney 22:00 - 07:00)
+                        if (utcHour >= session.start || utcHour < session.end) isOpen = true;
+                    }
+                }
+
+                // Calcular tiempo para apertura/cierre
+                let nextEventHour = isOpen ? session.end : session.start;
+                let diffHours = nextEventHour - utcHour;
+                if (diffHours < 0) diffHours += 24;
+                let diffMins = 60 - utcMin;
+                if (diffMins === 60) { diffMins = 0; } else { diffHours--; }
+                
+                if(diffHours < 0) diffHours += 24;
+
+                if (isOpen) {
+                    statusText = "ABIERTO";
+                    colorClass = "market-open bg-white shadow-lg";
+                    textClass = "text-green-600";
+                    timeText = `Cierra en ${diffHours}h ${diffMins}m`;
                 } else {
-                    badge.className = "bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold uppercase";
-                    badge.innerText = currentLang === 'es' ? "CERRADO" : "CLOSED";
+                    timeText = `Abre en ${diffHours}h ${diffMins}m`;
+                }
+
+                if(isWeekend) {
+                    statusText = "FIN DE SEMANA";
+                    timeText = "Mercado Cerrado";
+                }
+
+                const html = `
+                    <div class="${colorClass} p-6 rounded-xl market-badge border border-gray-100 relative overflow-hidden group">
+                        <div class="absolute right-[-10px] top-[-10px] bg-gray-50 rounded-full p-4 opacity-50 group-hover:scale-110 transition-transform">
+                            <i class="fas ${session.icon} text-4xl text-gray-300"></i>
+                        </div>
+                        <h3 class="font-bold text-lg text-gray-800 mb-1">${session.name}</h3>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="w-2 h-2 rounded-full ${isOpen ? 'bg-green-500 animate-pulse' : 'bg-red-500'}"></span>
+                            <span class="font-display font-bold text-xl ${textClass}">${statusText}</span>
+                        </div>
+                        <p class="text-xs text-gray-500 font-mono"><i class="far fa-clock"></i> ${timeText}</p>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        setInterval(updateSessions, 1000);
+        updateSessions();
+
+        /* ----------------------------------------------------
+           2. LIVE PRICE LOGIC (Binance API)
+           ---------------------------------------------------- */
+        let prevBtcPrice = 0;
+        let prevGoldPrice = 0;
+
+        async function fetchPrices() {
+            try {
+                // Usamos la API pública de Binance para BTC
+                const btcRes = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
+                const btcData = await btcRes.json();
+                const btcPrice = parseFloat(btcData.price);
+
+                // Simulamos Oro usando PAXG (Pax Gold - Crypto pegada al oro)
+                const goldRes = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=PAXGUSDT');
+                const goldData = await goldRes.json();
+                const goldPrice = parseFloat(goldData.price);
+
+                updateCard('btc', btcPrice, prevBtcPrice);
+                updateCard('gold', goldPrice, prevGoldPrice);
+
+                prevBtcPrice = btcPrice;
+                prevGoldPrice = goldPrice;
+
+            } catch (error) {
+                console.error("Error fetching prices:", error);
+            }
+        }
+
+        function updateCard(id, current, previous) {
+            const priceEl = document.getElementById(`${id}-price`);
+            const changeEl = document.getElementById(`${id}-change`);
+            const cardEl = document.getElementById(`${id}-card`);
+
+            // Formatear precio
+            priceEl.innerText = `$${current.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+            // Determinar cambio
+            if (previous !== 0) {
+                if (current > previous) {
+                    // Subida (Verde)
+                    cardEl.classList.remove('animate-pulse-red');
+                    cardEl.classList.add('animate-pulse-green');
+                    changeEl.innerHTML = '<i class="fas fa-caret-up"></i> Subiendo';
+                    changeEl.className = "text-sm font-bold text-green-600";
+                    setTimeout(() => cardEl.classList.remove('animate-pulse-green'), 500);
+                } else if (current < previous) {
+                    // Bajada (Rojo)
+                    cardEl.classList.remove('animate-pulse-green');
+                    cardEl.classList.add('animate-pulse-red');
+                    changeEl.innerHTML = '<i class="fas fa-caret-down"></i> Bajando';
+                    changeEl.className = "text-sm font-bold text-red-600";
+                    setTimeout(() => cardEl.classList.remove('animate-pulse-red'), 500);
                 }
             }
         }
 
-        // Init
-        document.addEventListener('DOMContentLoaded', checkStatus);
+        setInterval(fetchPrices, 2000); // Actualizar cada 2 segundos
+        fetchPrices(); // Primera llamada
+
     </script>
 </body>
 </html>
