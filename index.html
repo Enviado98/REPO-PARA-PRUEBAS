@@ -8,7 +8,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Fonts -->
+    <!-- Google Fonts: Space Grotesk (Moderno) & JetBrains Mono (Datos) -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <!-- Icons -->
@@ -46,29 +46,9 @@
             background-size: 40px 40px;
         }
 
-        /* Price Bubbles Animations */
-        .price-bubble {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .bubble-up {
-            background: rgba(204, 255, 0, 0.1) !important;
-            border-color: #CCFF00 !important;
-            box-shadow: 0 0 20px rgba(204, 255, 0, 0.4);
-            transform: scale(1.02);
-        }
-        
-        .bubble-down {
-            background: rgba(255, 42, 42, 0.1) !important;
-            border-color: #FF2A2A !important;
-            box-shadow: 0 0 20px rgba(255, 42, 42, 0.4);
-            transform: scale(1.02);
-        }
-
-        .text-up { color: #CCFF00; text-shadow: 0 0 10px rgba(204, 255, 0, 0.5); }
-        .text-down { color: #FF2A2A; text-shadow: 0 0 10px rgba(255, 42, 42, 0.5); }
+        /* Price Flash Animations */
+        .flash-up { color: #CCFF00 !important; text-shadow: 0 0 15px rgba(204, 255, 0, 0.5); transition: color 0.1s; }
+        .flash-down { color: #FF2A2A !important; text-shadow: 0 0 15px rgba(255, 42, 42, 0.5); transition: color 0.1s; }
         
         /* Table Styles */
         .pro-table th { 
@@ -95,45 +75,31 @@
 <body class="antialiased grid-bg min-h-screen pb-20">
 
     <!-- TICKER HEADER (Sticky) -->
-    <header class="sticky top-0 z-50 bg-dark-bg/80 backdrop-blur-md border-b border-border-dim h-20">
-        <div class="max-w-7xl mx-auto px-4 h-full flex justify-between items-center">
+    <header class="sticky top-0 z-50 bg-dark-bg/80 backdrop-blur-md border-b border-border-dim h-16">
+        <div class="max-w-6xl mx-auto px-4 h-full flex justify-between items-center">
             <!-- Brand -->
             <div class="flex items-center gap-3">
                 <div class="relative">
                     <div class="absolute inset-0 bg-brand rounded-full blur-[10px] opacity-20"></div>
-                    <img src="https://raw.githubusercontent.com/69yoslin-dot/madaras/main/logoprofile.png" class="relative w-10 h-10 rounded-full border border-gray-700 object-cover">
+                    <img src="https://raw.githubusercontent.com/69yoslin-dot/madaras/main/logoprofile.png" class="relative w-9 h-9 rounded-full border border-gray-700 object-cover">
                 </div>
-                <div class="leading-none hidden md:block">
+                <div class="leading-none hidden sm:block">
                     <h1 class="font-bold text-lg tracking-tight">SS_MADARAS</h1>
                     <span class="text-[10px] text-brand uppercase font-bold tracking-widest">VIP TRADING</span>
                 </div>
             </div>
 
-            <!-- Live Prices Bubbles -->
-            <div class="flex items-center gap-3 md:gap-6 font-mono text-sm">
-                
-                <!-- BTC BUBBLE -->
-                <div id="btc-bubble" class="price-bubble px-4 py-2 rounded-full flex items-center gap-3 min-w-[140px] justify-between">
-                    <div class="flex items-center gap-2">
-                        <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" class="w-5 h-5">
-                        <span class="text-gray-400 font-bold hidden sm:block">BTC</span>
-                    </div>
-                    <div class="text-right">
-                        <span id="btc-price" class="font-bold text-white transition-colors duration-300 block leading-none">Cargando...</span>
-                    </div>
+            <!-- Live Prices (WebSocket) -->
+            <div class="flex items-center gap-6 font-mono text-sm">
+                <div class="flex items-center gap-2">
+                    <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" class="w-5 h-5">
+                    <span id="btc-price" class="font-bold text-white transition-colors duration-300">Connecting...</span>
                 </div>
-
-                <!-- GOLD BUBBLE -->
-                <div id="gold-bubble" class="price-bubble px-4 py-2 rounded-full flex items-center gap-3 min-w-[140px] justify-between">
-                    <div class="flex items-center gap-2">
-                        <i class="ph-fill ph-coins text-yellow-500 text-xl"></i>
-                        <span class="text-gray-400 font-bold hidden sm:block">GOLD</span>
-                    </div>
-                    <div class="text-right">
-                        <span id="gold-price" class="font-bold text-white transition-colors duration-300 block leading-none">Cargando...</span>
-                    </div>
+                <div class="h-4 w-[1px] bg-gray-800"></div>
+                <div class="flex items-center gap-2">
+                    <span class="text-yellow-500 font-bold">GOLD</span>
+                    <span id="gold-price" class="font-bold text-white transition-colors duration-300">Connecting...</span>
                 </div>
-
             </div>
         </div>
     </header>
@@ -241,7 +207,7 @@
             <div id="modal-bulb" class="w-16 h-16 mx-auto rounded-full mb-4 shadow-[0_0_30px_currentColor] transition-colors duration-500"></div>
             <h3 id="modal-title" class="text-2xl font-bold text-white mb-2">Market</h3>
             <p id="modal-status" class="font-mono text-sm tracking-wider mb-6">STATUS</p>
-            <button onclick="closeModal()" class="text-gray-500 text-sm hover:text-white uppercase tracking-widest border border-gray-700 px-4 py-1 rounded hover:border-white transition-all">Cerrar Panel</button>
+            <button onclick="closeModal()" class="text-gray-500 text-xs hover:text-white uppercase tracking-widest">Cerrar</button>
         </div>
     </div>
 
@@ -250,7 +216,7 @@
         // --- 1. SESIONES DE MERCADO CON BARRAS ---
         // Definición de Horarios UTC (Forex Standard approx)
         const sessions = {
-            'ny': { name: 'New York', start: 13, end: 22 }, 
+            'ny': { name: 'New York', start: 13, end: 22 }, // 8am - 5pm EST approx
             'ldn': { name: 'London', start: 8, end: 17 },
             'tky': { name: 'Tokyo', start: 0, end: 9 },
             'syd': { name: 'Sydney', start: 22, end: 7 }
@@ -258,14 +224,14 @@
 
         function renderSessions() {
             const container = document.getElementById('sessions-container');
-            container.innerHTML = ''; 
+            container.innerHTML = ''; // Limpiar para re-renderizar si es necesario
 
             Object.keys(sessions).forEach(key => {
                 const html = `
                     <div onclick="showModal('${key}')" class="bg-card-bg border border-border-dim rounded-xl p-4 cursor-pointer hover:border-gray-600 transition-colors relative overflow-hidden group h-28 flex flex-col justify-between">
                         <div class="flex justify-between items-start z-10">
                             <span class="font-bold text-sm text-gray-200">${sessions[key].name}</span>
-                            <div id="dot-${key}" class="w-2 h-2 rounded-full transition-colors"></div>
+                            <div id="dot-${key}" class="w-2 h-2 rounded-full"></div>
                         </div>
                         
                         <div class="z-10">
@@ -296,6 +262,7 @@
                 let isOpen = false;
                 let pct = 0;
                 let barColor = '';
+                let statusText = '';
 
                 // Lógica apertura/cierre
                 if (!isWeekend) {
@@ -327,10 +294,13 @@
 
                 } else {
                     // CERRADO: Barra ROJA llenándose hasta la apertura
+                    // Calcular tiempo hasta apertura
                     let diffToOpen = 0;
                     if (totalMins < startM) diffToOpen = startM - totalMins;
                     else diffToOpen = (24*60 - totalMins) + startM;
                     
+                    // Asumimos un "ciclo de espera" de 12 horas visuales para la barra roja (arbitrario para UX) o tiempo real
+                    // Para que se vea bonito, haremos que se llene basado en las ultimas 8 horas antes de abrir
                     let waitWindow = 8 * 60; 
                     let progressWait = Math.max(0, waitWindow - diffToOpen);
                     pct = (progressWait / waitWindow) * 100;
@@ -368,7 +338,7 @@
             
             title.innerText = sessions[key].name;
             
-            // Check status based on dot color
+            // Check status again simple for modal
             const dot = document.getElementById(`dot-${key}`);
             const isGreen = dot.classList.contains('bg-brand');
             
@@ -390,91 +360,69 @@
             document.querySelector('.modal-content').style.transform = 'scale(0.95)';
         }
 
-        setInterval(updateSessionLogic, 1000);
+        // --- 2. WEBSOCKET PRECIOS REALES (Binance) ---
+        const btcEl = document.getElementById('btc-price');
+        const goldEl = document.getElementById('gold-price');
+        let lastBtcPrice = 0;
+        let lastGoldPrice = 0;
 
-        // --- 2. LIVE PRICES (COINBASE API - REAL DATA) ---
-        let lastPrices = { btc: 0, gold: 0 };
-
-        async function fetchPrices() {
-            try {
-                // Fetch BTC from Coinbase
-                const btcRes = await fetch('https://api.coinbase.com/v2/prices/BTC-USD/spot');
-                const btcJson = await btcRes.json();
-                const btcPrice = parseFloat(btcJson.data.amount);
-
-                // Fetch PAXG (Gold Proxy) from Coinbase
-                const goldRes = await fetch('https://api.coinbase.com/v2/prices/PAXG-USD/spot');
-                const goldJson = await goldRes.json();
-                const goldPrice = parseFloat(goldJson.data.amount);
-
-                updateBubble('btc', btcPrice);
-                updateBubble('gold', goldPrice);
-
-            } catch (error) {
-                console.error("API Error", error);
+        // Conectar a Binance Stream para BTC
+        const wsBtc = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@trade');
+        wsBtc.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            const price = parseFloat(data.p).toFixed(2);
+            btcEl.innerText = `$${price}`;
+            
+            if(price > lastBtcPrice) {
+                btcEl.className = "font-bold text-brand transition-colors duration-100 flash-up";
+            } else if (price < lastBtcPrice) {
+                btcEl.className = "font-bold text-red-500 transition-colors duration-100 flash-down";
             }
-        }
+            setTimeout(() => btcEl.className = "font-bold text-white transition-colors duration-500", 300);
+            lastBtcPrice = price;
+        };
 
-        function updateBubble(id, currentPrice) {
-            const el = document.getElementById(`${id}-price`);
-            const bubble = document.getElementById(`${id}-bubble`);
-            const prev = lastPrices[id];
-
-            // Update Text
-            el.innerText = `$${currentPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-
-            // Flash Logic
-            if (prev !== 0 && currentPrice !== prev) {
-                // Reset classes
-                bubble.classList.remove('bubble-up', 'bubble-down');
-                el.classList.remove('text-up', 'text-down');
-                
-                // Force Reflow
-                void bubble.offsetWidth;
-
-                if (currentPrice > prev) {
-                    bubble.classList.add('bubble-up');
-                    el.classList.add('text-up');
-                } else {
-                    bubble.classList.add('bubble-down');
-                    el.classList.add('text-down');
-                }
-
-                // Remove classes after animation
-                setTimeout(() => {
-                    bubble.classList.remove('bubble-up', 'bubble-down');
-                    el.classList.remove('text-up', 'text-down');
-                }, 800);
+        // Simular Oro con PAXG (Pax Gold) via Binance Stream
+        const wsGold = new WebSocket('wss://stream.binance.com:9443/ws/paxgusdt@trade');
+        wsGold.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            const price = parseFloat(data.p).toFixed(2);
+            goldEl.innerText = `$${price}`;
+            
+            if(price > lastGoldPrice) {
+                goldEl.className = "font-bold text-brand transition-colors duration-100 flash-up";
+            } else if (price < lastGoldPrice) {
+                goldEl.className = "font-bold text-red-500 transition-colors duration-100 flash-down";
             }
-            lastPrices[id] = currentPrice;
-        }
-
-        setInterval(fetchPrices, 3000); // 3 seconds refresh
+            setTimeout(() => goldEl.className = "font-bold text-white transition-colors duration-500", 300);
+            lastGoldPrice = price;
+        };
 
         // --- 3. BARRA PROGRESO PROMO ---
         function updatePromoProgress() {
-            // Fechas fijas según tu imagen
             const start = new Date('2024-02-05T00:00:00').getTime();
-            const end = new Date('2024-02-18T23:59:59').getTime();
+            const end = new Date('2024-02-18T23:59:59').getTime(); // Asumiendo año actual o próximo
             const now = new Date().getTime();
             
-            // Calculo de porcentaje
+            // Fix year dynamically if passed
+            const currentYear = new Date().getFullYear();
+            // Just for demo visual:
+            
             let total = end - start;
             let current = now - start;
             let pct = (current / total) * 100;
             
-            // Clampear valores
             if (pct < 0) pct = 0;
             if (pct > 100) pct = 100;
             
             document.getElementById('promo-progress').style.width = `${pct}%`;
         }
 
-        // Init Calls
+        // Init
         renderSessions();
+        setInterval(updateSessionLogic, 1000);
         updateSessionLogic();
         updatePromoProgress();
-        fetchPrices();
 
     </script>
 </body>
