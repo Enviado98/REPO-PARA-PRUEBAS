@@ -3,46 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SS_MADARAS | Crypto Trading Hub</title>
+    <title>SS_MADARAS | Pro Trading Dashboard</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
                         sans: ['Space Grotesk', 'sans-serif'],
-                        mono: ['Rajdhani', 'monospace'],
+                        mono: ['JetBrains Mono', 'monospace'],
                     },
                     colors: {
-                        'neon-green': '#CCFF00', /* Bitunix Green */
-                        'neon-hover': '#B3E600',
-                        'dark-card': '#0E1217',
-                        'dark-bg': '#000000',
+                        bitunix: '#CCFF00',
+                        dark: '#0A0A0A',
+                        card: '#FFFFFF',
+                        subtle: '#F4F4F5',
                     },
-                    animation: {
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'float': 'float 6s ease-in-out infinite',
-                        'glow': 'glow 2s ease-in-out infinite alternate',
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-10px)' },
-                        },
-                        glow: {
-                            'from': { boxShadow: '0 0 10px -10px #CCFF00' },
-                            'to': { boxShadow: '0 0 20px 5px rgba(204, 255, 0, 0.2)' }
-                        }
+                    boxShadow: {
+                        'glow': '0 0 15px rgba(204, 255, 0, 0.4)',
+                        'clean': '0 4px 20px -5px rgba(0,0,0,0.05)',
                     }
                 }
             }
@@ -50,361 +33,361 @@
     </script>
 
     <style>
-        body {
-            background-color: #F8F9FA;
-            background-image: 
-                linear-gradient(rgba(204, 255, 0, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(204, 255, 0, 0.03) 1px, transparent 1px);
-            background-size: 30px 30px;
-        }
+        body { background-color: #FAFAFA; }
+        
+        /* Modal Transitions */
+        .modal { opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .modal.active { opacity: 1; visibility: visible; }
+        .modal-content { transform: scale(0.95); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .modal.active .modal-content { transform: scale(1); }
 
-        /* Promo Section Styles (Dark Theme Recreated) */
-        .promo-container {
-            background: radial-gradient(circle at top right, #1a2e05, #000000);
-            border: 1px solid rgba(204, 255, 0, 0.2);
-        }
+        /* Progress Bar Animation */
+        .progress-fill { transition: width 1s linear; }
 
-        .promo-table-row {
-            transition: all 0.3s ease;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        .promo-table-row:hover {
-            background: rgba(204, 255, 0, 0.05);
-        }
-        .promo-table-row:last-child {
-            border-bottom: none;
-        }
-
-        /* Market Cards */
-        .market-card {
-            background: white;
-            border: 1px solid #E5E7EB;
-            transition: all 0.3s ease;
-        }
-        .market-card.active {
-            border-color: #CCFF00;
-            box-shadow: 0 10px 30px -10px rgba(204, 255, 0, 0.3);
-        }
-
-        /* Ticker Animation */
-        .price-up { color: #10B981; animation: flashGreen 1s; }
-        .price-down { color: #EF4444; animation: flashRed 1s; }
-
-        @keyframes flashGreen { 0% { background-color: rgba(16, 185, 129, 0.2); } 100% { background-color: transparent; } }
-        @keyframes flashRed { 0% { background-color: rgba(239, 68, 68, 0.2); } 100% { background-color: transparent; } }
+        /* Price Flash */
+        .flash-up { color: #16a34a; text-shadow: 0 0 10px rgba(22, 163, 74, 0.2); }
+        .flash-down { color: #dc2626; text-shadow: 0 0 10px rgba(220, 38, 38, 0.2); }
     </style>
 </head>
-<body class="text-gray-800 antialiased">
+<body class="text-dark antialiased pb-20">
 
-    <!-- NAVBAR -->
-    <nav class="fixed w-full z-50 top-0 bg-white/90 backdrop-blur-xl border-b border-gray-100 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 flex justify-between items-center h-20">
-            <!-- Brand -->
-            <div class="flex items-center gap-3">
-                <div class="relative">
-                    <div class="absolute inset-0 bg-neon-green rounded-full blur opacity-50 animate-pulse"></div>
-                    <img src="https://raw.githubusercontent.com/69yoslin-dot/madaras/main/logoprofile.png" class="relative w-12 h-12 rounded-full border-2 border-black object-cover shadow-lg" alt="Logo">
-                </div>
-                <div>
-                    <h1 class="font-mono text-2xl font-bold leading-none tracking-tighter">SS_MADARAS</h1>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Official Partner</span>
-                </div>
+    <!-- HEADER & TICKER -->
+    <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <img src="https://raw.githubusercontent.com/69yoslin-dot/madaras/main/logoprofile.png" class="w-8 h-8 rounded-full border border-dark">
+                <span class="font-bold tracking-tight">SS_MADARAS</span>
             </div>
-
-            <!-- CTA -->
-            <a href="https://bitunix.com/activity/exclusive/SSMadara0205?vipcode=Xn8W" target="_blank" class="bg-black text-neon-green px-6 py-2.5 rounded-full font-bold hover:bg-neon-green hover:text-black transition-all transform hover:scale-105 shadow-lg flex items-center gap-2">
-                <i class="ph-bold ph-gift"></i>
-                <span class="hidden sm:inline">Reclamar Bono</span>
-            </a>
-        </div>
-    </nav>
-
-    <!-- 1. MARKET SESSIONS (HUD) -->
-    <section class="pt-28 pb-10 px-4">
-        <div class="max-w-7xl mx-auto">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold font-mono uppercase tracking-tight flex items-center gap-2">
-                    <i class="ph-duotone ph-globe-stand text-neon-hover"></i> Sesiones de Mercado
-                </h2>
-                <span class="text-xs font-mono bg-gray-200 px-2 py-1 rounded text-gray-600 animate-pulse">LIVE UTC</span>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="sessions-container">
-                <!-- Se llenan con JS -->
-            </div>
-        </div>
-    </section>
-
-    <!-- 2. LIVE PRICES (TICKER) -->
-    <section class="py-6 border-y border-gray-200 bg-white relative overflow-hidden">
-        <!-- Background Decor -->
-        <div class="absolute top-0 right-0 w-64 h-full bg-gradient-to-l from-white to-transparent z-10"></div>
-        <div class="absolute top-0 left-0 w-64 h-full bg-gradient-to-r from-white to-transparent z-10"></div>
-
-        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row gap-8 justify-center items-center relative z-20">
             
-            <!-- BTC Card -->
-            <div class="flex items-center gap-4 min-w-[280px] p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow cursor-pointer group bg-white" id="btc-container">
-                <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" class="w-12 h-12 group-hover:rotate-12 transition-transform">
-                <div class="flex-1">
-                    <div class="flex justify-between items-baseline">
-                        <h3 class="font-bold text-gray-900">BTC/USDT</h3>
-                        <span id="btc-percent" class="text-xs font-bold bg-gray-100 px-1.5 py-0.5 rounded">0.00%</span>
-                    </div>
-                    <p id="btc-price" class="font-mono text-3xl font-bold text-gray-900 mt-1 transition-colors">Loading...</p>
+            <!-- Compact Ticker -->
+            <div class="flex gap-4 font-mono text-sm">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-gray-400 font-bold">BTC</span>
+                    <span id="btc-price" class="font-bold transition-colors">$0.00</span>
+                </div>
+                <div class="flex items-center gap-1.5 border-l border-gray-200 pl-4">
+                    <span class="text-gray-400 font-bold">GOLD</span>
+                    <span id="gold-price" class="font-bold transition-colors">$0.00</span>
                 </div>
             </div>
-
-            <!-- Gold Card -->
-            <div class="flex items-center gap-4 min-w-[280px] p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow cursor-pointer group bg-white" id="gold-container">
-                <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600 group-hover:scale-110 transition-transform">
-                    <i class="ph-fill ph-gold-bars text-2xl"></i>
-                </div>
-                <div class="flex-1">
-                    <div class="flex justify-between items-baseline">
-                        <h3 class="font-bold text-gray-900">ORO (XAU)</h3>
-                        <span id="gold-percent" class="text-xs font-bold bg-gray-100 px-1.5 py-0.5 rounded">0.00%</span>
-                    </div>
-                    <p id="gold-price" class="font-mono text-3xl font-bold text-gray-900 mt-1 transition-colors">Loading...</p>
-                </div>
-            </div>
-
         </div>
-    </section>
+    </header>
 
-    <!-- 3. PROMO SECTION (RECREADA EN CÓDIGO) -->
-    <section class="py-20 px-4">
-        <div class="max-w-5xl mx-auto promo-container rounded-3xl p-1 shadow-2xl relative overflow-hidden animate-float">
-            <!-- Glow Effect -->
-            <div class="absolute -top-20 -left-20 w-60 h-60 bg-neon-green rounded-full blur-[100px] opacity-20"></div>
-            <div class="absolute -bottom-20 -right-20 w-60 h-60 bg-neon-green rounded-full blur-[100px] opacity-20"></div>
+    <main class="max-w-4xl mx-auto px-4 pt-8 space-y-6">
 
-            <div class="bg-[#0b0e11] rounded-[20px] p-8 md:p-12 relative z-10">
-                
-                <!-- Header Promo -->
-                <div class="text-center mb-12">
-                    <div class="flex justify-center items-center gap-4 mb-4">
-                        <span class="text-white font-bold text-2xl tracking-tighter">Bitunix</span>
-                        <span class="text-gray-500 text-xl">x</span>
-                        <div class="flex items-center gap-2">
-                            <img src="https://raw.githubusercontent.com/69yoslin-dot/madaras/main/logoprofile.png" class="w-8 h-8 rounded-full border border-neon-green">
-                            <span class="text-white font-bold text-xl">SS.Madara</span>
+        <!-- 1. COMPACT SESSIONS GRID -->
+        <section>
+            <div class="flex justify-between items-end mb-3">
+                <h2 class="text-xs font-bold uppercase tracking-widest text-gray-400">Mercados Globales</h2>
+                <span class="text-[10px] bg-dark text-bitunix px-2 py-0.5 rounded font-mono">LIVE</span>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <!-- Session Item Template (JS will populate) -->
+                <div onclick="openSessionModal('ny')" class="bg-white border border-gray-100 p-3 rounded-xl shadow-clean cursor-pointer hover:border-bitunix transition-colors relative overflow-hidden group" id="card-ny">
+                    <div class="flex justify-between items-start">
+                        <span class="font-bold text-sm">New York</span>
+                        <div id="ind-ny" class="w-2.5 h-2.5 rounded-full bg-gray-300"></div>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-1 font-mono">Wall St.</p>
+                    <div class="absolute bottom-0 left-0 h-0.5 bg-gray-100 w-full">
+                        <div id="bar-ny" class="h-full bg-bitunix w-0"></div>
+                    </div>
+                </div>
+
+                <div onclick="openSessionModal('ldn')" class="bg-white border border-gray-100 p-3 rounded-xl shadow-clean cursor-pointer hover:border-bitunix transition-colors relative overflow-hidden" id="card-ldn">
+                    <div class="flex justify-between items-start">
+                        <span class="font-bold text-sm">London</span>
+                        <div id="ind-ldn" class="w-2.5 h-2.5 rounded-full bg-gray-300"></div>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-1 font-mono">The City</p>
+                    <div class="absolute bottom-0 left-0 h-0.5 bg-gray-100 w-full">
+                        <div id="bar-ldn" class="h-full bg-bitunix w-0"></div>
+                    </div>
+                </div>
+
+                <div onclick="openSessionModal('tky')" class="bg-white border border-gray-100 p-3 rounded-xl shadow-clean cursor-pointer hover:border-bitunix transition-colors relative overflow-hidden" id="card-tky">
+                    <div class="flex justify-between items-start">
+                        <span class="font-bold text-sm">Tokyo</span>
+                        <div id="ind-tky" class="w-2.5 h-2.5 rounded-full bg-gray-300"></div>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-1 font-mono">Asian Mkt</p>
+                    <div class="absolute bottom-0 left-0 h-0.5 bg-gray-100 w-full">
+                        <div id="bar-tky" class="h-full bg-bitunix w-0"></div>
+                    </div>
+                </div>
+
+                <div onclick="openSessionModal('syd')" class="bg-white border border-gray-100 p-3 rounded-xl shadow-clean cursor-pointer hover:border-bitunix transition-colors relative overflow-hidden" id="card-syd">
+                    <div class="flex justify-between items-start">
+                        <span class="font-bold text-sm">Sydney</span>
+                        <div id="ind-syd" class="w-2.5 h-2.5 rounded-full bg-gray-300"></div>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-1 font-mono">Pacific</p>
+                    <div class="absolute bottom-0 left-0 h-0.5 bg-gray-100 w-full">
+                        <div id="bar-syd" class="h-full bg-bitunix w-0"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. PROMO CARD (COMPACTA) -->
+        <section class="mt-6">
+            <div class="bg-dark text-white rounded-2xl p-1 shadow-2xl relative overflow-hidden">
+                <!-- Neon Glow Background -->
+                <div class="absolute top-0 right-0 w-32 h-32 bg-bitunix blur-[80px] opacity-20"></div>
+
+                <div class="border border-white/10 rounded-xl p-5 relative z-10 flex flex-col md:flex-row items-center gap-6">
+                    
+                    <!-- Left: Info -->
+                    <div class="flex-1 text-center md:text-left">
+                        <div class="inline-flex items-center gap-2 mb-2">
+                            <i class="ph-fill ph-crown text-bitunix"></i>
+                            <span class="text-xs font-bold text-bitunix uppercase tracking-widest">Bono Exclusivo</span>
+                        </div>
+                        <h3 class="text-2xl font-bold leading-tight mb-2">Deposita y Gana <br>hasta <span class="text-bitunix">+200 USDT</span></h3>
+                        <a href="https://bitunix.com/activity/exclusive/SSMadara0205?vipcode=Xn8W" target="_blank" class="inline-flex items-center gap-2 bg-bitunix text-black text-xs font-bold px-4 py-2 rounded-lg hover:bg-white transition-colors mt-2">
+                            ACTIVAR PROMO <i class="ph-bold ph-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    <!-- Right: Tiered Rewards (Minimal List) -->
+                    <div class="w-full md:w-auto bg-white/5 rounded-lg p-4 backdrop-blur-sm border border-white/5">
+                        <div class="space-y-3 font-mono text-xs">
+                            <div class="flex justify-between items-center gap-8 pb-2 border-b border-white/10">
+                                <span class="text-gray-400">100 USDT</span>
+                                <span class="text-bitunix font-bold">→ 20 USDT</span>
+                            </div>
+                            <div class="flex justify-between items-center gap-8 pb-2 border-b border-white/10">
+                                <span class="text-gray-400">1,000 USDT</span>
+                                <span class="text-bitunix font-bold">→ 100 USDT</span>
+                            </div>
+                            <div class="flex justify-between items-center gap-8">
+                                <span class="text-gray-400">2,000 USDT</span>
+                                <span class="text-bitunix font-bold">→ 200 USDT</span>
+                            </div>
+                        </div>
+                        <p class="text-[9px] text-gray-500 mt-3 text-center">*Mantén tus fondos por el periodo indicado</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL DE DETALLES DE SESIÓN -->
+    <div id="session-modal" class="modal fixed inset-0 z-50 flex items-center justify-center px-4">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeModal()"></div>
+        
+        <div class="modal-content bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden relative z-10">
+            <div class="p-6">
+                <!-- Header Modal -->
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold" id="modal-title">New York</h3>
+                    <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200">
+                        <i class="ph-bold ph-x"></i>
+                    </button>
+                </div>
+
+                <!-- Big Indicator -->
+                <div class="flex flex-col items-center justify-center py-6">
+                    <div class="relative w-24 h-24 flex items-center justify-center mb-4">
+                        <!-- El "Bombillo" -->
+                        <div id="modal-bulb-glow" class="absolute inset-0 rounded-full blur-xl opacity-50"></div>
+                        <div id="modal-bulb" class="w-16 h-16 rounded-full border-4 border-white shadow-lg z-10 relative"></div>
+                        
+                        <!-- Icono Centro -->
+                        <i id="modal-icon" class="ph-fill ph-buildings text-2xl absolute z-20 text-white"></i>
+                    </div>
+                    <h4 id="modal-status-text" class="text-xl font-bold uppercase tracking-widest">ABIERTO</h4>
+                    <p id="modal-timer" class="text-sm text-gray-500 font-mono mt-1">Cierra en 04h 20m</p>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="mt-4">
+                    <div class="flex justify-between text-xs text-gray-400 font-bold mb-1">
+                        <span>APERTURA</span>
+                        <span>CIERRE</span>
+                    </div>
+                    <div class="h-3 bg-gray-100 rounded-full overflow-hidden">
+                        <div id="modal-progress" class="h-full bg-black rounded-full w-0 progress-fill relative overflow-hidden">
+                            <div class="absolute inset-0 bg-white/20 animate-[pulse_2s_infinite]"></div>
                         </div>
                     </div>
-                    <h2 class="text-4xl md:text-5xl font-bold text-white mb-2 leading-tight">
-                        Deposita y obtén un <span class="text-neon-green">20% de bono</span>
-                    </h2>
-                    <div class="inline-block mt-4 border border-white/20 px-4 py-1 rounded-full text-gray-300 text-sm">
-                        <i class="ph-bold ph-gift mr-1"></i> Recompensas por depósito
-                    </div>
                 </div>
-
-                <!-- Tabla Recreada -->
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="text-gray-400 text-sm uppercase tracking-wider border-b border-white/20">
-                                <th class="pb-4 pl-4 font-medium">Deposita</th>
-                                <th class="pb-4 font-medium">Mantén</th>
-                                <th class="pb-4 font-medium text-neon-green">Bono Futures</th>
-                                <th class="pb-4 pr-4 font-medium text-right">Slots</th>
-                            </tr>
-                        </thead>
-                        <tbody class="font-mono text-lg">
-                            <tr class="promo-table-row group">
-                                <td class="py-5 pl-4 text-white font-bold">100 USDT</td>
-                                <td class="py-5 text-gray-400">3 días</td>
-                                <td class="py-5 text-neon-green font-bold text-xl group-hover:scale-110 transition-transform origin-left">20 USDT</td>
-                                <td class="py-5 pr-4 text-white text-right">20</td>
-                            </tr>
-                            <tr class="promo-table-row group">
-                                <td class="py-5 pl-4 text-white font-bold">500 USDT</td>
-                                <td class="py-5 text-gray-400">5 días</td>
-                                <td class="py-5 text-neon-green font-bold text-xl group-hover:scale-110 transition-transform origin-left">+80 USDT</td>
-                                <td class="py-5 pr-4 text-white text-right">20</td>
-                            </tr>
-                            <tr class="promo-table-row group">
-                                <td class="py-5 pl-4 text-white font-bold">1,000 USDT</td>
-                                <td class="py-5 text-gray-400">7 días</td>
-                                <td class="py-5 text-neon-green font-bold text-xl group-hover:scale-110 transition-transform origin-left">+100 USDT</td>
-                                <td class="py-5 pr-4 text-white text-right">20</td>
-                            </tr>
-                            <tr class="promo-table-row group">
-                                <td class="py-5 pl-4 text-white font-bold">2,000 USDT</td>
-                                <td class="py-5 text-gray-400">9 días</td>
-                                <td class="py-5 text-neon-green font-bold text-xl group-hover:scale-110 transition-transform origin-left">+200 USDT</td>
-                                <td class="py-5 pr-4 text-white text-right">20</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="mt-8 text-center">
-                    <p class="text-gray-500 text-sm mb-6 max-w-2xl mx-auto">
-                        *El bono por depósito solo está disponible para los primeros 10 usuarios que se registren durante la campaña.
-                    </p>
-                    <a href="https://bitunix.com/activity/exclusive/SSMadara0205?vipcode=Xn8W" target="_blank" class="inline-flex items-center gap-2 bg-neon-green text-black font-bold px-8 py-4 rounded-xl text-lg hover:bg-white transition-colors shadow-lg hover:shadow-[0_0_30px_rgba(204,255,0,0.4)]">
-                        RECLAMAR PROMO AHORA <i class="ph-bold ph-arrow-right"></i>
-                    </a>
-                    <p class="text-neon-green font-mono text-xs mt-4 uppercase tracking-widest">
-                        Fecha: 5 de Febrero — 18 de Febrero
-                    </p>
-                </div>
-
+            </div>
+            
+            <!-- Footer Modal -->
+            <div class="bg-gray-50 p-4 text-center border-t border-gray-100">
+                <p class="text-xs text-gray-400">Los horarios pueden variar por festivos locales.</p>
             </div>
         </div>
-    </section>
+    </div>
 
-    <!-- FOOTER -->
-    <footer class="bg-black text-white py-12 mt-12">
-        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-neon-green flex items-center justify-center text-black font-bold text-xl">M</div>
-                <span class="font-mono font-bold tracking-widest text-lg">SS_MADARAS</span>
-            </div>
-            <p class="text-gray-500 text-sm">Trading conlleva riesgos. Opera responsablemente.</p>
-        </div>
-    </footer>
-
-    <!-- LOGIC SCRIPT -->
     <script>
-        /* --- 1. MARKET SESSIONS (Dynamic & Alive) --- */
-        const sessions = [
-            { name: "New York", start: 13, end: 21, tz: "America/New_York", icon: "ph-statue-of-liberty" }, // Approximate UTC based logic for simplicity
-            { name: "London", start: 8, end: 16, tz: "Europe/London", icon: "ph-big-ben" },
-            { name: "Tokyo", start: 0, end: 9, tz: "Asia/Tokyo", icon: "ph-mount-fuji" },
-            { name: "Sydney", start: 21, end: 6, tz: "Australia/Sydney", icon: "ph-globe-hemisphere-east" }
-        ];
+        // CONFIGURACIÓN DE SESIONES (Horas UTC aprox)
+        const sessionsData = {
+            'ny': { name: 'New York', start: 13, end: 21, icon: 'ph-statue-of-liberty' },
+            'ldn': { name: 'London', start: 8, end: 16, icon: 'ph-big-ben' },
+            'tky': { name: 'Tokyo', start: 0, end: 9, icon: 'ph-mount-fuji' },
+            'syd': { name: 'Sydney', start: 22, end: 7, icon: 'ph-globe-hemisphere-east' } // Cruza medianoche
+        };
+
+        let currentSessionId = null;
 
         function updateSessions() {
-            const container = document.getElementById('sessions-container');
-            container.innerHTML = '';
-            
             const now = new Date();
-            const utcHour = now.getUTCHours();
+            const utcH = now.getUTCHours();
+            const utcM = now.getUTCMinutes();
+            const totalMinutesNow = utcH * 60 + utcM;
             const isWeekend = now.getUTCDay() === 0 || now.getUTCDay() === 6;
 
-            sessions.forEach(s => {
+            Object.keys(sessionsData).forEach(id => {
+                const s = sessionsData[id];
                 let isOpen = false;
+                let progress = 0;
                 
-                // Logic handle crossing midnight
-                if (!isWeekend) {
-                    if (s.start < s.end) {
-                        if (utcHour >= s.start && utcHour < s.end) isOpen = true;
-                    } else {
-                        if (utcHour >= s.start || utcHour < s.end) isOpen = true;
+                // Convertir start/end a minutos
+                let startM = s.start * 60;
+                let endM = s.end * 60;
+                
+                // Lógica de cruce de medianoche (Ej: Sydney 22:00 - 07:00)
+                if (s.start > s.end) {
+                    if (totalMinutesNow >= startM || totalMinutesNow < endM) isOpen = true;
+                    // Calcular progreso complejo para medianoche
+                    if(isOpen) {
+                        let totalDuration = (24 * 60) - startM + endM;
+                        let elapsed = totalMinutesNow >= startM ? (totalMinutesNow - startM) : ((24*60 - startM) + totalMinutesNow);
+                        progress = (elapsed / totalDuration) * 100;
+                    }
+                } else {
+                    // Lógica normal
+                    if (totalMinutesNow >= startM && totalMinutesNow < endM) {
+                        isOpen = true;
+                        let totalDuration = endM - startM;
+                        let elapsed = totalMinutesNow - startM;
+                        progress = (elapsed / totalDuration) * 100;
                     }
                 }
 
-                // Calculate time left (Simplified logic for demo)
-                let statusMsg = isOpen ? "OPEN" : "CLOSED";
-                let statusColor = isOpen ? "text-green-600" : "text-red-500";
-                let badgeColor = isOpen ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500";
-                let borderClass = isOpen ? "border-green-500 ring-1 ring-green-100 active" : "border-gray-200 opacity-80";
-                
-                const card = `
-                    <div class="market-card p-5 rounded-2xl flex flex-col justify-between h-32 relative overflow-hidden group ${borderClass}">
-                        <div class="flex justify-between items-start z-10">
-                            <div class="flex items-center gap-2">
-                                <i class="ph-duotone ${s.icon} text-2xl text-gray-400 group-hover:text-black transition-colors"></i>
-                                <h3 class="font-bold text-gray-800">${s.name}</h3>
-                            </div>
-                            <span class="text-[10px] font-bold px-2 py-1 rounded ${badgeColor}">${statusMsg}</span>
-                        </div>
-                        
-                        <div class="z-10">
-                            <div class="flex items-center gap-2">
-                                <span class="relative flex h-2 w-2">
-                                  ${isOpen ? '<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>' : ''}
-                                  <span class="relative inline-flex rounded-full h-2 w-2 ${isOpen ? 'bg-green-500' : 'bg-red-500'}"></span>
-                                </span>
-                                <span class="font-mono text-sm text-gray-500">
-                                    ${isOpen ? 'Volatilidad Alta' : 'Esperando apertura'}
-                                </span>
-                            </div>
-                        </div>
+                if (isWeekend) { isOpen = false; progress = 0; }
 
-                        <!-- Decor -->
-                        <div class="absolute -right-4 -bottom-4 text-gray-50 opacity-10 transform group-hover:scale-150 transition-transform duration-500">
-                            <i class="ph-fill ${s.icon} text-8xl"></i>
-                        </div>
-                    </div>
-                `;
-                container.innerHTML += card;
+                // Actualizar UI Tarjetas Mini
+                const ind = document.getElementById(`ind-${id}`);
+                const bar = document.getElementById(`bar-${id}`);
+                const card = document.getElementById(`card-${id}`);
+
+                if (isOpen) {
+                    ind.className = "w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e] animate-pulse";
+                    bar.style.width = `${progress}%`;
+                    card.classList.add('border-green-200');
+                } else {
+                    ind.className = "w-2.5 h-2.5 rounded-full bg-red-500 opacity-50";
+                    bar.style.width = "0%";
+                    card.classList.remove('border-green-200');
+                }
+
+                // Actualizar Modal si está abierto
+                if (currentSessionId === id) {
+                    updateModalContent(id, isOpen, progress, s, totalMinutesNow, startM, endM);
+                }
             });
         }
 
-        setInterval(updateSessions, 1000);
-        updateSessions();
+        // CONTROL DEL MODAL
+        function openSessionModal(id) {
+            currentSessionId = id;
+            const modal = document.getElementById('session-modal');
+            modal.classList.add('active');
+            updateSessions(); // Forzar actualización inmediata
+        }
 
-        /* --- 2. LIVE PRICES (CoinCap API - Public & Stable) --- */
-        let lastBtc = 0;
-        let lastGold = 0;
+        function closeModal() {
+            document.getElementById('session-modal').classList.remove('active');
+            currentSessionId = null;
+        }
 
-        async function fetchPrices() {
-            try {
-                // Fetch BTC
-                const btcRes = await fetch('https://api.coincap.io/v2/assets/bitcoin');
-                const btcJson = await btcRes.json();
-                const btcPrice = parseFloat(btcJson.data.priceUsd);
-                const btcChange = parseFloat(btcJson.data.changePercent24Hr);
+        function updateModalContent(id, isOpen, progress, session, nowM, startM, endM) {
+            document.getElementById('modal-title').innerText = session.name;
+            document.getElementById('modal-icon').className = `ph-fill ${session.icon} text-3xl absolute z-20 text-white`;
+            
+            const bulb = document.getElementById('modal-bulb');
+            const glow = document.getElementById('modal-bulb-glow');
+            const statusText = document.getElementById('modal-status-text');
+            const timer = document.getElementById('modal-timer');
+            const pBar = document.getElementById('modal-progress');
 
-                // Fetch PAXG (Gold Proxy)
-                const goldRes = await fetch('https://api.coincap.io/v2/assets/pax-gold');
-                const goldJson = await goldRes.json();
-                const goldPrice = parseFloat(goldJson.data.priceUsd);
-                const goldChange = parseFloat(goldJson.data.changePercent24Hr);
+            pBar.style.width = `${progress}%`;
 
-                updateTicker('btc', btcPrice, btcChange, lastBtc);
-                updateTicker('gold', goldPrice, goldChange, lastGold);
+            if (isOpen) {
+                bulb.className = "w-16 h-16 rounded-full border-4 border-white shadow-lg z-10 relative bg-green-500";
+                glow.className = "absolute inset-0 rounded-full blur-xl opacity-60 bg-green-400 animate-pulse";
+                statusText.innerText = "MERCADO ABIERTO";
+                statusText.className = "text-xl font-bold uppercase tracking-widest text-green-600";
+                
+                // Calcular tiempo restante
+                let endMinTotal = session.start > session.end && nowM >= startM ? endM + (24*60) : endM;
+                if(session.start > session.end && nowM < endM) endMinTotal = endM; // Ya paso medianoche
+                
+                // Fix simple logic holes for demo
+                let diff = 0;
+                if(session.start < session.end) diff = endM - nowM;
+                else diff = (nowM >= startM) ? (24*60 - nowM + endM) : (endM - nowM);
 
-                lastBtc = btcPrice;
-                lastGold = goldPrice;
+                let h = Math.floor(diff / 60);
+                let m = Math.floor(diff % 60);
+                timer.innerText = `Cierra en ${h}h ${m}m`;
+                
+                pBar.className = "h-full bg-green-500 rounded-full w-0 progress-fill relative overflow-hidden";
 
-            } catch (error) {
-                console.log("API throttling, waiting...", error);
+            } else {
+                bulb.className = "w-16 h-16 rounded-full border-4 border-white shadow-lg z-10 relative bg-red-500";
+                glow.className = "absolute inset-0 rounded-full blur-xl opacity-40 bg-red-500";
+                statusText.innerText = "MERCADO CERRADO";
+                statusText.className = "text-xl font-bold uppercase tracking-widest text-red-500";
+                timer.innerText = "Esperando apertura...";
+                pBar.className = "h-full bg-red-500 rounded-full w-0 progress-fill relative overflow-hidden";
             }
         }
 
-        function updateTicker(id, price, change, lastPrice) {
-            const priceEl = document.getElementById(`${id}-price`);
-            const percentEl = document.getElementById(`${id}-percent`);
-            const container = document.getElementById(`${id}-container`);
+        // PRECIOS EN VIVO (CoinCap API)
+        let lastBtc = 0, lastGold = 0;
+        
+        async function fetchPrices() {
+            try {
+                // BTC
+                const btcRes = await fetch('https://api.coincap.io/v2/assets/bitcoin');
+                const btcData = await btcRes.json();
+                updatePrice('btc', parseFloat(btcData.data.priceUsd), lastBtc);
+                lastBtc = parseFloat(btcData.data.priceUsd);
 
-            // Update Text
-            priceEl.innerText = `$${price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-            percentEl.innerText = `${change.toFixed(2)}%`;
+                // Gold (PAXG)
+                const goldRes = await fetch('https://api.coincap.io/v2/assets/pax-gold');
+                const goldData = await goldRes.json();
+                updatePrice('gold', parseFloat(goldData.data.priceUsd), lastGold);
+                lastGold = parseFloat(goldData.data.priceUsd);
+
+            } catch (e) { console.log(e); }
+        }
+
+        function updatePrice(id, price, lastPrice) {
+            const el = document.getElementById(`${id}-price`);
+            el.innerText = `$${price.toLocaleString('en-US', {maximumFractionDigits: 2})}`;
             
-            // Percent Color
-            if(change >= 0) {
-                percentEl.className = "text-xs font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded";
-                percentEl.innerHTML = `+${change.toFixed(2)}%`;
-            } else {
-                percentEl.className = "text-xs font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded";
-            }
-
-            // Flash Effect
-            if(lastPrice !== 0) {
-                if(price > lastPrice) {
-                    priceEl.classList.add('price-up');
-                    container.classList.add('border-green-300');
-                    setTimeout(() => { 
-                        priceEl.classList.remove('price-up'); 
-                        container.classList.remove('border-green-300');
-                    }, 800);
-                } else if(price < lastPrice) {
-                    priceEl.classList.add('price-down');
-                    container.classList.add('border-red-300');
-                    setTimeout(() => { 
-                        priceEl.classList.remove('price-down'); 
-                        container.classList.remove('border-red-300');
-                    }, 800);
+            if (lastPrice !== 0) {
+                if (price > lastPrice) {
+                    el.classList.add('flash-up');
+                    setTimeout(() => el.classList.remove('flash-up'), 1000);
+                } else if (price < lastPrice) {
+                    el.classList.add('flash-down');
+                    setTimeout(() => el.classList.remove('flash-down'), 1000);
                 }
             }
         }
 
-        // Refresh every 3 seconds (CoinCap rate limit friendly)
+        // Start Intervals
+        setInterval(updateSessions, 1000);
         setInterval(fetchPrices, 3000);
+        updateSessions();
         fetchPrices();
 
     </script>
