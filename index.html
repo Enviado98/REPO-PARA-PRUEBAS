@@ -8,7 +8,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Fonts: Space Grotesk (Titulos) & Inter (Texto) -->
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     
     <!-- Icons -->
@@ -23,7 +23,7 @@
                         display: ['Space Grotesk', 'sans-serif'],
                     },
                     colors: {
-                        'brand': '#CCFF00', /* Verde Bitunix */
+                        'brand': '#CCFF00', 
                         'brand-dark': '#B3E600',
                         'dark': '#0F172A',
                         'light': '#F8FAFC',
@@ -40,17 +40,6 @@
 
     <style>
         body { background-color: #F1F5F9; color: #0F172A; }
-        
-        /* Session Card Active Animation */
-        .session-active {
-            border-color: #CCFF00;
-            box-shadow: 0 4px 20px -5px rgba(163, 204, 0, 0.2);
-        }
-        
-        /* Smooth Bar Transition */
-        .progress-bar { transition: width 1s linear; }
-
-        /* Custom Table */
         .pro-table th { 
             font-size: 0.7rem; 
             text-transform: uppercase; 
@@ -64,15 +53,13 @@
             border-bottom: 1px solid #F1F5F9; 
             font-weight: 500;
         }
-        .pro-table tr:last-child td { border-bottom: none; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center py-8 px-4">
 
-    <!-- CONTAINER PRINCIPAL -->
     <main class="w-full max-w-4xl space-y-6">
         
-        <!-- 1. HEADER & PROFILE -->
+        <!-- HEADER -->
         <header class="flex items-center justify-between bg-white p-4 rounded-2xl shadow-card">
             <div class="flex items-center gap-4">
                 <div class="relative">
@@ -86,31 +73,31 @@
             </div>
             <div class="text-right hidden sm:block">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Trading Dashboard</p>
-                <div class="flex items-center gap-1 justify-end text-emerald-600 text-xs font-bold">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sistema Online
+                <div id="clock-display" class="font-mono text-xs text-slate-500 mt-1">
+                    Cargando hora...
                 </div>
             </div>
         </header>
 
-        <!-- 2. SESIONES DE MERCADO (LIVE HUD) -->
+        <!-- SESIONES -->
         <section>
-            <div class="flex items-center gap-2 mb-3 px-1">
-                <i class="ph-duotone ph-globe text-slate-400"></i>
-                <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Sesiones de Mercado (Tiempo Real)</h2>
+            <div class="flex items-center justify-between mb-3 px-1">
+                <div class="flex items-center gap-2">
+                    <i class="ph-duotone ph-globe text-slate-400"></i>
+                    <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Sesiones de Mercado (UTC)</h2>
+                </div>
+                <span class="text-[10px] text-slate-400 font-bold bg-white px-2 py-1 rounded-md shadow-sm border border-slate-100">FX MARKET HOURS</span>
             </div>
             
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="sessions-container">
-                <!-- Se inyecta con JS -->
+                <!-- JS Inyecta aquí -->
             </div>
         </section>
 
-        <!-- 3. PROMO CARD -->
+        <!-- PROMO CARD -->
         <section class="bg-white rounded-3xl shadow-card overflow-hidden border border-slate-100 relative">
-            <!-- Accent Top -->
             <div class="h-1.5 w-full bg-gradient-to-r from-brand to-lime-500"></div>
-
             <div class="p-6 md:p-8">
-                <!-- Promo Header -->
                 <div class="flex flex-col md:flex-row justify-between items-start mb-8 gap-4">
                     <div>
                         <div class="flex items-center gap-2 text-slate-400 font-bold text-xs uppercase mb-2">
@@ -126,7 +113,6 @@
                     </a>
                 </div>
 
-                <!-- Tabla de Datos -->
                 <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
                     <table class="w-full text-left pro-table">
                         <thead>
@@ -166,7 +152,6 @@
                     </table>
                 </div>
 
-                <!-- Barra Progreso Campaña -->
                 <div class="mt-6 flex flex-col gap-2">
                     <div class="flex justify-between text-[10px] font-bold text-slate-400 uppercase">
                         <span>Inicio: 5 Feb</span>
@@ -180,7 +165,7 @@
             </div>
         </section>
 
-        <!-- 4. COMUNIDAD TELEGRAM -->
+        <!-- TELEGRAM -->
         <section class="flex justify-center">
             <a href="https://t.me/bitunix_cuba" target="_blank" class="group relative w-full md:w-auto bg-telegram hover:bg-[#1d8dbf] text-white p-1 rounded-2xl transition-all shadow-lg hover:shadow-telegram/30 hover:-translate-y-1">
                 <div class="flex items-center gap-4 px-6 py-4 rounded-xl border border-white/20">
@@ -198,21 +183,19 @@
             </a>
         </section>
 
-        <!-- FOOTER -->
         <footer class="text-center text-slate-400 text-xs font-medium py-4">
             &copy; 2026 SS_MADARAS. Todos los derechos reservados.
         </footer>
-
     </main>
 
-    <!-- LOGIC -->
+    <!-- SCRIPT CORREGIDO -->
     <script>
-        // --- 1. SESSION LOGIC (Visual Bar System) ---
+        // HORARIOS ESTÁNDAR UTC DE FOREX
         const sessions = {
-            'ny': { name: 'New York', start: 13, end: 22, color: 'bg-indigo-500' },
-            'ldn': { name: 'London', start: 8, end: 17, color: 'bg-blue-600' },
-            'tky': { name: 'Tokyo', start: 0, end: 9, color: 'bg-rose-500' },
-            'syd': { name: 'Sydney', start: 21, end: 6, color: 'bg-amber-500' }
+            'ny': { name: 'New York', start: 13, end: 22 }, // 8am - 5pm EST
+            'ldn': { name: 'London', start: 8, end: 17 },   // 8am - 5pm GMT
+            'tky': { name: 'Tokyo', start: 0, end: 9 },     // 9am - 6pm JST
+            'syd': { name: 'Sydney', start: 22, end: 7 }    // 9am - 6pm AEDT (Aprox)
         };
 
         function renderSessions() {
@@ -223,19 +206,14 @@
                 const s = sessions[key];
                 const html = `
                     <div id="card-${key}" class="bg-white border border-slate-100 rounded-xl p-4 relative overflow-hidden transition-all duration-300">
-                        <!-- Header -->
                         <div class="flex justify-between items-start mb-3 relative z-10">
                             <span class="font-bold text-sm text-slate-700">${s.name}</span>
                             <div id="status-badge-${key}" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-400">WAIT</div>
                         </div>
-                        
-                        <!-- Time Info -->
                         <div class="relative z-10">
                             <p id="info-${key}" class="text-xs font-bold text-slate-800">--</p>
-                            <p class="text-[10px] text-slate-400">UTC Time</p>
+                            <p class="text-[10px] text-slate-400">UTC: ${s.start}:00 - ${s.end}:00</p>
                         </div>
-
-                        <!-- Progress Bar Background -->
                         <div class="absolute bottom-0 left-0 w-full h-1 bg-slate-100">
                             <div id="bar-${key}" class="h-full transition-all duration-1000 w-0"></div>
                         </div>
@@ -247,10 +225,29 @@
 
         function updateSessionLogic() {
             const now = new Date();
-            const hour = now.getUTCHours();
-            const min = now.getUTCMinutes();
-            const totalMins = hour * 60 + min;
-            const isWeekend = now.getUTCDay() === 0 || now.getUTCDay() === 6;
+            const utcDay = now.getUTCDay(); // 0 = Domingo, 6 = Sábado
+            const utcHour = now.getUTCHours();
+            const utcMin = now.getUTCMinutes();
+            const totalMins = utcHour * 60 + utcMin;
+
+            // Actualizar reloj de cabecera
+            const localTime = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            document.getElementById('clock-display').innerHTML = `
+                <span class="text-slate-400">UTC: ${utcHour.toString().padStart(2,'0')}:${utcMin.toString().padStart(2,'0')}</span>
+                <span class="mx-1">|</span>
+                <span class="text-brand-dark">Local: ${localTime}</span>
+            `;
+
+            // Lógica Global de Mercado Cerrado (Fin de semana real)
+            // Mercado cierra Viernes ~22:00 UTC y abre Domingo ~22:00 UTC
+            let isMarketClosed = false;
+            
+            // Sábado entero CERRADO
+            if (utcDay === 6) isMarketClosed = true;
+            // Viernes después de las 22:00 UTC (Cierre NY) CERRADO
+            if (utcDay === 5 && utcHour >= 22) isMarketClosed = true;
+            // Domingo antes de las 21:00 UTC (Apertura Sídney/Wellington) CERRADO
+            if (utcDay === 0 && utcHour < 21) isMarketClosed = true;
 
             Object.keys(sessions).forEach(key => {
                 const s = sessions[key];
@@ -258,14 +255,16 @@
                 let endM = s.end * 60;
                 let isOpen = false;
 
-                // Logica Apertura
-                if (!isWeekend) {
-                    if (s.start < s.end) {
-                        if (totalMins >= startM && totalMins < endM) isOpen = true;
-                    } else {
-                        if (totalMins >= startM || totalMins < endM) isOpen = true;
-                    }
+                // Lógica de horas (considerando cruce de medianoche)
+                if (s.start < s.end) {
+                    if (totalMins >= startM && totalMins < endM) isOpen = true;
+                } else {
+                    // Cruza medianoche (Ej: Sídney 22 a 07)
+                    if (totalMins >= startM || totalMins < endM) isOpen = true;
                 }
+
+                // Si es fin de semana global, forzar cierre
+                if (isMarketClosed) isOpen = false;
 
                 const card = document.getElementById(`card-${key}`);
                 const badge = document.getElementById(`status-badge-${key}`);
@@ -273,66 +272,78 @@
                 const bar = document.getElementById(`bar-${key}`);
 
                 if (isOpen) {
-                    // ABIERTO: Barra VERDE (Progreso de sesión)
-                    let duration = (s.start < s.end) ? (endM - startM) : ((24*60 - startM) + endM);
-                    let elapsed = (totalMins >= startM) ? (totalMins - startM) : ((24*60 - startM) + totalMins);
-                    let pct = (elapsed / duration) * 100;
+                    // CÁLCULO TIEMPO RESTANTE
+                    let duration, elapsed;
+                    if (s.start < s.end) {
+                        duration = endM - startM;
+                        elapsed = totalMins - startM;
+                    } else {
+                        duration = (24 * 60 - startM) + endM;
+                        elapsed = (totalMins >= startM) ? (totalMins - startM) : ((24 * 60 - startM) + totalMins);
+                    }
                     
-                    // Tiempo restante
+                    let pct = (elapsed / duration) * 100;
                     let timeLeft = duration - elapsed;
                     let h = Math.floor(timeLeft / 60);
                     let m = Math.floor(timeLeft % 60);
 
-                    card.classList.add('border-lime-300', 'shadow-sm');
-                    badge.className = "text-[9px] font-bold px-1.5 py-0.5 rounded bg-lime-100 text-lime-700 uppercase";
+                    card.classList.add('border-lime-500', 'shadow-glow');
+                    card.classList.remove('border-slate-100');
+                    
+                    badge.className = "text-[9px] font-bold px-1.5 py-0.5 rounded bg-brand text-black uppercase animate-pulse";
                     badge.innerText = "ABIERTO";
                     
                     info.innerText = `Cierra en ${h}h ${m}m`;
-                    info.className = "text-xs font-bold text-lime-600";
+                    info.className = "text-xs font-bold text-emerald-600";
                     
-                    bar.className = "h-full bg-lime-500";
+                    bar.className = "h-full bg-brand";
                     bar.style.width = `${pct}%`;
 
                 } else {
-                    // CERRADO: Barra GRIS/ROJA (Cuenta regresiva apertura)
-                    let diffToOpen = (totalMins < startM) ? (startM - totalMins) : ((24*60 - totalMins) + startM);
+                    // CÁLCULO TIEMPO PARA ABRIR
+                    let diffToOpen;
+                    if (totalMins < startM) {
+                        diffToOpen = startM - totalMins;
+                    } else {
+                        diffToOpen = (24 * 60 - totalMins) + startM;
+                    }
+                    
                     let h = Math.floor(diffToOpen / 60);
                     let m = Math.floor(diffToOpen % 60);
-                    
-                    // Visual fill up effect as it gets closer (last 8 hours)
-                    let waitWindow = 8 * 60; 
-                    let pct = Math.max(0, (waitWindow - diffToOpen) / waitWindow * 100);
 
-                    card.classList.remove('border-lime-300', 'shadow-sm');
-                    badge.className = "text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-400 uppercase";
-                    badge.innerText = "CERRADO";
-                    
-                    info.innerText = `Abre en ${h}h ${m}m`;
-                    info.className = "text-xs font-bold text-slate-500";
-                    
-                    bar.className = "h-full bg-slate-300"; // Gris neutral
-                    bar.style.width = `${pct}%`;
-                }
-
-                if(isWeekend) {
-                    badge.innerText = "WEEKEND";
-                    info.innerText = "Mercado Cerrado";
-                    bar.style.width = "0%";
+                    // Override visual si es fin de semana
+                    if (isMarketClosed) {
+                        badge.innerText = "WEEKEND";
+                        badge.className = "text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-400";
+                        info.innerText = "Mercado Cerrado";
+                        info.className = "text-xs font-bold text-slate-400";
+                        bar.style.width = "0%";
+                        card.classList.remove('border-lime-500', 'shadow-glow');
+                        card.classList.add('border-slate-100');
+                    } else {
+                        badge.className = "text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 uppercase";
+                        badge.innerText = "CERRADO";
+                        info.innerText = `Abre en ${h}h ${m}m`;
+                        info.className = "text-xs font-bold text-slate-500";
+                        bar.className = "h-full bg-slate-200";
+                        bar.style.width = "0%"; // Barra vacía cuando está cerrado
+                        card.classList.remove('border-lime-500', 'shadow-glow');
+                        card.classList.add('border-slate-100');
+                    }
                 }
             });
         }
 
-        // --- 2. PROMO PROGRESS ---
+        // Promo Update
         function updatePromo() {
-            const start = new Date('2024-02-05').getTime();
-            const end = new Date('2026-02-18').getTime(); // Año extendido para demo visual
+            const start = new Date('2026-02-05').getTime();
+            const end = new Date('2026-02-18').getTime();
             const now = new Date().getTime();
             let pct = ((now - start) / (end - start)) * 100;
             if(pct < 0) pct = 0; if(pct > 100) pct = 100;
             document.getElementById('promo-progress').style.width = `${pct}%`;
         }
 
-        // Init
         renderSessions();
         setInterval(updateSessionLogic, 1000);
         updateSessionLogic();
