@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor API - Bypass CORS</title>
+    <style>
+        :root { --bg: #0d1117; --text: #c9d1d9; --green: #2ea043; --red: #da3633; --blue: #58a6ff; }
+        body { font-family: 'Courier New', monospace; background: var(--bg); color: var(--text); padding: 20px; }
+        .panel { background: #161b22; border: 1px solid #30363d; padding: 15px; border-radius: 6px; margin-bottom: 20px; overflow-x: auto;}
+        button { background: #238636; color: white; border: none; padding: 8px 16px; cursor: pointer; border-radius: 4px; font-weight: bold;}
+        button:hover { background: #2ea043; }
+        .log-entry { margin-bottom: 4px; border-bottom: 1px solid #21262d; padding-bottom: 2px; }
+        .success { color: var(--green); }
+        .error { color: var(--red); font-weight: bold;}
+        .warn { color: #d29922; }
+    </style>
+</head>
+<body>
+
+    <div style="max-width: 800px; margin: 0 auto;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+            <h1>📡 API Monitor (Con Proxy)</h1>
+            <button onclick="runChecks()">🚀 EJECUTAR TEST</button>
+        </div>
+
+        <h3>📜 Log de Ejecución</h3>
+        <div id="console-log" class="panel" style="height: 250px; overflow-y: auto;"></div>
+
+        <h3>💰 Respuesta RAW</h3>
+        <div class="panel">
+            <pre id="data-output" style="color: var(--blue);">Esperando ejecución...</pre>
+        </div>
+    </div>
+
+<script type="module">
+    // ----------------------------------------------------
+    // ⚙️ CONFIGURACIÓN
+    // ----------------------------------------------------
+    
+    // ⚠️ NOTA: Usamos 'corsproxy.io' para saltar la restricción del navegador.
+    // En producción, esto debe hacerse desde un Backend o Supabase Edge Function.
+    const TARGET_URL = "https://tasas.eltoque.com/v1/trmi";
+    const PROXY_URL = "https://corsproxy.io/?"; 
+    
+    const ELTOQUE_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc2MzU4NDg4MCwianRpIjoiZmVhZTc2Y2YtODc4Yy00MjdmLTg5MGUtMmQ4MzRmOGE1MzAyIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjY5MWUyNWI3ZTkyYmU3N2VhM2RlMjE0ZSIsIm5iZiI6MTc2MzU4NDg4MCwiZXhwIjoxNzk1MTIwODgwfQ.qpxiSsg8ptDTYsXZPnnxC694lUoWmT1qyAvzLUfl1-8";
+
+    function log(msg, type = 'info') {
+        const consoleDiv = document.getElementById('console-log');
+        const now = new Date().toLocaleTimeString();
+        const colorClass = type === 'error' ? 'error' : (type === 'success' ? 'success' : 'warn');
+        consoleDiv.innerHTML += `<div class="log-entry ${colorClass}"><span style="opacity:0.6">[${now}]</span> ${msg}</div>`;
+        consoleDiv.scrollTop = consoleDiv.scrollHeight;
+    }
+
+    window.runChecks = async () => {
+        document.getElementById('console-log').innerHTML = "";
+        document.getElementById('data-output').textContent = "Cargando...";
+        
+        log("Iniciando petición vía Proxy CORS...", "warn");
+
+        // Construimos la URL con el proxy
+        // El proxy 'corsproxy.io' toma la URL destino como parámetro
+        const finalUrl = PROXY_URL + encodeURIComponent(TARGET_URL);
+
+        try {
+            const response = await fetch(finalUrl, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${ELTOQUE_TOKEN}`,
+                    // Algunos proxies requieren que no mandes content-type si no hay body, 
+                    // pero intentaremos mantenerlo simple.
+                }
+            });
+
+            log(`Respuesta del Proxy: ${response.status}`, response.ok ? "success" : "error");
+
+            if (!response.ok) {
+                const txt = await response.text();
+                throw new Error(`HTTP ${response.status}: ${txt}`);
+            }
+
+            const data = await response.json();
+            
+            // Verificación específica de la estructura de El Toque
+            if (data && data.ecuu) {
+                 log("✅ CONEXIÓN EXITOSA: Datos de El Toque recibidos.", "success");
+                 log(`Dólar (ECUU): ${data.ecuu} CUP`, "success");
+            } else {
+                 log("⚠️ Datos recibidos pero estructura inesperada.", "warn");
+            }
+
+            document.getElementById('data-output').textContent = JSON.stringify(data, null, 2);
+
+        } catch (error) {
+            log("❌ ERROR FATAL: " + error.message, "error");
+            document.getElementById('data-output').textContent = "Error de conexión.\n" + error.message;
+        }
+    };
+</script>
+</body>
+</html>
