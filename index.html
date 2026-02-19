@@ -3,61 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- SEO Meta Tags -->
-    <title>Rancho Cruz | Event Venue & Horse Ranch in LaBelle, FL</title>
-    <meta name="description" content="Beautiful rustic event venue in LaBelle, Florida. Perfect for weddings, quinceañeras, photoshoots and special events with horses, nature and golden sunsets.">
-    <meta name="keywords" content="rancho cruz, event venue, labelle florida, wedding venue, horse ranch, photo shoot location, quinceañera venue">
-    <meta name="author" content="Rancho Cruz">
-    <meta name="robots" content="index, follow">
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://ranchocruz.com/">
-    <meta property="og:title" content="Rancho Cruz | Rustic Event Venue in LaBelle, FL">
-    <meta property="og:description" content="Beautiful rustic venue with horses and nature for your special moments">
-    <meta property="og:image" content="https://raw.githubusercontent.com/Enviado98/ranchocruz/main/local.jpg">
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://ranchocruz.com/">
-    <meta property="twitter:title" content="Rancho Cruz | Rustic Event Venue">
-    <meta property="twitter:description" content="Beautiful rustic venue with horses and nature">
-    <meta property="twitter:image" content="https://raw.githubusercontent.com/Enviado98/ranchocruz/main/local.jpg">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/jpeg" href="https://raw.githubusercontent.com/Enviado98/ranchocruz/main/logo%20de%20su%20marca.jpg">
+    <title>ASTRAL INK | Tatuajes Oníricos</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- AOS Animation -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-
-    <!-- Fonts - Preload for performance -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Fuentes: Cinzel (Místico) & Raleway (Limpio) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Raleway:wght@300;400;600&display=swap" rel="stylesheet">
     
-    <!-- Icons -->
+    <!-- Iconos -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Librería de Animaciones (AOS) -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Lato', 'sans-serif'],
-                        serif: ['Playfair Display', 'serif'],
+                        sans: ['Raleway', 'sans-serif'],
+                        display: ['Cinzel Decorative', 'serif'],
                     },
                     colors: {
-                        'brand-gold': '#C5A059',      
-                        'brand-dark': '#1C1917',      
-                        'brand-cream': '#F5F5F0',     
-                        'brand-stone': '#44403C',
+                        'dream-dark': '#020617',    /* El azul más oscuro del espacio */
+                        'dream-blue': '#1e3a8a',    /* Azul medio nubes */
+                        'dream-cyan': '#38bdf8',    /* El brillo celeste */
+                        'dream-cloud': '#bfdbfe',   /* Blanco azulado */
+                        'dream-pink': '#ffccb3',    /* El color melocotón/rosado de la nube de abajo */
                     },
-                    screens: {
-                        'xs': '375px',
+                    backgroundImage: {
+                        'cosmic-gradient': 'linear-gradient(to bottom, #020617, #0f172a, #172554)',
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'twinkle': 'twinkle 4s ease-in-out infinite',
+                        'pulse-glow': 'pulseGlow 3s infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        twinkle: {
+                            '0%, 100%': { opacity: '0.3', transform: 'scale(0.8)' },
+                            '50%': { opacity: '1', transform: 'scale(1.2)' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 20px rgba(56, 189, 248, 0.2)' },
+                            '50%': { boxShadow: '0 0 40px rgba(56, 189, 248, 0.6)' },
+                        }
                     }
                 }
             }
@@ -65,518 +60,327 @@
     </script>
 
     <style>
-        /* GPU-accelerated animations */
-        * {
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+        body {
+            background-color: #020617;
+            color: #e2e8f0;
+            overflow-x: hidden;
         }
 
-        .glass-nav {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-            will-change: transform;
-        }
-
-        .glass-card {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            will-change: transform;
+        /* FONDO DE ESTRELLAS GENERADO CON CSS */
+        .stars, .stars2, .stars3 {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: transparent;
+            z-index: -1;
+            pointer-events: none;
         }
         
-        .btn-premium {
-            background-size: 200% auto;
-            background-image: linear-gradient(to right, #1C1917 0%, #C5A059 51%, #1C1917 100%);
-            transition: background-position 0.5s ease;
-            color: white;
-            will-change: background-position;
-        }
-        .btn-premium:hover {
-            background-position: right center;
+        /* Simulación de estrellas */
+        .stars { background-image: radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)), radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)), radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)), radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)), radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0)); background-size: 200px 200px; animation: twinkle 5s infinite; }
+        .stars2 { background-image: radial-gradient(2px 2px at 100px 50px, #fff, rgba(0,0,0,0)), radial-gradient(2px 2px at 10px 10px, #fff, rgba(0,0,0,0)); background-size: 300px 300px; animation: twinkle 8s infinite reverse; }
+
+        /* NUBES CÓSMICAS (Glows de fondo) */
+        .nebula {
+            position: absolute;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(56,189,248,0.15) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(60px);
+            z-index: -1;
         }
 
-        #mobile-menu {
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            will-change: transform;
-        }
-        .menu-open {
-            transform: translateX(0) !important;
-        }
-
-        /* Image loading placeholder */
-        img {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-        }
-        img[src] {
-            background: none;
-            animation: none;
+        .nebula-pink {
+            position: absolute;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(255, 204, 179, 0.1) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(80px);
+            z-index: -1;
         }
 
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+        /* Glassmorphism Cards */
+        .glass-card {
+            background: rgba(2, 6, 23, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         }
 
-        /* Smooth scroll for Safari */
-        html {
-            scroll-behavior: smooth;
+        /* Texto con gradiente estilo "Sueño" */
+        .text-dream {
+            background: linear-gradient(to right, #ffffff, #bfdbfe, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Botón estilo "Parapente" (Accent) */
+        .btn-peach {
+            background: linear-gradient(45deg, #ffccb3, #fca5a5);
+            color: #020617;
+            transition: all 0.5s ease;
+        }
+        .btn-peach:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px rgba(255, 204, 179, 0.5);
+            background: linear-gradient(45deg, #fff, #ffccb3);
         }
 
-        /* Prevent horizontal scroll on mobile */
-        body {
-            overflow-x: hidden;
+        /* Galería Masonry suave */
+        .gallery-img {
+            transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.5s;
+            filter: grayscale(40%) contrast(110%);
+        }
+        .gallery-item:hover .gallery-img {
+            transform: scale(1.05);
+            filter: grayscale(0%) contrast(100%);
         }
     </style>
 </head>
-<body class="bg-brand-cream text-brand-dark antialiased overflow-x-hidden selection:bg-brand-gold selection:text-white">
+<body class="antialiased">
 
-    <!-- NAVBAR OPTIMIZADA -->
-    <nav id="navbar" class="fixed w-full z-50 transition-all duration-300 px-4 py-3 md:px-8 md:py-4 flex justify-between items-center" role="navigation" aria-label="Main navigation">
-        
-        <!-- Logo -->
-        <div class="flex items-center gap-2 md:gap-3 bg-white/90 backdrop-blur-md px-3 py-1.5 md:px-4 md:py-2 rounded-full shadow-sm border border-white/20">
-            <img src="https://raw.githubusercontent.com/Enviado98/ranchocruz/main/logo%20de%20su%20marca.jpg" 
-                 alt="Rancho Cruz Logo"
-                 loading="eager"
-                 class="h-8 w-8 md:h-10 md:w-10 rounded-full object-cover border border-brand-gold">
-            <span class="font-serif text-sm md:text-lg font-bold tracking-widest text-brand-dark">RANCHO CRUZ</span>
-        </div>
-        
-        <!-- Menú Desktop -->
-        <div class="hidden md:flex bg-white/90 backdrop-blur-md px-6 py-2 rounded-full gap-8 text-xs font-bold tracking-[0.2em] uppercase text-brand-stone shadow-sm">
-            <a href="#inicio" class="hover:text-brand-gold transition-colors" aria-label="Go to home section">Inicio</a>
-            <a href="#galeria" class="hover:text-brand-gold transition-colors" aria-label="Go to gallery section">Galería</a>
-            <a href="#contacto" class="hover:text-brand-gold transition-colors" aria-label="Go to contact section">Visítanos</a>
-        </div>
+    <!-- FONDO DE ESTRELLAS -->
+    <div class="stars"></div>
+    <div class="stars2"></div>
+    
+    <!-- LUCES DE FONDO (NUBES) -->
+    <div class="nebula top-0 left-0 animate-float"></div>
+    <div class="nebula-pink bottom-0 right-0 animate-float" style="animation-delay: 2s;"></div>
 
-        <!-- Botones Derecha -->
-        <div class="flex items-center gap-2">
-            <!-- Botón WhatsApp -->
-            <a href="https://wa.me/12392983233" 
-               class="btn-premium px-4 py-2 md:px-6 md:py-3 rounded-full text-[10px] md:text-xs font-bold tracking-widest shadow-lg flex items-center gap-2"
-               aria-label="Contact us on WhatsApp"
-               rel="noopener noreferrer"
-               target="_blank">
-                <i class="ph-bold ph-whatsapp-logo text-lg"></i>
-                <span class="hidden xs:inline">RESERVAR</span>
+    <!-- NAVBAR -->
+    <nav class="fixed w-full z-50 top-0 py-6 px-6 md:px-12 transition-all duration-300 backdrop-blur-sm border-b border-white/5">
+        <div class="flex justify-between items-center max-w-7xl mx-auto">
+            <a href="#" class="font-display text-2xl md:text-3xl text-white tracking-widest hover:text-dream-cyan transition-colors">
+                ASTRAL<span class="text-dream-cyan">.</span>INK
             </a>
+            
+            <div class="hidden md:flex gap-8 text-sm uppercase tracking-[0.2em] font-light text-dream-cloud">
+                <a href="#galeria" class="hover:text-white hover:drop-shadow-[0_0_10px_rgba(255,255,255,0.8)] transition-all">Portafolio</a>
+                <a href="#artista" class="hover:text-white hover:drop-shadow-[0_0_10px_rgba(255,255,255,0.8)] transition-all">El Artista</a>
+                <a href="#faq" class="hover:text-white hover:drop-shadow-[0_0_10px_rgba(255,255,255,0.8)] transition-all">Proceso</a>
+            </div>
 
-            <!-- Botón Hamburguesa (Solo Móvil) -->
-            <button id="menu-btn" 
-                    class="md:hidden bg-white/90 p-2 rounded-full shadow-sm text-brand-dark"
-                    aria-label="Open menu"
-                    aria-expanded="false">
-                <i class="ph-bold ph-list text-xl"></i>
-            </button>
+            <a href="https://wa.me/123456789" class="md:hidden text-dream-cyan text-2xl"><i class="ph ph-list"></i></a>
         </div>
     </nav>
 
-    <!-- MENÚ MÓVIL FULL SCREEN -->
-    <div id="mobile-menu" 
-         class="fixed inset-0 bg-brand-dark/95 backdrop-blur-xl z-40 transform translate-x-full flex flex-col justify-center items-center text-white"
-         role="dialog"
-         aria-modal="true"
-         aria-label="Mobile menu">
-        <button id="close-menu" 
-                class="absolute top-6 right-6 text-2xl p-2"
-                aria-label="Close menu">
-            <i class="ph-bold ph-x"></i>
-        </button>
-        <nav class="flex flex-col gap-8 text-center font-serif text-3xl" role="navigation">
-            <a href="#inicio" class="mobile-link hover:text-brand-gold transition-colors">Inicio</a>
-            <a href="#galeria" class="mobile-link hover:text-brand-gold transition-colors">Galería</a>
-            <a href="#contacto" class="mobile-link hover:text-brand-gold transition-colors">Ubicación</a>
-        </nav>
-        <div class="mt-12 flex gap-6 text-brand-gold text-2xl">
-            <a href="https://instagram.com/ranchocruz" 
-               aria-label="Visit our Instagram"
-               rel="noopener noreferrer"
-               target="_blank">
-                <i class="ph-fill ph-instagram-logo"></i>
-            </a>
-            <a href="https://facebook.com/ranchocruz" 
-               aria-label="Visit our Facebook"
-               rel="noopener noreferrer"
-               target="_blank">
-                <i class="ph-fill ph-facebook-logo"></i>
-            </a>
-        </div>
-    </div>
-
     <!-- HERO SECTION -->
-    <header id="inicio" class="relative h-[100svh] flex items-center justify-center overflow-hidden">
-        <!-- Fondo -->
-        <div class="absolute inset-0 bg-cover bg-center bg-no-repeat" 
-             style="background-image: url('https://raw.githubusercontent.com/Enviado98/ranchocruz/main/local.jpg');"
-             role="img"
-             aria-label="Rancho Cruz venue background">
-        </div>
-        <div class="absolute inset-0 bg-black/30 md:bg-black/40"></div>
+    <header class="min-h-screen flex items-center justify-center relative px-6 overflow-hidden">
+        <!-- Luz central simulando el brillo de las nubes -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-dream-blue/20 rounded-full blur-[120px] pointer-events-none"></div>
 
-        <div class="relative z-10 container mx-auto px-4 md:px-6 flex flex-col justify-center h-full pt-16">
+        <div class="relative z-10 text-center max-w-4xl mx-auto">
+            <p class="text-dream-pink uppercase tracking-[0.4em] text-xs md:text-sm mb-6 animate-pulse" data-aos="fade-down">Arte en la piel</p>
             
-            <!-- Texto Principal -->
-            <div class="text-white text-center md:text-left md:max-w-3xl" data-aos="fade-up">
-                <div class="inline-block border border-white/30 px-3 py-1 rounded-full bg-black/20 backdrop-blur-sm mb-4">
-                    <p class="text-brand-gold font-bold tracking-[0.2em] uppercase text-[10px] md:text-xs">LaBelle, Florida</p>
-                </div>
-                
-                <h1 class="font-serif text-5xl xs:text-6xl md:text-8xl leading-[1.1] mb-4 md:mb-6 drop-shadow-lg">
-                    Rustic <br>
-                    <span class="italic font-light text-brand-gold">Elegance.</span>
-                </h1>
-                
-                <p class="text-sm md:text-lg text-gray-100 font-light max-w-sm mx-auto md:mx-0 leading-relaxed mb-8 md:border-l md:border-brand-gold md:pl-6 drop-shadow-md">
-                    El escenario perfecto. Caballos, naturaleza y atardeceres dorados para tus momentos inolvidables.
-                </p>
-            </div>
+            <h1 class="font-display text-6xl md:text-8xl lg:text-9xl mb-6 leading-tight" data-aos="zoom-in" data-aos-duration="1500">
+                <span class="text-white block">SUEÑOS</span>
+                <span class="text-dream block opacity-90 italic text-5xl md:text-7xl mt-2 font-sans font-thin">Eternos</span>
+            </h1>
+            
+            <p class="font-sans text-dream-cloud/80 text-lg md:text-xl max-w-2xl mx-auto mb-12 font-light leading-relaxed" data-aos="fade-up" data-aos-delay="300">
+                Especialista en surrealismo, fine-line y tatuajes cósmicos. Transformo tus ideas en obras de arte etéreas que desafían la realidad.
+            </p>
 
-            <!-- Widget Clima -->
-            <div class="mt-auto mb-8 md:mt-0 md:absolute md:bottom-20 md:right-20" 
-                 data-aos="fade-in" 
-                 data-aos-delay="300">
-                <div class="glass-card rounded-xl p-3 md:p-5 flex items-center gap-3 md:gap-4 max-w-[280px] mx-auto md:mx-0">
-                    <div id="weather-icon" class="text-2xl md:text-4xl text-white">
-                        <i class="ph-duotone ph-spinner animate-spin"></i>
-                    </div>
-                    <div class="flex-1">
-                        <p id="weather-temp" class="text-white text-xs md:text-sm font-bold">Cargando clima...</p>
-                        <div class="flex items-center gap-2 mt-1">
-                            <div id="status-indicator" class="w-2 h-2 rounded-full bg-gray-400"></div>
-                            <span id="status-text" class="text-white/80 text-[10px] uppercase tracking-wider">Verificando...</span>
-                        </div>
-                    </div>
-                </div>
+            <div class="flex flex-col md:flex-row gap-6 justify-center items-center" data-aos="fade-up" data-aos-delay="500">
+                <a href="https://wa.me/123456789" class="btn-peach px-10 py-4 rounded-full font-bold uppercase tracking-widest text-sm w-full md:w-auto">
+                    Reservar Cita
+                </a>
+                <a href="#galeria" class="text-white border border-white/20 px-10 py-4 rounded-full font-bold uppercase tracking-widest text-sm hover:bg-white/5 transition-all w-full md:w-auto">
+                    Ver Galería
+                </a>
             </div>
+        </div>
+
+        <!-- Elemento decorativo flotante (Parapente vibe) -->
+        <div class="absolute bottom-20 right-10 md:right-32 animate-float hidden md:block opacity-60">
+            <i class="ph-thin ph-star-four text-6xl text-dream-pink"></i>
+        </div>
+        <div class="absolute top-32 left-10 md:left-32 animate-float hidden md:block opacity-40" style="animation-delay: 2s;">
+            <i class="ph-thin ph-moon-stars text-5xl text-dream-cyan"></i>
         </div>
     </header>
 
-    <!-- GALERÍA -->
-    <section id="galeria" class="py-16 md:py-24 bg-brand-cream">
-        <div class="container mx-auto px-4 md:px-8">
-            <div class="text-center mb-12" data-aos="fade-up">
-                <span class="text-brand-gold text-xs font-bold uppercase tracking-[0.2em]">Descubre</span>
-                <h2 class="font-serif text-4xl md:text-5xl mt-2">Nuestros Espacios</h2>
+    <!-- GALERÍA ONÍRICA -->
+    <section id="galeria" class="py-32 relative">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-20" data-aos="fade-up">
+                <span class="text-dream-cyan text-4xl block mb-4">✧</span>
+                <h2 class="font-display text-4xl md:text-5xl text-white">Obras Recientes</h2>
             </div>
 
-            <!-- Grid Responsivo -->
-            <div class="grid grid-cols-2 xs:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 auto-rows-[180px] md:auto-rows-[250px]">
-                
-                <!-- Foto 1 -->
-                <div class="group relative rounded-lg overflow-hidden shadow-md cursor-pointer" 
-                     data-aos="fade-up">
-                    <img src="https://raw.githubusercontent.com/Enviado98/ranchocruz/main/cliente1.jpg" 
-                         alt="Event space at Rancho Cruz"
-                         loading="lazy"
-                         class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                </div>
-
-                <!-- Foto 2 (Grande) -->
-                <div class="xs:col-span-2 md:col-span-1 md:row-span-2 group relative rounded-lg overflow-hidden shadow-md cursor-pointer" 
-                     data-aos="fade-up" 
-                     data-aos-delay="100">
-                    <img src="https://raw.githubusercontent.com/Enviado98/ranchocruz/main/cliente3.jpg" 
-                         alt="Wedding ceremony at Rancho Cruz"
-                         loading="lazy"
-                         class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity p-4 flex items-end">
-                        <p class="text-white font-serif italic text-sm md:text-xl">Ceremonias Únicas</p>
+            <!-- Grid tipo Mosaico -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
+                <!-- Columna 1 -->
+                <div class="space-y-4 md:space-y-8">
+                    <div class="gallery-item glass-card p-2 rounded-lg overflow-hidden group relative" data-aos="fade-up">
+                        <img src="https://images.unsplash.com/photo-1590246235044-f925c4849182?q=80&w=1000&auto=format&fit=crop" class="w-full h-auto rounded gallery-img" alt="Tatuaje">
+                        <div class="absolute inset-0 bg-dream-blue/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                            <span class="text-white font-display text-xl tracking-widest">Floral</span>
+                        </div>
+                    </div>
+                    <div class="gallery-item glass-card p-2 rounded-lg overflow-hidden group relative" data-aos="fade-up">
+                        <img src="https://images.unsplash.com/photo-1611501275019-9b5cda994e8d?q=80&w=1000&auto=format&fit=crop" class="w-full h-auto rounded gallery-img" alt="Tatuaje">
                     </div>
                 </div>
 
-                <!-- Foto 3 -->
-                <div class="group relative rounded-lg overflow-hidden shadow-md cursor-pointer" 
-                     data-aos="fade-up" 
-                     data-aos-delay="200">
-                    <img src="https://raw.githubusercontent.com/Enviado98/ranchocruz/main/cliente2.jpg" 
-                         alt="Horses at Rancho Cruz"
-                         loading="lazy"
-                         class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                </div>
-
-                <!-- Foto 4 (Grande) -->
-                <div class="xs:col-span-2 xs:row-span-1 md:row-span-2 group relative rounded-lg overflow-hidden shadow-md cursor-pointer" 
-                     data-aos="fade-up" 
-                     data-aos-delay="300">
-                    <img src="https://raw.githubusercontent.com/Enviado98/ranchocruz/main/cliente4.jpg" 
-                         alt="Themed photoshoot at Rancho Cruz"
-                         loading="lazy"
-                         class="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity p-4 flex items-end">
-                        <p class="text-white font-serif italic text-sm md:text-xl">Sesiones Temáticas</p>
+                <!-- Columna 2 (Desplazada hacia abajo para efecto masonry) -->
+                <div class="space-y-4 md:space-y-8 md:pt-12">
+                    <div class="gallery-item glass-card p-2 rounded-lg overflow-hidden group relative" data-aos="fade-up" data-aos-delay="100">
+                        <img src="https://images.unsplash.com/photo-1598371839696-5c5bb00bdc28?q=80&w=1000&auto=format&fit=crop" class="w-full h-auto rounded gallery-img" alt="Tatuaje">
+                        <div class="absolute inset-0 bg-dream-blue/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                            <span class="text-white font-display text-xl tracking-widest">Cosmic</span>
+                        </div>
+                    </div>
+                    <div class="gallery-item glass-card p-2 rounded-lg overflow-hidden group relative" data-aos="fade-up" data-aos-delay="100">
+                        <img src="https://images.unsplash.com/photo-1562962230-16e4623d36e6?q=80&w=1000&auto=format&fit=crop" class="w-full h-auto rounded gallery-img" alt="Tatuaje">
                     </div>
                 </div>
-                
-                <!-- Foto 5 -->
-                <div class="xs:col-span-2 md:col-span-1 group relative rounded-lg overflow-hidden shadow-md cursor-pointer" 
-                     data-aos="fade-up">
-                    <img src="https://raw.githubusercontent.com/Enviado98/ranchocruz/main/fondo.jpg" 
-                         alt="Sunset view at Rancho Cruz"
-                         loading="lazy"
-                         class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                </div>
 
+                <!-- Columna 3 -->
+                <div class="space-y-4 md:space-y-8">
+                    <div class="gallery-item glass-card p-2 rounded-lg overflow-hidden group relative" data-aos="fade-up" data-aos-delay="200">
+                        <img src="https://images.unsplash.com/photo-1599557727196-a66455502758?q=80&w=1000&auto=format&fit=crop" class="w-full h-auto rounded gallery-img" alt="Tatuaje">
+                    </div>
+                    <div class="gallery-item glass-card p-2 rounded-lg overflow-hidden group relative" data-aos="fade-up" data-aos-delay="200">
+                        <img src="https://images.unsplash.com/photo-1621112904891-5af48742420d?q=80&w=1000&auto=format&fit=crop" class="w-full h-auto rounded gallery-img" alt="Tatuaje">
+                        <div class="absolute inset-0 bg-dream-blue/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                            <span class="text-white font-display text-xl tracking-widest">Fine Line</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-16">
+                <a href="https://instagram.com" target="_blank" class="inline-block text-dream-pink border-b border-dream-pink pb-1 hover:text-white hover:border-white transition-all text-sm uppercase tracking-widest">
+                    Ver más en Instagram ↗
+                </a>
             </div>
         </div>
     </section>
 
-    <!-- CONTACTO -->
-    <section id="contacto" class="bg-brand-cream relative">
-        <div class="flex flex-col lg:flex-row">
+    <!-- SECCIÓN DE ARTISTA (Fondo Diferente) -->
+    <section id="artista" class="py-24 relative overflow-hidden">
+        <!-- Fondo degradado simulando la nube de la imagen -->
+        <div class="absolute inset-0 bg-gradient-to-br from-dream-blue/20 via-transparent to-transparent"></div>
+        <div class="absolute bottom-[-100px] right-[-100px] w-[600px] h-[600px] bg-dream-pink/10 rounded-full blur-[100px]"></div>
+
+        <div class="container mx-auto px-6 relative z-10 grid md:grid-cols-2 gap-12 items-center">
             
-            <!-- Columna INFO -->
-            <div class="lg:w-2/5 bg-brand-dark text-white p-8 md:p-16 flex flex-col justify-center order-2 lg:order-1">
-                <div class="mb-8">
-                    <span class="text-brand-gold text-[10px] font-bold uppercase tracking-[0.2em]">Contacto</span>
-                    <h2 class="font-serif text-3xl md:text-4xl mt-2">Visítanos</h2>
-                </div>
-
-                <div class="space-y-8 text-sm md:text-base">
-                    <div class="flex gap-4 items-start">
-                        <div class="p-2 bg-white/10 rounded-full text-brand-gold">
-                            <i class="ph-fill ph-map-pin" aria-hidden="true"></i>
-                        </div>
-                        <div>
-                            <p class="font-bold text-gray-200">2375 Case Rd</p>
-                            <p class="text-gray-400">LaBelle, FL 33935</p>
-                        </div>
+            <div class="order-2 md:order-1" data-aos="fade-right">
+                <span class="text-dream-cyan uppercase tracking-[0.2em] text-xs font-bold block mb-4">La Artista</span>
+                <h2 class="font-display text-4xl md:text-5xl text-white mb-6">Tejiendo Sueños <br> en la Piel</h2>
+                <p class="text-dream-cloud/70 font-light leading-relaxed mb-6">
+                    Hola, soy <strong class="text-white">Celestia</strong>. Mi estudio es un santuario donde la tinta se encuentra con el alma. Me especializo en diseños que parecen flotar sobre la piel, inspirados en la naturaleza, el cosmos y los sueños lúcidos.
+                </p>
+                <p class="text-dream-cloud/70 font-light leading-relaxed mb-8">
+                    Cada sesión es un ritual. Utilizo las agujas más finas y tintas veganas de la más alta calidad para asegurar que tu pieza sane perfectamente y luzca etérea por siempre.
+                </p>
+                
+                <div class="flex gap-8 border-t border-white/10 pt-8">
+                    <div>
+                        <span class="block text-3xl font-display text-dream-pink">5+</span>
+                        <span class="text-xs uppercase tracking-widest text-dream-cloud">Años Exp.</span>
                     </div>
-
-                    <div class="flex gap-4 items-start">
-                        <div class="p-2 bg-white/10 rounded-full text-brand-gold">
-                            <i class="ph-fill ph-clock" aria-hidden="true"></i>
-                        </div>
-                        <div>
-                            <p class="font-bold text-gray-200">Lunes - Domingo</p>
-                            <p class="text-brand-gold">08:00 AM - 08:00 PM</p>
-                        </div>
+                    <div>
+                        <span class="block text-3xl font-display text-dream-pink">1k+</span>
+                        <span class="text-xs uppercase tracking-widest text-dream-cloud">Tatuajes</span>
                     </div>
-                </div>
-
-                <div class="mt-8 pt-8 border-t border-white/10">
-                     <a href="https://maps.app.goo.gl/SjYpwLxx4QfDUqvo9" 
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="Open location in GPS"
-                        class="w-full md:w-auto inline-flex justify-center items-center gap-2 bg-white text-brand-dark px-6 py-3 rounded text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors">
-                        <i class="ph-bold ph-navigation-arrow"></i> Abrir en GPS
-                    </a>
                 </div>
             </div>
 
-            <!-- Columna MAPA -->
-            <div class="lg:w-3/5 h-[300px] md:h-[450px] lg:h-auto bg-gray-200 order-1 lg:order-2 relative">
-                <iframe 
-                    width="100%" 
-                    height="100%" 
-                    style="border:0" 
-                    loading="lazy" 
-                    allowfullscreen
-                    title="Rancho Cruz location on Google Maps"
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3567.8931140938475!2d-81.43981292367184!3d26.755866176740627!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x88db907d47220261%3A0xc392842416b73a24!2sRancho%20Cruz!5e0!3m2!1ses!2sus">
-                </iframe>
-                <div class="absolute inset-0 pointer-events-none shadow-[inset_0_0_20px_rgba(0,0,0,0.1)]"></div>
+            <div class="order-1 md:order-2 relative" data-aos="fade-left">
+                <!-- Marco de foto con efecto vidrio -->
+                <div class="glass-card p-3 rounded-t-[100px] rounded-b-[20px] relative">
+                    <img src="https://images.unsplash.com/photo-1595152772835-219674b2a8a6?q=80&w=1000&auto=format&fit=crop" class="w-full h-[500px] object-cover rounded-t-[90px] rounded-b-[10px] opacity-90" alt="Artista Tatuando">
+                    <!-- Detalle brillante -->
+                    <div class="absolute -top-4 -right-4 text-dream-pink text-5xl animate-spin-slow">
+                        <i class="ph-fill ph-star-four"></i>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- PROCESO & INFO (Glassmorphism Cards) -->
+    <section id="faq" class="py-24">
+        <div class="container mx-auto px-6">
+            <h2 class="font-display text-center text-3xl md:text-4xl text-white mb-16">El Viaje</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Card 1 -->
+                <div class="glass-card p-8 rounded-2xl hover:bg-white/5 transition-all duration-300" data-aos="fade-up" data-aos-delay="0">
+                    <i class="ph-thin ph-sparkle text-4xl text-dream-cyan mb-6"></i>
+                    <h3 class="font-display text-xl text-white mb-4">1. La Idea</h3>
+                    <p class="text-dream-cloud/60 text-sm leading-relaxed">
+                        Cuéntame tu sueño. Envíame tus referencias y la zona del cuerpo. Juntos diseñaremos algo único para ti.
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="glass-card p-8 rounded-2xl hover:bg-white/5 transition-all duration-300" data-aos="fade-up" data-aos-delay="100">
+                    <i class="ph-thin ph-calendar-check text-4xl text-dream-pink mb-6"></i>
+                    <h3 class="font-display text-xl text-white mb-4">2. Reserva</h3>
+                    <p class="text-dream-cloud/60 text-sm leading-relaxed">
+                        Se requiere un depósito para asegurar tu fecha. Recibirás una guía de preparación previa para tu piel.
+                    </p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="glass-card p-8 rounded-2xl hover:bg-white/5 transition-all duration-300" data-aos="fade-up" data-aos-delay="200">
+                    <i class="ph-thin ph-magic-wand text-4xl text-dream-cloud mb-6"></i>
+                    <h3 class="font-display text-xl text-white mb-4">3. La Magia</h3>
+                    <p class="text-dream-cloud/60 text-sm leading-relaxed">
+                        El día de la cita, relájate. Usamos anestesia tópica si es necesario. Te irás con arte eterno.
+                    </p>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- FOOTER -->
-    <footer class="bg-brand-dark text-white border-t border-white/10 py-12 text-center">
-        <div class="container mx-auto px-4">
-            <img src="https://raw.githubusercontent.com/Enviado98/ranchocruz/main/logo%20de%20su%20marca.jpg" 
-                 alt="Rancho Cruz Logo"
-                 loading="lazy"
-                 class="h-12 w-12 rounded-full mx-auto mb-4 border border-brand-gold/50 opacity-90">
-            <h2 class="font-serif text-xl tracking-widest mb-6">RANCHO CRUZ</h2>
-            
-            <div class="flex justify-center gap-6 text-gray-400 mb-8 text-2xl">
-                <a href="https://instagram.com/ranchocruz" 
-                   class="hover:text-brand-gold transition-colors"
-                   aria-label="Visit our Instagram"
-                   rel="noopener noreferrer"
-                   target="_blank">
-                    <i class="ph-fill ph-instagram-logo"></i>
-                </a>
-                <a href="https://facebook.com/ranchocruz" 
-                   class="hover:text-brand-gold transition-colors"
-                   aria-label="Visit our Facebook"
-                   rel="noopener noreferrer"
-                   target="_blank">
-                    <i class="ph-fill ph-facebook-logo"></i>
-                </a>
-            </div>
+    <!-- FOOTER MÍSTICO -->
+    <footer class="relative pt-24 pb-8 overflow-hidden">
+        <!-- Gradiente final -->
+        <div class="absolute inset-0 bg-gradient-to-t from-dream-blue/20 to-transparent pointer-events-none"></div>
 
-            <p class="text-[10px] text-gray-600 uppercase tracking-widest">&copy; 2026 Rancho Cruz Venue. LaBelle, FL.</p>
+        <div class="container mx-auto px-6 relative z-10 text-center">
+            <h2 class="font-display text-5xl md:text-7xl text-white mb-8 tracking-tighter hover:text-dream-pink transition-colors cursor-default">
+                LISTA PARA <br> CREAR?
+            </h2>
+
+            <a href="https://wa.me/123456789" class="btn-peach inline-flex items-center gap-3 px-8 py-4 rounded-full font-bold uppercase tracking-widest text-sm mb-16 animate-pulse-glow">
+                <i class="ph-bold ph-whatsapp-logo text-lg"></i> Enviar Mensaje
+            </a>
+
+            <div class="flex flex-col md:flex-row justify-between items-center border-t border-white/10 pt-8 text-xs text-dream-cloud/50 uppercase tracking-widest">
+                <p>&copy; 2026 Astral Ink. Todos los derechos reservados.</p>
+                <div class="flex gap-6 mt-4 md:mt-0 text-xl">
+                    <a href="#" class="hover:text-white transition-colors"><i class="ph-fill ph-instagram-logo"></i></a>
+                    <a href="#" class="hover:text-white transition-colors"><i class="ph-fill ph-tiktok-logo"></i></a>
+                    <a href="#" class="hover:text-white transition-colors"><i class="ph-fill ph-pinterest-logo"></i></a>
+                </div>
+            </div>
         </div>
     </footer>
 
-    <!-- SCRIPTS -->
+    <!-- Scripts -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        // Initialize AOS
-        AOS.init({ 
-            duration: 800, 
+        AOS.init({
+            duration: 1000,
             once: true,
             offset: 50
         });
 
-        // NAVBAR SCROLL
-        let lastScroll = 0;
-        const navbar = document.getElementById('navbar');
-        
-        window.addEventListener('scroll', () => {
-            const currentScroll = window.pageYOffset;
+        // Efecto parallax suave en las estrellas al mover el mouse
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
             
-            if (currentScroll > 10) {
-                navbar.classList.add('glass-nav');
-            } else {
-                navbar.classList.remove('glass-nav');
-            }
-            
-            lastScroll = currentScroll;
-        }, { passive: true });
-
-        // MENÚ MÓVIL
-        const menuBtn = document.getElementById('menu-btn');
-        const closeMenu = document.getElementById('close-menu');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const mobileLinks = document.querySelectorAll('.mobile-link');
-
-        function toggleMenu() {
-            const isOpen = mobileMenu.classList.toggle('menu-open');
-            document.body.classList.toggle('overflow-hidden');
-            menuBtn.setAttribute('aria-expanded', isOpen);
-        }
-
-        menuBtn.addEventListener('click', toggleMenu);
-        closeMenu.addEventListener('click', toggleMenu);
-        
-        mobileLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                toggleMenu();
-            });
+            document.querySelector('.stars').style.transform = `translate(-${x * 20}px, -${y * 20}px)`;
+            document.querySelector('.stars2').style.transform = `translate(${x * 30}px, ${y * 30}px)`;
         });
-
-        // Close menu on escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && mobileMenu.classList.contains('menu-open')) {
-                toggleMenu();
-            }
-        });
-
-        // WIDGET DE ESTADO Y CLIMA CON MANEJO DE ERRORES ROBUSTO
-        async function updateWidget() {
-            try {
-                // 1. Estado (Horario Florida)
-                const now = new Date();
-                const flTime = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
-                const hour = flTime.getHours();
-                
-                const statusText = document.getElementById('status-text');
-                const statusInd = document.getElementById('status-indicator');
-                const isOpen = hour >= 8 && hour < 20;
-                
-                if (statusText && statusInd) {
-                    statusText.innerText = isOpen ? "ABIERTO AHORA" : "CERRADO";
-                    statusInd.className = isOpen 
-                        ? "w-2 h-2 rounded-full bg-emerald-400 animate-pulse" 
-                        : "w-2 h-2 rounded-full bg-red-400";
-                }
-
-                // 2. Clima con timeout y fallback
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 5000);
-                
-                const res = await fetch(
-                    'https://api.open-meteo.com/v1/forecast?latitude=26.7559&longitude=-81.4398&current=temperature_2m,weather_code&temperature_unit=fahrenheit',
-                    { signal: controller.signal }
-                );
-                
-                clearTimeout(timeoutId);
-                
-                if (!res.ok) throw new Error('Weather API error');
-                
-                const data = await res.json();
-                const temp = Math.round(data.current.temperature_2m);
-                const code = data.current.weather_code;
-                
-                const weatherTemp = document.getElementById('weather-temp');
-                const iconDiv = document.getElementById('weather-icon');
-                
-                if (weatherTemp) {
-                    weatherTemp.innerText = `${temp}°F en LaBelle`;
-                }
-                
-                if (iconDiv) {
-                    let iconHTML;
-                    if (code <= 1) {
-                        iconHTML = '<i class="ph-duotone ph-sun text-amber-400"></i>';
-                    } else if (code <= 3) {
-                        iconHTML = '<i class="ph-duotone ph-cloud-sun text-white"></i>';
-                    } else if (code <= 67) {
-                        iconHTML = '<i class="ph-duotone ph-cloud-rain text-blue-300"></i>';
-                    } else {
-                        iconHTML = '<i class="ph-duotone ph-cloud text-gray-300"></i>';
-                    }
-                    iconDiv.innerHTML = iconHTML;
-                }
-                
-            } catch (error) {
-                console.warn('Widget update error:', error);
-                
-                // Fallback UI
-                const weatherTemp = document.getElementById('weather-temp');
-                const iconDiv = document.getElementById('weather-icon');
-                
-                if (weatherTemp) {
-                    weatherTemp.innerText = 'LaBelle, FL';
-                }
-                
-                if (iconDiv) {
-                    iconDiv.innerHTML = '<i class="ph-duotone ph-sun text-amber-400"></i>';
-                }
-            }
-        }
-
-        // Initialize widget
-        updateWidget();
-        
-        // Retry widget update every 5 minutes
-        setInterval(updateWidget, 300000);
-
-        // Performance optimization: Intersection Observer for images
-        if ('IntersectionObserver' in window) {
-            const imageObserver = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        if (img.dataset.src) {
-                            img.src = img.dataset.src;
-                            img.removeAttribute('data-src');
-                        }
-                        observer.unobserve(img);
-                    }
-                });
-            });
-
-            document.querySelectorAll('img[data-src]').forEach(img => {
-                imageObserver.observe(img);
-            });
-        }
-
-        // Service Worker registration (optional - for PWA)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                // Uncomment when you have a service worker file
-                // navigator.serviceWorker.register('/sw.js');
-            });
-        }
     </script>
 </body>
-  </html>
+</html>
