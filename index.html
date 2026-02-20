@@ -524,7 +524,7 @@ function doLogin(e) {
     btn.classList.remove('loading');
     if (u.value.toLowerCase() === 'admin' && p.value === 'admin') {
       document.getElementById('success').classList.add('show');
-      // Aquí redirigirías: window.location.href = '/dashboard';
+      window.location.href = 'dashboard.html';
     } else {
       err.innerText = "Usuario o contraseña incorrectos";
       err.classList.add('show');
