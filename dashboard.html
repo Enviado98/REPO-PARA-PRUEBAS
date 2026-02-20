@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>INK ACADEMY — Mi Temario</title>
+<link href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500;600;700&family=Amiri:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --white: #FFFFFF;
+  --ivory: #FAFAF8;
+  --ivory2: #F5F3EE;
+  --gold: #C6922A;
+  --gold2: #E4B84A;
+  --gold3: #F5D57A;
+  --gold-dim: rgba(198,146,42,0.1);
+  --cyan: #00C8D4;
+  --cyan2: #00E5F0;
+  --text-dark: #1A1200;
+  --text-mid: #6B5A2A;
+  --text-light: #B8A06A;
+  --text-gray: #aaa;
+}
+
+html, body {
+  min-height: 100%;
+  background: var(--white);
+  font-family: 'Montserrat', sans-serif;
+  color: var(--text-dark);
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#dust-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.bg-radial {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 10% 20%, rgba(0,200,212,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 70% at 90% 80%, rgba(198,146,42,0.04) 0%, transparent 60%),
+    #FFFFFF;
+  pointer-events: none;
+}
+
+/* ─── HEADER ─── */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255,255,255,0.93);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(198,146,42,0.1);
+  padding: 0 clamp(16px, 4vw, 56px);
+  height: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  opacity: 0;
+  animation: fadeDown 0.8s cubic-bezier(.16,1,.3,1) 0.1s forwards;
+}
+
+.header-brand { display: flex; align-items: center; gap: 12px; }
+
+.header-logo svg { width: 36px; height: 36px; }
+
+.header-title {
+  font-family: 'Scheherazade New', serif;
+  font-size: 21px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--gold), var(--gold3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+
+.header-sub {
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--cyan);
+  font-weight: 300;
+  margin-top: 2px;
+}
+
+.header-right { display: flex; align-items: center; gap: 16px; }
+
+.ring-wrap { display: flex; align-items: center; gap: 9px; }
+
+.ring-label {
+  font-size: 10px;
+  color: var(--text-light);
+  letter-spacing: 1px;
+  display: none;
+}
+@media(min-width:500px){ .ring-label { display: block; } }
+
+.ring-svg { width: 38px; height: 38px; transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: #EEE; stroke-width: 3; }
+.ring-fill {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  transition: stroke-dashoffset 1.2s cubic-bezier(.16,1,.3,1);
+}
+
+.btn-salir {
+  background: none;
+  border: 1px solid rgba(198,146,42,0.25);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-mid);
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.btn-salir:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+
+/* ─── MAIN ─── */
+main {
+  position: relative;
+  z-index: 2;
+  max-width: 820px;
+  margin: 0 auto;
+  padding: clamp(24px, 5vw, 52px) clamp(16px, 4vw, 36px) 80px;
+}
+
+/* WELCOME */
+.welcome {
+  margin-bottom: 40px;
+  opacity: 0;
+  animation: fadeUp 0.9s cubic-bezier(.16,1,.3,1) 0.3s forwards;
+}
+
+.welcome-eye {
+  font-size: 9px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--cyan);
+  font-weight: 300;
+  margin-bottom: 8px;
+}
+
+.welcome-h {
+  font-family: 'Scheherazade New', serif;
+  font-size: clamp(30px, 6vw, 50px);
+  font-weight: 700;
+  line-height: 1.05;
+  background: linear-gradient(140deg, var(--gold), var(--gold2), var(--gold3));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: goldShimmer 6s linear infinite;
+}
+
+.welcome-p {
+  font-family: 'Amiri', serif;
+  font-style: italic;
+  font-size: 17px;
+  color: var(--text-mid);
+  margin-top: 8px;
+  line-height: 1.6;
+}
+
+/* STATS */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  margin-bottom: 44px;
+  opacity: 0;
+  animation: fadeUp 0.9s cubic-bezier(.16,1,.3,1) 0.45s forwards;
+}
+
+.s-card {
+  background: var(--ivory);
+  border: 1px solid rgba(198,146,42,0.09);
+  border-radius: 14px;
+  padding: 16px 18px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.22s, box-shadow 0.22s;
+}
+
+.s-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--cyan), var(--gold2));
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.s-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.04); }
+.s-card:hover::after { opacity: 1; }
+
+.s-label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-light);
+  font-weight: 500;
+  margin-bottom: 7px;
+}
+
+.s-val {
+  font-family: 'Scheherazade New', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+}
+
+.s-sub { font-size: 10px; color: var(--text-light); margin-top: 3px; }
+
+/* LEVELS */
+.level-block {
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: fadeUp 0.8s cubic-bezier(.16,1,.3,1) forwards;
+}
+
+.level-block:nth-child(1) { animation-delay: 0.55s; }
+.level-block:nth-child(2) { animation-delay: 0.68s; }
+.level-block:nth-child(3) { animation-delay: 0.81s; }
+.level-block:nth-child(4) { animation-delay: 0.94s; }
+
+.level-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  margin-bottom: 12px;
+  padding: 2px 0;
+}
+
+.level-head-l { display: flex; align-items: center; gap: 12px; }
+
+.lv-badge {
+  width: 46px; height: 46px;
+  border-radius: 13px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Scheherazade New', serif;
+  font-size: 19px; font-weight: 700;
+  flex-shrink: 0;
+}
+.lv-badge.n0 { background: rgba(0,200,212,0.09); border: 1px solid rgba(0,200,212,0.28); color: var(--cyan); }
+.lv-badge.n1 { background: rgba(198,146,42,0.09); border: 1px solid rgba(198,146,42,0.28); color: var(--gold); }
+.lv-badge.n2 { background: rgba(228,184,74,0.1);  border: 1px solid rgba(228,184,74,0.32); color: var(--gold2); }
+.lv-badge.n3 { background: rgba(198,146,42,0.13); border: 1px solid rgba(198,146,42,0.4);  color: var(--gold); }
+
+.lv-name {
+  font-family: 'Scheherazade New', serif;
+  font-size: 19px; font-weight: 700;
+  color: var(--text-dark);
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.lv-sub {
+  font-family: 'Amiri', serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+.level-head-r { display: flex; align-items: center; gap: 12px; }
+
+.lv-pct {
+  font-family: 'Scheherazade New', serif;
+  font-size: 17px; font-weight: 600;
+  color: var(--gold2);
+  min-width: 40px;
+  text-align: right;
+}
+
+.chevron {
+  width: 19px; height: 19px;
+  color: var(--text-light);
+  transition: transform 0.35s cubic-bezier(.16,1,.3,1);
+  flex-shrink: 0;
+}
+
+.level-block.closed .chevron { transform: rotate(-90deg); }
+
+.lv-bar {
+  height: 3px;
+  background: rgba(0,0,0,0.05);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.lv-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--cyan), var(--gold2));
+  transition: width 1.2s cubic-bezier(.16,1,.3,1);
+  width: 0%;
+}
+
+.items-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  overflow: hidden;
+  max-height: 3000px;
+  transition: max-height 0.5s cubic-bezier(.16,1,.3,1), opacity 0.35s;
+}
+
+.level-block.closed .items-wrap {
+  max-height: 0;
+  opacity: 0;
+}
+
+/* ITEM */
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 13px 15px;
+  border-radius: 11px;
+  border: 1px solid rgba(0,0,0,0.04);
+  background: var(--ivory);
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(.16,1,.3,1);
+  position: relative;
+  overflow: hidden;
+}
+
+.item::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  border-radius: 3px 0 0 3px;
+  background: linear-gradient(180deg, var(--cyan), var(--gold2));
+  opacity: 0;
+  transition: opacity 0.22s;
+}
+
+.item:hover { background: #FEFCF8; border-color: rgba(198,146,42,0.1); box-shadow: 0 4px 14px rgba(0,0,0,0.04); }
+.item:hover::before { opacity: 0.35; }
+
+.item.done {
+  background: rgba(0,200,212,0.05);
+  border-color: rgba(0,200,212,0.2);
+}
+.item.done::before { opacity: 1; background: var(--cyan); }
+
+/* Checkbox */
+.chk {
+  width: 21px; height: 21px;
+  border-radius: 6px;
+  border: 1.5px solid rgba(0,0,0,0.1);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center; justify-content: center;
+  background: var(--white);
+  transition: all 0.22s;
+  margin-top: 1px;
+}
+
+.item.done .chk {
+  background: var(--cyan);
+  border-color: var(--cyan);
+}
+
+.chk svg {
+  width: 11px; height: 11px;
+  stroke: white; stroke-width: 2.5;
+  stroke-linecap: round; stroke-linejoin: round;
+  opacity: 0;
+  transform: scale(0.4);
+  transition: all 0.22s cubic-bezier(.16,1,.3,1);
+}
+
+.item.done .chk svg { opacity: 1; transform: scale(1); }
+
+.item-txt {
+  font-size: 13.5px;
+  color: var(--text-dark);
+  line-height: 1.5;
+  font-weight: 300;
+  flex: 1;
+  transition: color 0.22s;
+}
+
+.item.done .item-txt {
+  color: var(--text-gray);
+  text-decoration: line-through;
+  text-decoration-color: rgba(0,200,212,0.4);
+}
+
+/* ─── FOOTER ─── */
+footer {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 28px 20px 36px;
+  border-top: 1px solid rgba(198,146,42,0.07);
+}
+
+.footer-name {
+  font-family: 'Scheherazade New', serif;
+  font-size: 17px; font-weight: 700;
+  background: linear-gradient(135deg, var(--gold), var(--gold3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 4px;
+}
+
+footer p { font-size: 9px; color: var(--text-light); letter-spacing: 2px; text-transform: uppercase; }
+
+/* ─── KEYFRAMES ─── */
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes goldShimmer {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="dust-canvas"></canvas>
+<div class="bg-radial"></div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-brand">
+    <div class="header-logo">
+      <svg viewBox="0 0 38 38" fill="none">
+        <circle cx="19" cy="19" r="17" stroke="#C6922A" stroke-width="1.2"/>
+        <path d="M19 7V31 M13 14H25" stroke="#00C8D4" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div>
+      <div class="header-title">Kathy's Academy</div>
+      <div class="header-sub">Mi Temario</div>
+    </div>
+  </div>
+
+  <div class="header-right">
+    <div class="ring-wrap">
+      <span class="ring-label" id="ring-label">0% completado</span>
+      <svg class="ring-svg" viewBox="0 0 36 36">
+        <defs>
+          <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#00C8D4"/>
+            <stop offset="100%" stop-color="#E4B84A"/>
+          </linearGradient>
+        </defs>
+        <circle class="ring-bg" cx="18" cy="18" r="15.9"/>
+        <circle class="ring-fill" id="ring-fill" cx="18" cy="18" r="15.9" stroke="url(#rg)"/>
+      </svg>
+    </div>
+    <button class="btn-salir" onclick="window.location.href='index.html'">Salir</button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main>
+  <div class="welcome">
+    <p class="welcome-eye">Bienvenida de nuevo</p>
+    <h1 class="welcome-h">Tu camino al arte<br>del tatuaje</h1>
+    <p class="welcome-p">Marca cada tema conforme lo dominas. Tu progreso se guarda automáticamente.</p>
+  </div>
+
+  <div class="stats-row">
+    <div class="s-card">
+      <div class="s-label">Total Temas</div>
+      <div class="s-val" id="s-total">38</div>
+      <div class="s-sub">en 4 niveles</div>
+    </div>
+    <div class="s-card">
+      <div class="s-label">Completados</div>
+      <div class="s-val" id="s-done">0</div>
+      <div class="s-sub">temas finalizados</div>
+    </div>
+    <div class="s-card">
+      <div class="s-label">Pendientes</div>
+      <div class="s-val" id="s-pend">38</div>
+      <div class="s-sub">por dominar</div>
+    </div>
+    <div class="s-card">
+      <div class="s-label">Progreso</div>
+      <div class="s-val" id="s-pct">0%</div>
+      <div class="s-sub">avance general</div>
+    </div>
+  </div>
+
+  <div id="levels"></div>
+</main>
+
+<footer>
+  <div class="footer-name">Kathy's Academy</div>
+  <p>© 2026 · Arte del Tatuaje · Todos los derechos reservados</p>
+</footer>
+
+<script>
+/* DUST */
+const canvas = document.getElementById('dust-canvas');
+const ctx    = canvas.getContext('2d');
+let W, H;
+function resize(){ W = canvas.width = innerWidth; H = canvas.height = innerHeight; }
+resize(); window.addEventListener('resize', resize);
+const pts = [];
+for(let i=0; i<(innerWidth<768?40:75); i++)
+  pts.push({x:Math.random()*innerWidth, y:Math.random()*innerHeight,
+    r:Math.random()*1.5+0.4, speed:Math.random()*0.18+0.04, gold:Math.random()>.45});
+(function loop(){
+  ctx.clearRect(0,0,W,H);
+  pts.forEach(p=>{
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle = p.gold ? 'rgba(198,146,42,0.35)' : 'rgba(0,200,212,0.28)';
+    ctx.fill();
+    p.y -= p.speed;
+    if(p.y<-5){ p.y=H+5; p.x=Math.random()*W; }
+  });
+  requestAnimationFrame(loop);
+})();
+
+/* CURRICULUM */
+const CUR = [
+  { id:'n0', name:'NIVEL 0', sub:'Fundamentos', badge:'0', items:[
+    'Historia del tatuaje',
+    'Ética profesional y mentalidad del artista (disciplina, paciencia, humildad técnica, responsabilidad con la piel ajena)',
+    'Perfil del tatuador moderno (marca personal, redes)',
+    'Bioseguridad (esterilización y desinfección, manejo de residuos biológicos, prevención de contaminación cruzada)',
+    'Anatomía básica de la piel (epidermis, dermis, profundidad correcta)',
+    'Tipos de máquinas (rotativa, pen, coil)',
+    'Agujas y configuraciones (RL, RS, Magnum, Curved, etc.)',
+    'Voltajes y calibración de la máquina',
+    'Tipos de tinta y comportamiento en piel',
+  ]},
+  { id:'n1', name:'NIVEL 1', sub:'Líneas & Técnica', badge:'1', items:[
+    'Teoría de líneas (grosor y dirección)',
+    'Pulso y estabilidad (ejercicios progresivos)',
+    'Geometría aplicada al tatuaje',
+    'Proporciones y composición',
+    'Simetría y equilibrio visual',
+    'Transfer correcto y colocación en el cuerpo',
+    'Práctica en piel sintética',
+    'Corrección de líneas',
+    'Adaptación del diseño según la zona corporal',
+  ]},
+  { id:'n2', name:'NIVEL 2', sub:'Sombras & Volumen', badge:'2', items:[
+    'Teoría de luz y volumen',
+    'Escalas de grises',
+    'Técnicas de sombreado',
+    'Blackwork sólido (relleno limpio y parejo)',
+    'Transiciones suaves',
+    'Contraste y lectura del diseño',
+    'Cómo dar profundidad en tatuajes pequeños',
+    'Errores comunes en sombras',
+  ]},
+  { id:'n3', name:'NIVEL 3', sub:'Color Avanzado', badge:'3', items:[
+    'Teoría del color avanzada',
+    'Círculo cromático aplicado al tatuaje',
+    'Psicología del color',
+    'Saturación y contraste',
+    'Curva del color en piel real',
+    'Cómo envejece el color',
+    'Técnicas de mezcla directa en piel',
+    'Realismo a color',
+    'Neotradicional y color sólido',
+    'Corrección de color en cover ups',
+  ]},
+];
+
+const KEY = 'ink_prog';
+let state = {};
+try { state = JSON.parse(localStorage.getItem(KEY)||'{}'); } catch(e){}
+function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+function iid(lid,i){ return lid+'_'+i; }
+
+function build(){
+  const c = document.getElementById('levels');
+  c.innerHTML = '';
+  CUR.forEach((lv, li) => {
+    const done = lv.items.filter((_,i)=>state[iid(lv.id,i)]).length;
+    const pct  = Math.round(done/lv.items.length*100);
+
+    const div = document.createElement('div');
+    div.className = 'level-block';
+    div.id = 'lb-'+lv.id;
+    div.innerHTML = `
+      <div class="level-head" onclick="toggleLv('${lv.id}')">
+        <div class="level-head-l">
+          <div class="lv-badge ${lv.id}">${lv.badge}</div>
+          <div>
+            <div class="lv-name">${lv.name}</div>
+            <div class="lv-sub" id="lvsub-${lv.id}">${done} de ${lv.items.length} · ${lv.sub}</div>
+          </div>
+        </div>
+        <div class="level-head-r">
+          <div class="lv-pct" id="lvpct-${lv.id}">${pct}%</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+      </div>
+      <div class="lv-bar"><div class="lv-bar-fill" id="bar-${lv.id}"></div></div>
+      <div class="items-wrap" id="iw-${lv.id}">
+        ${lv.items.map((txt,i)=>{
+          const id = iid(lv.id,i);
+          const d  = !!state[id];
+          return `<div class="item${d?' done':''}" id="it-${id}" onclick="toggle('${lv.id}',${i})">
+            <div class="chk"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5 6 5 9.5 10.5 2.5"/></svg></div>
+            <div class="item-txt">${txt}</div>
+          </div>`;
+        }).join('')}
+      </div>`;
+    c.appendChild(div);
+
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      const bar = document.getElementById('bar-'+lv.id);
+      if(bar) bar.style.width = pct+'%';
+    }));
+  });
+  updateStats();
+}
+
+function toggle(lid, idx){
+  const id = iid(lid, idx);
+  state[id] = !state[id];
+  save();
+  const el = document.getElementById('it-'+id);
+  if(el) el.classList.toggle('done', state[id]);
+  refreshLevel(lid);
+  updateStats();
+}
+
+function refreshLevel(lid){
+  const lv   = CUR.find(l=>l.id===lid);
+  const done = lv.items.filter((_,i)=>state[iid(lid,i)]).length;
+  const pct  = Math.round(done/lv.items.length*100);
+  const sub  = document.getElementById('lvsub-'+lid);
+  const pc   = document.getElementById('lvpct-'+lid);
+  const bar  = document.getElementById('bar-'+lid);
+  if(sub) sub.textContent = done+' de '+lv.items.length+' · '+lv.sub;
+  if(pc)  pc.textContent  = pct+'%';
+  if(bar) bar.style.width = pct+'%';
+}
+
+function toggleLv(lid){
+  const lb = document.getElementById('lb-'+lid);
+  if(lb) lb.classList.toggle('closed');
+}
+
+function updateStats(){
+  const all  = CUR.flatMap(l=>l.items.map((_,i)=>iid(l.id,i)));
+  const tot  = all.length;
+  const done = all.filter(id=>state[id]).length;
+  const pct  = Math.round(done/tot*100);
+
+  document.getElementById('s-total').textContent = tot;
+  document.getElementById('s-done').textContent  = done;
+  document.getElementById('s-pend').textContent  = tot-done;
+  document.getElementById('s-pct').textContent   = pct+'%';
+  document.getElementById('ring-label').textContent = pct+'% completado';
+
+  const rf = document.getElementById('ring-fill');
+  if(rf) rf.style.strokeDashoffset = 100-(pct/100)*100;
+}
+
+build();
+</script>
+</body>
+</html>
