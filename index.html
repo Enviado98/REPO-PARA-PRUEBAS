@@ -2,10 +2,12 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Corrección viewport para teclados virtuales móviles -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
 <title>INK ACADEMY — Acceso</title>
-<link href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500;600;700&family=Amiri:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@200;300;400&family=Cormorant+Garamond:ital,wght@1,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500;600;700&family=Amiri:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
 <style>
+/* RESET & BASE */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
@@ -15,11 +17,8 @@
   --gold: #C6922A;
   --gold2: #E4B84A;
   --gold3: #F5D57A;
-  --gold-shine: #FFF0B0;
   --cyan: #00C8D4;
   --cyan2: #00E5F0;
-  --cyan-pale: #B8F5FA;
-  --cyan-glow: rgba(0,200,212,0.18);
   --text-dark: #1A1200;
   --text-mid: #6B5A2A;
   --text-light: #B8A06A;
@@ -27,12 +26,16 @@
 
 html, body {
   height: 100%;
-  overflow: hidden;
+  width: 100%;
   background: var(--white);
   font-family: 'Montserrat', sans-serif;
   color: var(--text-dark);
+  /* Arreglo scroll móvil */
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
 }
 
+/* CANVAS BACKGROUND */
 #dust-canvas {
   position: fixed;
   inset: 0;
@@ -51,66 +54,61 @@ html, body {
   pointer-events: none;
 }
 
+/* SCENE LAYOUT - Uso de dvh para móviles */
 .scene {
   position: relative;
   z-index: 2;
-  height: 100vh;
+  min-height: 100dvh; /* Dynamic Viewport Height */
+  width: 100%;
   display: grid;
   grid-template-columns: 1fr 500px;
   align-items: center;
+  overflow-y: auto; /* Permitir scroll si la pantalla es muy pequeña */
 }
 
-/* LEFT PANEL */
+/* LEFT PANEL (Desktop) */
 .left-panel {
-  padding: 80px 80px 80px 100px;
+  padding: 60px 60px 60px 8vw;
   display: flex;
   flex-direction: column;
   justify-content: center;
   height: 100%;
   opacity: 0;
-  animation: enterLeft 1.4s cubic-bezier(.16,1,.3,1) 0.3s forwards;
+  animation: enterLeft 1.2s cubic-bezier(.16,1,.3,1) 0.2s forwards;
   position: relative;
 }
 
 .eyebrow {
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 200;
+  font-weight: 300;
   font-size: 10px;
-  letter-spacing: 9px;
+  letter-spacing: 6px;
   text-transform: uppercase;
   color: var(--cyan);
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .brand-name {
   font-family: 'Scheherazade New', serif;
-  font-size: clamp(72px, 9vw, 128px);
+  font-size: clamp(60px, 8vw, 110px);
   font-weight: 700;
-  line-height: 0.88;
-  letter-spacing: 2px;
-  background: linear-gradient(160deg,
-    var(--gold) 0%,
-    var(--gold2) 30%,
-    var(--gold3) 55%,
-    var(--gold-shine) 70%,
-    var(--gold2) 85%,
-    var(--gold) 100%
-  );
+  line-height: 0.9;
+  background: linear-gradient(160deg, var(--gold), var(--gold2), var(--gold3), var(--gold2));
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: goldShimmer 5s linear infinite;
-  filter: drop-shadow(0 4px 20px rgba(198,146,42,0.2));
+  animation: goldShimmer 6s linear infinite;
+  /* Optimización: drop-shadow reducido */
+  filter: drop-shadow(0 4px 10px rgba(198,146,42,0.15));
 }
 
 .brand-sub {
   font-family: 'Amiri', serif;
   font-style: italic;
-  font-size: 18px;
-  letter-spacing: 6px;
+  font-size: clamp(16px, 2vw, 20px);
+  letter-spacing: 4px;
   color: var(--cyan);
-  margin-top: 14px;
+  margin-top: 10px;
   opacity: 0.9;
 }
 
@@ -118,302 +116,220 @@ html, body {
   display: flex;
   align-items: center;
   gap: 14px;
-  margin: 40px 0;
+  margin: 30px 0;
 }
-.sep-line { height: 1px; width: 80px; background: linear-gradient(90deg, var(--gold2), transparent); }
+.sep-line { height: 1px; width: 60px; background: linear-gradient(90deg, var(--gold2), transparent); }
 .sep-diamond { width: 6px; height: 6px; border: 1px solid var(--gold2); transform: rotate(45deg); }
 
 .tagline {
   font-family: 'Amiri', serif;
-  font-size: 21px;
+  font-size: clamp(18px, 1.5vw, 22px);
   font-style: italic;
   color: var(--text-mid);
-  line-height: 1.7;
-  max-width: 380px;
+  line-height: 1.6;
+  max-width: 400px;
 }
 
-.stats { display: flex; gap: 52px; margin-top: 56px; }
+.stats { display: flex; gap: 40px; margin-top: 40px; }
 .stat-num {
   font-family: 'Scheherazade New', serif;
-  font-size: 34px;
+  font-size: 32px;
   font-weight: 700;
-  background: linear-gradient(135deg, var(--gold), var(--gold3));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--gold);
   line-height: 1;
-  margin-bottom: 4px;
 }
-.stat-lbl {
-  font-size: 9px;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--text-light);
-  font-weight: 300;
-}
+.stat-lbl { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-light); }
 
 .divider-v {
   width: 1px;
-  height: 100%;
+  height: 80%;
   position: absolute;
   right: 0;
-  top: 0;
-  background: linear-gradient(180deg,
-    transparent 0%,
-    rgba(0,200,212,0.3) 20%,
-    rgba(198,146,42,0.4) 50%,
-    rgba(0,200,212,0.3) 80%,
-    transparent 100%
-  );
+  top: 10%;
+  background: linear-gradient(180deg, transparent, rgba(0,200,212,0.3), transparent);
 }
 
 /* LOGIN PANEL */
 .login-panel {
-  height: 100%;
+  min-height: 100%;
+  width: 100%;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 50px 56px;
+  padding: 20px;
 }
 
 .login-card {
   width: 100%;
-  max-width: 380px;
+  max-width: 360px;
   opacity: 0;
-  animation: enterUp 1.4s cubic-bezier(.16,1,.3,1) 0.7s forwards;
+  animation: enterUp 1.2s cubic-bezier(.16,1,.3,1) 0.5s forwards;
   position: relative;
+  margin: auto 0; /* Centrado vertical flex */
 }
 
-.login-card::before {
-  content: '';
-  position: absolute;
-  inset: -30px;
-  border-radius: 50px;
-  background: radial-gradient(ellipse at center, rgba(0,200,212,0.1) 0%, transparent 70%);
-  filter: blur(20px);
-  z-index: -1;
-  pointer-events: none;
-}
-
+/* Optimización: Box shadow simplificado */
 .card-inner {
   background: var(--white);
-  border-radius: 28px;
-  padding: 56px 44px 44px;
+  border-radius: 24px;
+  padding: 40px 32px 32px;
   position: relative;
-  box-shadow:
-    0 2px 6px rgba(0,200,212,0.06),
-    0 12px 40px rgba(0,200,212,0.08),
-    0 40px 80px rgba(198,146,42,0.05);
+  box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
+  border: 1px solid rgba(198,146,42,0.1);
 }
 
+/* Borde animado optimizado */
 .card-inner::before {
   content: '';
   position: absolute;
-  inset: -1.5px;
-  border-radius: 29.5px;
-  background: linear-gradient(135deg,
-    var(--cyan2) 0%,
-    rgba(0,200,212,0.4) 25%,
-    var(--gold2) 50%,
-    rgba(0,200,212,0.4) 75%,
-    var(--cyan2) 100%
-  );
-  background-size: 300% 300%;
+  inset: -2px;
+  border-radius: 26px;
+  background: linear-gradient(135deg, var(--cyan2), transparent 40%, transparent 60%, var(--gold2));
   z-index: -1;
-  animation: cyanBorder 6s ease-in-out infinite;
+  opacity: 0.5;
 }
 
 .corner {
   position: absolute;
-  width: 22px;
-  height: 22px;
+  width: 15px; height: 15px;
   border-color: var(--gold2);
   border-style: solid;
-  opacity: 0.65;
+  opacity: 0.5;
+  pointer-events: none;
 }
-.corner-tl { top: 12px; left: 12px; border-width: 1.5px 0 0 1.5px; border-radius: 6px 0 0 0; }
-.corner-tr { top: 12px; right: 12px; border-width: 1.5px 1.5px 0 0; border-radius: 0 6px 0 0; }
-.corner-bl { bottom: 12px; left: 12px; border-width: 0 0 1.5px 1.5px; border-radius: 0 0 0 6px; }
-.corner-br { bottom: 12px; right: 12px; border-width: 0 1.5px 1.5px 0; border-radius: 0 0 6px 0; }
+.corner-tl { top: 10px; left: 10px; border-width: 1px 0 0 1px; }
+.corner-tr { top: 10px; right: 10px; border-width: 1px 1px 0 0; }
+.corner-bl { bottom: 10px; left: 10px; border-width: 0 0 1px 1px; }
+.corner-br { bottom: 10px; right: 10px; border-width: 0 1px 1px 0; }
 
-.card-icon { text-align: center; margin-bottom: 28px; }
-.card-icon svg {
-  width: 52px; height: 52px;
-  filter: drop-shadow(0 2px 12px rgba(198,146,42,0.35));
-}
+.card-icon { text-align: center; margin-bottom: 20px; }
+.card-icon svg { width: 48px; height: 48px; }
 
 .login-title {
   font-family: 'Scheherazade New', serif;
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 700;
   text-align: center;
-  background: linear-gradient(135deg, var(--gold) 0%, var(--gold3) 60%, var(--gold) 100%);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: goldShimmer 4s linear infinite;
-  letter-spacing: 3px;
+  color: var(--gold);
   margin-bottom: 4px;
 }
 
 .login-sub {
   font-family: 'Amiri', serif;
   font-style: italic;
-  font-size: 13px;
+  font-size: 14px;
   text-align: center;
   color: var(--text-light);
-  letter-spacing: 1px;
-  margin-bottom: 36px;
+  margin-bottom: 30px;
 }
 
 label {
   display: block;
-  font-size: 9px;
-  letter-spacing: 4px;
+  font-size: 10px;
+  letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--cyan);
-  font-weight: 400;
-  margin-bottom: 9px;
+  font-weight: 600;
+  margin-bottom: 6px;
 }
 
-.input-wrap {
-  position: relative;
-  margin-bottom: 22px;
-}
+.input-wrap { position: relative; margin-bottom: 20px; }
 
 .input-wrap svg.i-icon {
   position: absolute;
-  left: 15px;
-  top: 54px;
-  width: 15px;
-  height: 15px;
+  left: 14px;
+  top: 38px; /* Ajustado */
+  width: 16px;
+  height: 16px;
   color: #C6B080;
-  transition: color 0.3s;
+  pointer-events: none;
 }
 
 input {
   width: 100%;
-  padding: 15px 15px 15px 44px;
+  padding: 14px 14px 14px 40px;
   background: var(--ivory2);
-  border: 1.5px solid rgba(0,200,212,0.2);
-  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: 10px;
   font-family: 'Montserrat', sans-serif;
-  font-size: 13.5px;
-  font-weight: 300;
+  font-size: 14px;
   color: var(--text-dark);
   outline: none;
-  transition: all 0.35s cubic-bezier(.16,1,.3,1);
-  letter-spacing: 0.5px;
+  transition: all 0.3s;
 }
 
-input::placeholder { color: #C4B88A; }
+/* Hack para quitar el fondo amarillo del autocompletado */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px var(--ivory2) inset !important;
+    -webkit-text-fill-color: var(--text-dark) !important;
+}
 
 input:focus {
-  background: #FEFEFE;
+  background: #fff;
   border-color: var(--cyan);
-  box-shadow: 0 0 0 3px rgba(0,200,212,0.1), 0 4px 16px rgba(0,200,212,0.08);
-}
-
-input:focus ~ .f-line { transform: scaleX(1); }
-
-.f-line {
-  position: absolute;
-  bottom: 0; left: 10px; right: 10px;
-  height: 1.5px;
-  border-radius: 1px;
-  background: linear-gradient(90deg, var(--cyan), var(--gold2));
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.4s cubic-bezier(.16,1,.3,1);
+  box-shadow: 0 4px 12px rgba(0,200,212,0.08);
 }
 
 .err-box {
   display: none;
-  background: #FFF4F4;
-  border: 1px solid rgba(220,80,80,0.22);
-  border-radius: 10px;
-  padding: 11px 16px;
+  background: #fff0f0;
+  border: 1px solid #ffcccc;
+  border-radius: 8px;
+  padding: 10px;
   font-size: 12px;
-  color: #C04040;
+  color: #d32f2f;
   text-align: center;
-  letter-spacing: 0.3px;
-  margin-bottom: 18px;
-  animation: shake 0.45s ease;
+  margin-bottom: 15px;
 }
-.err-box.show { display: block; }
+.err-box.show { display: block; animation: shake 0.4s ease; }
 
 .btn {
   width: 100%;
-  padding: 17px;
+  padding: 15px;
   border: none;
-  border-radius: 13px;
+  border-radius: 10px;
   cursor: pointer;
   font-family: 'Scheherazade New', serif;
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
-  letter-spacing: 5px;
+  letter-spacing: 3px;
   color: var(--white);
-  background: linear-gradient(135deg, var(--cyan) 0%, #00B8C4 40%, var(--cyan2) 70%, var(--cyan) 100%);
-  background-size: 200% auto;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.4s cubic-bezier(.16,1,.3,1);
-  box-shadow: 0 6px 24px rgba(0,200,212,0.3);
-  margin-top: 6px;
+  background: linear-gradient(135deg, var(--cyan), #00B0BC);
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 15px rgba(0,200,212,0.25);
+  margin-top: 10px;
+  /* Optimización para tap móvil */
+  touch-action: manipulation; 
 }
 
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 36px rgba(0,200,212,0.4), 0 4px 12px rgba(0,200,212,0.2);
-  background-position: right center;
-  letter-spacing: 7px;
-}
+.btn:active { transform: scale(0.98); }
 
-.btn:active { transform: translateY(0); }
-.btn span { position: relative; z-index: 1; }
-
-.btn.loading .btn-txt { opacity: 0; }
+.btn.loading { opacity: 0.8; pointer-events: none; }
+.btn.loading .btn-txt { display: none; }
 .btn.loading::after {
   content: '';
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%,-50%);
-  width: 22px; height: 22px;
-  border: 2px solid rgba(255,255,255,0.3);
+  display: block;
+  width: 20px; height: 20px;
+  margin: 0 auto;
+  border: 2px solid rgba(255,255,255,0.4);
   border-top-color: #fff;
   border-radius: 50%;
-  animation: spin 0.7s linear infinite;
+  animation: spin 0.8s linear infinite;
 }
 
 .card-foot {
   text-align: center;
-  margin-top: 28px;
-  padding-top: 22px;
-  border-top: 1px solid rgba(198,146,42,0.1);
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0,0,0,0.05);
 }
+.card-foot p { font-size: 10px; letter-spacing: 1px; color: var(--text-light); }
 
-.ornament {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  opacity: 0.35;
-  margin-bottom: 10px;
-}
-.orn-line { width: 36px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold2)); }
-.orn-line.r { background: linear-gradient(90deg, var(--gold2), transparent); }
-.orn-dot { width: 4px; height: 4px; background: var(--gold2); border-radius: 50%; }
-
-.card-foot p {
-  font-size: 9px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--text-light);
-}
-
-/* SUCCESS */
+/* SUCCESS SCREEN */
 .success-screen {
   position: fixed;
   inset: 0;
@@ -423,96 +339,36 @@ input:focus ~ .f-line { transform: scaleX(1); }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 20px;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.7s;
+  transition: opacity 0.5s;
 }
 .success-screen.show { opacity: 1; pointer-events: all; }
 
-.s-ring {
-  width: 90px; height: 90px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(0,200,212,0.4);
-  display: flex; align-items: center; justify-content: center;
-  position: relative;
-  animation: ringBeat 2s ease-in-out infinite;
-}
-.s-ring::before {
-  content: '';
-  position: absolute;
-  inset: -12px;
-  border-radius: 50%;
-  border: 1px solid rgba(198,146,42,0.2);
-  animation: ringBeat 2s ease-in-out infinite 0.5s;
-}
+.s-check { width: 50px; height: 50px; margin-bottom: 20px; }
+.s-check path { stroke-dasharray: 55; stroke-dashoffset: 55; }
+.success-screen.show .s-check path { animation: drawCheck 0.6s ease 0.2s forwards; }
 
-.s-check { width: 36px; height: 36px; }
-.s-check path {
-  stroke-dasharray: 55;
-  stroke-dashoffset: 55;
-  animation: drawCheck 0.8s ease 0.4s forwards;
-}
+.s-title { font-family: 'Scheherazade New', serif; font-size: 32px; color: var(--gold); }
 
-.s-title {
-  font-family: 'Scheherazade New', serif;
-  font-size: 36px;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--gold) 0%, var(--cyan) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: 4px;
-}
+/* ANIMATIONS */
+@keyframes enterLeft { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes enterUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes goldShimmer { 0% { background-position: 0% center; } 100% { background-position: 200% center; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+@keyframes drawCheck { to { stroke-dashoffset: 0; } }
 
-.s-sub {
-  font-family: 'Amiri', serif;
-  font-style: italic;
-  font-size: 14px;
-  color: var(--text-light);
-  letter-spacing: 2px;
-}
-
-/* KEYFRAMES */
-@keyframes enterLeft {
-  from { opacity: 0; transform: translateX(-50px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-@keyframes enterUp {
-  from { opacity: 0; transform: translateY(50px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes goldShimmer {
-  0%   { background-position: 0% center; }
-  100% { background-position: 200% center; }
-}
-@keyframes cyanBorder {
-  0%, 100% { background-position: 0% 50%; }
-  50%       { background-position: 100% 50%; }
-}
-@keyframes spin {
-  to { transform: translate(-50%,-50%) rotate(360deg); }
-}
-@keyframes shake {
-  0%,100% { transform: translateX(0); }
-  20% { transform: translateX(-7px); }
-  40% { transform: translateX(7px); }
-  60% { transform: translateX(-5px); }
-  80% { transform: translateX(5px); }
-}
-@keyframes ringBeat {
-  0%,100% { transform: scale(1); opacity: 0.6; }
-  50%      { transform: scale(1.07); opacity: 1; }
-}
-@keyframes drawCheck {
-  to { stroke-dashoffset: 0; }
-}
-
-@media (max-width: 820px) {
+/* RESPONSIVE */
+@media (max-width: 900px) {
   .scene { grid-template-columns: 1fr; }
-  .left-panel { display: none; }
-  .login-panel { padding: 24px; }
+  .left-panel { display: none; } /* Ocultamos panel izq en tablet/móvil para foco */
   .divider-v { display: none; }
+  .login-panel { background: radial-gradient(circle at top, rgba(0,200,212,0.05), transparent 40%); }
+}
+
+@media (max-height: 700px) {
+  .login-panel { padding-top: 40px; padding-bottom: 40px; }
 }
 </style>
 </head>
@@ -522,127 +378,77 @@ input:focus ~ .f-line { transform: scaleX(1); }
 <div class="bg-radial"></div>
 
 <div class="scene">
-
+  <!-- Left Panel (Solo PC) -->
   <div class="left-panel">
     <p class="eyebrow">Premium Tattoo Education</p>
     <h1 class="brand-name">INK<br>ACADEMY</h1>
     <p class="brand-sub">فن · إتقان · إرث</p>
-
-    <div class="sep">
-      <div class="sep-line"></div>
-      <div class="sep-diamond"></div>
-    </div>
-
-    <p class="tagline">Domina el arte del tatuaje<br>de la mano de los mejores<br>artistas del mundo.</p>
-
+    <div class="sep"><div class="sep-line"></div><div class="sep-diamond"></div></div>
+    <p class="tagline">Domina el arte del tatuaje de la mano de los mejores artistas del mundo.</p>
     <div class="stats">
-      <div>
-        <div class="stat-num">240+</div>
-        <div class="stat-lbl">Cursos</div>
-      </div>
-      <div>
-        <div class="stat-num">18K</div>
-        <div class="stat-lbl">Alumnos</div>
-      </div>
-      <div>
-        <div class="stat-num">96</div>
-        <div class="stat-lbl">Maestros</div>
-      </div>
+      <div><div class="stat-num">240+</div><div class="stat-lbl">Cursos</div></div>
+      <div><div class="stat-num">18K</div><div class="stat-lbl">Alumnos</div></div>
     </div>
-
     <div class="divider-v"></div>
   </div>
 
+  <!-- Login Panel -->
   <div class="login-panel">
     <div class="login-card">
       <div class="card-inner">
-        <div class="corner corner-tl"></div>
-        <div class="corner corner-tr"></div>
-        <div class="corner corner-bl"></div>
-        <div class="corner corner-br"></div>
+        <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div><div class="corner corner-br"></div>
 
         <div class="card-icon">
-          <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="26" cy="26" r="24" stroke="url(#cg)" stroke-width="1"/>
-            <line x1="26" y1="8" x2="26" y2="36" stroke="url(#gg)" stroke-width="1.8" stroke-linecap="round"/>
-            <polygon points="26,36 23,43 26,48 29,43" fill="url(#gg)"/>
-            <line x1="18" y1="18" x2="34" y2="18" stroke="url(#cg)" stroke-width="1.2" stroke-linecap="round"/>
-            <defs>
-              <linearGradient id="gg" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#C6922A"/>
-                <stop offset="60%" stop-color="#F5D57A"/>
-                <stop offset="100%" stop-color="#C6922A"/>
-              </linearGradient>
-              <linearGradient id="cg" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#00C8D4"/>
-                <stop offset="100%" stop-color="#00E5F0"/>
-              </linearGradient>
-            </defs>
+          <!-- Logo simplificado SVG -->
+          <svg viewBox="0 0 52 52" fill="none">
+            <circle cx="26" cy="26" r="23" stroke="#C6922A" stroke-width="1.5"/>
+            <path d="M26 10V42 M18 18H34" stroke="#00C8D4" stroke-width="2" stroke-linecap="round"/>
           </svg>
         </div>
 
         <h2 class="login-title">دخول</h2>
-        <p class="login-sub">Área Exclusiva de Estudiantes</p>
+        <p class="login-sub">Acceso a Estudiantes</p>
 
-        <div class="err-box" id="err">Usuario o contraseña incorrectos</div>
+        <div class="err-box" id="err">Credenciales incorrectas</div>
 
-        <form id="frm" onsubmit="doLogin(event)" autocomplete="off">
+        <form id="frm" onsubmit="doLogin(event)">
           <div class="input-wrap">
             <label for="u">Usuario</label>
-            <input type="text" id="u" placeholder="Tu usuario">
-            <svg class="i-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
-            </svg>
-            <div class="f-line"></div>
+            <input type="text" id="u" placeholder="Usuario" inputmode="text">
+            <svg class="i-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           </div>
 
           <div class="input-wrap">
             <label for="p">Contraseña</label>
-            <input type="password" id="p" placeholder="••••••••">
-            <svg class="i-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <rect x="3" y="11" width="18" height="11" rx="2"/>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-            </svg>
-            <div class="f-line"></div>
+            <input type="password" id="p" placeholder="••••••••" inputmode="text">
+            <svg class="i-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
           </div>
 
           <button type="submit" class="btn" id="btn">
-            <span class="btn-txt">Entrar</span>
+            <span class="btn-txt">ENTRAR</span>
           </button>
         </form>
 
         <div class="card-foot">
-          <div class="ornament">
-            <div class="orn-line"></div>
-            <div class="orn-dot"></div>
-            <div class="orn-line r"></div>
-          </div>
-          <p>© 2025 Ink Academy · Arte & Maestría</p>
+          <p>© 2025 Ink Academy</p>
         </div>
       </div>
     </div>
   </div>
 </div>
 
+<!-- Success Overlay -->
 <div class="success-screen" id="success">
-  <div class="s-ring">
-    <svg class="s-check" viewBox="0 0 36 36" fill="none">
-      <path d="M6 18 L15 27 L30 10" stroke="url(#sg)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-      <defs>
-        <linearGradient id="sg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#00C8D4"/>
-          <stop offset="100%" stop-color="#C6922A"/>
-        </linearGradient>
-      </defs>
-    </svg>
-  </div>
+  <svg class="s-check" viewBox="0 0 36 36" fill="none">
+    <path d="M6 18 L15 27 L30 10" stroke="#C6922A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
   <p class="s-title">Bienvenido</p>
-  <p class="s-sub">Acceso concedido · Redirigiendo…</p>
+  <p style="color:#888; font-size:14px; margin-top:5px;">Redirigiendo al panel...</p>
 </div>
 
 <script>
-/* POLVO DORADO */
+/* OPTIMIZACIÓN CANVAS: Menos partículas, sin shadowBlur */
 const canvas = document.getElementById('dust-canvas');
 const ctx = canvas.getContext('2d');
 let W, H;
@@ -654,70 +460,78 @@ function resize() {
 resize();
 window.addEventListener('resize', resize);
 
+// Detectar móvil para reducir carga
+const isMobile = window.innerWidth < 768;
+const particleCount = isMobile ? 40 : 90; // Reducido drásticamente en móvil
+
 const particles = [];
-for (let i = 0; i < 110; i++) {
+for (let i = 0; i < particleCount; i++) {
   particles.push({
-    x: Math.random() * innerWidth,
-    y: Math.random() * innerHeight,
-    r: Math.random() * 1.8 + 0.3,
-    alpha: Math.random() * 0.55 + 0.1,
-    speed: Math.random() * 0.18 + 0.04,
-    drift: (Math.random() - 0.5) * 0.22,
-    tw: Math.random() * Math.PI * 2,
-    twS: Math.random() * 0.02 + 0.007,
-    gold: Math.random() > 0.38,
+    x: Math.random() * W,
+    y: Math.random() * H,
+    r: Math.random() * 1.5 + 0.5,
+    speed: Math.random() * 0.2 + 0.05,
+    gold: Math.random() > 0.5
   });
 }
 
 function drawDust() {
   ctx.clearRect(0, 0, W, H);
+  
+  // Optimizacion: beginPath fuera del loop si todos comparten estilo, 
+  // pero aquí cambian de color, así que lo mantenemos simple pero sin efectos pesados.
+  
   particles.forEach(p => {
-    p.tw += p.twS;
-    const glow = 0.35 + 0.65 * Math.abs(Math.sin(p.tw));
-    const alpha = p.alpha * glow;
-
     ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r * glow, 0, Math.PI * 2);
-    if (p.gold) {
-      ctx.fillStyle = `rgba(228,184,74,${alpha})`;
-      ctx.shadowColor = 'rgba(228,184,74,0.9)';
-    } else {
-      ctx.fillStyle = `rgba(0,210,220,${alpha})`;
-      ctx.shadowColor = 'rgba(0,210,220,0.9)';
-    }
-    ctx.shadowBlur = p.r * 7 * glow;
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    // Usamos colores planos con alpha en lugar de sombras para rendimiento
+    ctx.fillStyle = p.gold ? "rgba(198, 146, 42, 0.4)" : "rgba(0, 200, 212, 0.3)";
     ctx.fill();
-    ctx.shadowBlur = 0;
 
+    // Movimiento simple hacia arriba
     p.y -= p.speed;
-    p.x += p.drift;
-    if (p.y < -4) { p.y = H + 4; p.x = Math.random() * W; }
-    if (p.x < -4) p.x = W + 4;
-    if (p.x > W + 4) p.x = -4;
+    if (p.y < -5) {
+      p.y = H + 5;
+      p.x = Math.random() * W;
+    }
   });
+  
   requestAnimationFrame(drawDust);
 }
-drawDust();
+// Iniciar animación
+requestAnimationFrame(drawDust);
 
-/* LOGIN */
+/* LOGIN LOGIC */
 function doLogin(e) {
   e.preventDefault();
-  const u = document.getElementById('u').value.trim();
-  const p = document.getElementById('p').value.trim();
+  const u = document.getElementById('u');
+  const p = document.getElementById('p');
   const btn = document.getElementById('btn');
   const err = document.getElementById('err');
+
+  // Simple validación
+  if(!u.value || !p.value) {
+    err.innerText = "Por favor completa los campos";
+    err.classList.add('show');
+    return;
+  }
+
   err.classList.remove('show');
   btn.classList.add('loading');
+
+  // Simulación backend
   setTimeout(() => {
     btn.classList.remove('loading');
-    if (u === 'admin' && p === 'admin') {
+    if (u.value.toLowerCase() === 'admin' && p.value === 'admin') {
       document.getElementById('success').classList.add('show');
+      // Aquí redirigirías: window.location.href = '/dashboard';
     } else {
+      err.innerText = "Usuario o contraseña incorrectos";
       err.classList.add('show');
-      document.getElementById('p').value = '';
-      document.getElementById('p').focus();
+      p.value = '';
+      p.focus();
     }
-  }, 1200);
+  }, 1000);
 }
 </script>
 </body>
