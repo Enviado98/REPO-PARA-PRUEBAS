@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>🔍 Test El Toque v3 – Lógica correcta</title>
+<title>🔍 Test El Toque v4 – Lógica correcta</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: monospace; background: #0d1117; color: #c9d1d9; padding: 20px; }
@@ -38,7 +38,7 @@
 </style>
 </head>
 <body>
-<h1>🔍 El Toque – Test v3 (lógica EMA correcta)</h1>
+<h1>🔍 El Toque – Test v4 (umbral corregido: > 10)</h1>
 <p>Replica exactamente cómo El Toque decide qué valor mostrar: <code>median</code> si hay suficientes muestras, <code>ema_value</code> si hay pocas.</p>
 
 <button onclick="runTest()">▶ Ejecutar test</button>
@@ -48,8 +48,8 @@
 
 <div class="info-box">
   📐 <strong>Lógica de El Toque:</strong>
-  Si <code>count_values >= 10</code> → usa <code>median</code> (hay datos suficientes del día)<br>
-  Si <code>count_values &lt; 10</code>  → usa <code>ema_value</code> (media móvil histórica, más estable)<br>
+  Si <code>count_values > 10</code> → usa <code>median</code> (hay datos suficientes del día)<br>
+  Si <code>count_values &lt;= 10</code>  → usa <code>ema_value</code> (media móvil histórica, más estable)<br>
   <span class="warn">⚠️ MXN (10 muestras, límite exacto) y CLA/BRL (pocas muestras) → usan <code>ema_value</code></span>
 </div>
 
@@ -72,7 +72,7 @@
 
 <script>
 // ─── Umbral: si count_values < MIN_SAMPLES → usar ema_value en vez de median
-const MIN_SAMPLES = 10;
+const MIN_SAMPLES = 11; // El Toque usa > 10 (estricto)
 
 // ─── Monedas objetivo ─────────────────────────────────────────────────────────
 const CURRENCIES = [
@@ -156,7 +156,7 @@ async function runTest() {
   document.getElementById('raw-card').style.display = 'none';
   document.getElementById('timestamp').textContent = '';
   log('═══════════════════════════════════════════');
-  log('🚀 Iniciando test v3 – ' + new Date().toLocaleString('es-ES'));
+  log('🚀 Iniciando test v4 – ' + new Date().toLocaleString('es-ES'));
 
   let html = null, proxyUsed = '?';
   for (let i = 0; i < PROXIES.length; i++) {
@@ -267,7 +267,7 @@ async function runTest() {
     <pre>${generateSnippet(results)}</pre>
   `;
 
-  log('✅ Test v3 completado', 'ok');
+  log('✅ Test v4 completado', 'ok');
 }
 
 function generateSnippet(results) {
