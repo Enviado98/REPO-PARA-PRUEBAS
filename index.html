@@ -3,304 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Morro & Imperium | Captain's Quarters</title>
+    <title>ANTEMURAL | Prototipo Alfa</title>
     <style>
         :root {
-            --gold: #c5a059;
-            --gold-glow: rgba(197, 160, 89, 0.3);
-            --deep-ink: #0a0e12;
-            --parchment: #e4d5b7;
-            --accent-red: #8b2626;
-            --glass: rgba(15, 25, 35, 0.85);
-            --wood-dark: #1a120b;
+            --gold: #d4af37;
+            --wood: #8b5a2b;
+            --bg: #0a0e12;
+            --panel: rgba(20, 30, 40, 0.9);
+            --text: #e4d5b7;
         }
 
         body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'serif';
             margin: 0;
-            padding: 0;
-            background: radial-gradient(circle, #1a2a3a 0%, #05080a 100%);
-            color: var(--parchment);
-            font-family: 'Cinzel', serif; /* Fuente estilo épico/romano si está disponible */
+            display: flex;
+            flex-direction: column;
             height: 100vh;
             overflow: hidden;
+        }
+
+        /* --- HUD SUPERIOR --- */
+        .hud {
+            background: #1a120b;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            border-bottom: 2px solid var(--gold);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .res-box { text-align: center; }
+        .res-val { display: block; font-size: 1.2em; font-weight: bold; color: var(--gold); }
+        .res-lab { font-size: 0.7em; text-transform: uppercase; opacity: 0.7; }
+
+        /* --- CONTENIDO PRINCIPAL --- */
+        .main-content {
+            flex: 1;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-        }
-
-        /* --- CAPA DE AMBIENTE --- */
-        .vignette {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 100%);
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        /* --- CABECERA DE RECURSOS (HUD SUPERIOR) --- */
-        header {
-            height: 70px;
-            background: linear-gradient(to bottom, var(--wood-dark), transparent);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 0 40px;
-            z-index: 20;
-            border-bottom: 1px solid rgba(197, 160, 89, 0.2);
-        }
-
-        .resource-bar {
-            display: flex;
-            gap: 50px;
-            background: var(--glass);
-            padding: 10px 40px;
-            border-radius: 0 0 30px 30px;
-            border: 1px solid var(--gold);
-            border-top: none;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
-
-        .res-item {
-            text-align: center;
-            min-width: 80px;
-        }
-
-        .res-item label {
-            display: block;
-            font-size: 10px;
-            color: var(--gold);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .res-item span {
-            font-size: 18px;
-            font-weight: bold;
-            text-shadow: 0 0 10px var(--gold-glow);
-        }
-
-        /* --- CONTENEDOR PRINCIPAL --- */
-        .game-world {
-            flex: 1;
-            display: flex;
-            position: relative;
-            padding: 20px;
             gap: 20px;
+            overflow-y: auto;
         }
 
-        /* --- VISTA DE LA CIUDAD (CENTRO) --- */
-        .city-view {
-            flex: 1;
-            background: url('https://www.transparenttextures.com/patterns/old-map-dark.png'), #0f1a24;
-            border: 2px solid #3d2b1f;
-            border-radius: 15px;
-            position: relative;
-            box-shadow: inset 0 0 100px #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-        }
-
-        /* Simulación de Isla Central */
-        .island-core {
-            width: 500px;
-            height: 350px;
-            background: url('https://cdn-icons-png.flaticon.com/512/3554/3554030.png') no-repeat center; /* Icono de castillo/fuerte */
-            background-size: contain;
-            filter: drop-shadow(0 0 30px rgba(0,0,0,1));
-            animation: float 6s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
-        }
-
-        .building-label {
-            position: absolute;
-            background: rgba(0,0,0,0.7);
+        .card {
+            background: var(--panel);
             border: 1px solid var(--gold);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: 0.3s;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
         }
 
-        .building-label:hover {
+        .btn {
             background: var(--gold);
             color: black;
-            transform: scale(1.1);
-        }
-
-        /* --- PANELES LATERALES (CONTROL) --- */
-        aside {
-            width: 280px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            z-index: 15;
-        }
-
-        .panel {
-            background: var(--glass);
-            border: 1px solid rgba(197, 160, 89, 0.3);
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-        }
-
-        .panel-header {
-            border-bottom: 1px solid var(--gold);
-            margin-bottom: 15px;
-            padding-bottom: 5px;
-            font-size: 14px;
-            color: var(--gold);
-            text-transform: uppercase;
-        }
-
-        /* Bitácora de Eventos */
-        .log-entry {
-            font-size: 12px;
-            margin-bottom: 10px;
-            padding-left: 10px;
-            border-left: 2px solid var(--gold);
-            font-style: italic;
-            color: #bdc3c7;
-        }
-
-        /* Menú de Acciones */
-        .nav-menu {
-            list-style: none; padding: 0; margin: 0;
-        }
-
-        .nav-menu li {
-            padding: 12px;
-            margin-bottom: 5px;
-            background: rgba(255,255,255,0.05);
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
             border-radius: 5px;
             cursor: pointer;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            width: 100%;
+            margin-top: 10px;
         }
 
-        .nav-menu li:hover {
-            background: rgba(197, 160, 89, 0.2);
-            padding-left: 20px;
-            color: var(--gold);
+        .btn:disabled { background: #555; cursor: not-allowed; }
+
+        /* --- BITÁCORA --- */
+        #log {
+            font-size: 0.8em;
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            height: 80px;
+            overflow-y: auto;
+            border: 1px solid #333;
         }
 
-        /* --- FOOTER TÉCNICO --- */
-        footer {
-            height: 40px;
-            background: var(--deep-ink);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 30px;
-            font-size: 11px;
-            color: #555;
-            border-top: 1px solid #1a1a1a;
-        }
+        .log-msg { border-left: 2px solid var(--gold); padding-left: 5px; margin-bottom: 5px; }
 
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: #2ecc71;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 5px;
-            box-shadow: 0 0 5px #2ecc71;
-        }
     </style>
 </head>
 <body>
 
-<div class="vignette"></div>
-
-<header>
-    <div class="resource-bar">
-        <div class="res-item">
-            <label>Piedra</label>
-            <span>24.850</span>
-        </div>
-        <div class="res-item">
-            <label>Caoba</label>
-            <span>12.400</span>
-        </div>
-        <div class="res-item">
-            <label>Doblones</label>
-            <span style="color: #f1c40f;">5.120</span>
-        </div>
-        <div class="res-item">
-            <label>Raciones</label>
-            <span>92%</span>
-        </div>
+<div class="hud">
+    <div class="res-box">
+        <span class="res-lab">Madera</span>
+        <span id="wood-val" class="res-val">0</span>
     </div>
-</header>
-
-<div class="game-world">
-    <aside>
-        <div class="panel">
-            <div class="panel-header">Mando Naval</div>
-            <ul class="nav-menu">
-                <li><span>🏰</span> Ciudadela</li>
-                <li><span>⚓</span> Astillero Real</li>
-                <li><span>⚔️</span> Cuartel de Milicias</li>
-                <li><span>🔭</span> Academia de Ciencias</li>
-                <li><span>🗺️</span> Mapa del Caribe</li>
-            </ul>
-        </div>
-        
-        <div class="panel" style="flex: 1;">
-            <div class="panel-header">Bitácora del Capitán</div>
-            <div class="log-entry">14:20 - Una fragata enemiga fue avistada en el sector [4:120].</div>
-            <div class="log-entry">12:05 - La ampliación del Castillo del Morro ha finalizado.</div>
-            <div class="log-entry">09:15 - Mercaderes de la Española ofrecen trato por madera.</div>
-            <div class="log-entry" style="color: var(--accent-red);">04:30 - ¡ALERTA! Un huracán se aproxima desde el Este.</div>
-        </div>
-    </aside>
-
-    <main class="city-view">
-        <div class="island-core"></div>
-        
-        <div class="building-label" style="top: 30%; left: 45%;">Castillo del Morro (Nivel 12)</div>
-        <div class="building-label" style="top: 55%; left: 35%;">Muelle de Carga</div>
-        <div class="building-label" style="top: 65%; left: 55%;">Cantera Real</div>
-        
-        <div style="position: absolute; bottom: 20px; left: 20px; color: var(--gold);">
-            <small>Coordenadas actuales:</small><br>
-            <strong>La Habana [4:120:4]</strong>
-        </div>
-    </main>
-
-    <aside>
-        <div class="panel">
-            <div class="panel-header">Flota Disponible</div>
-            <div style="font-size: 13px;">
-                <p>Galeones de Guerra: <strong>3</strong></p>
-                <p>Fragatas Rápidas: <strong>8</strong></p>
-                <p>Lanchas de Espionaje: <strong>12</strong></p>
-            </div>
-            <button style="width:100%; padding: 10px; background: var(--gold); border:none; font-weight:bold; cursor:pointer;">Gestionar Flota</button>
-        </div>
-
-        <div class="panel">
-            <div class="panel-header">Estado del Viento</div>
-            <div style="text-align:center;">
-                <span style="font-size: 30px;">🧭</span>
-                <p>Noreste - 15 Nudos<br><small>(Bonificación a velocidad: +5%)</small></p>
-            </div>
-        </div>
-    </aside>
+    <div class="res-box">
+        <span class="res-lab">Oro</span>
+        <span id="gold-val" class="res-val">0</span>
+    </div>
 </div>
 
-<footer>
-    <div><span class="status-dot"></span> Servidor: dns.madaras.work.gd | Nodo: 200.55.128.130</div>
-    <div>2026 © Morro & Imperium | v. 2.0.4-Stable</div>
-</footer>
+<div class="main-content">
+    <div class="card">
+        <h3>Castillo del Morro</h3>
+        <p>Nivel actual: <span id="level-val">1</span></p>
+        <p><small>Costo: <span id="upgrade-cost">50</span> Madera</small></p>
+        <button class="btn" onclick="upgradeBuilding()">Ampliar Fortaleza</button>
+    </div>
 
+    <div class="card">
+        <h3>Bitácora del Capitán</h3>
+        <div id="log">
+            <div class="log-msg">Bienvenido, Gobernador. La plaza está a su cargo.</div>
+        </div>
+    </div>
+
+    <button class="btn" style="background: #c0392b; color: white;" onclick="resetGame()">Reiniciar Progreso</button>
+</div>
+
+<script>
+    // --- ESTADO DEL JUEGO (DATOS) ---
+    let gameData = {
+        wood: 0,
+        gold: 0,
+        level: 1,
+        lastUpdate: Date.now()
+    };
+
+    // --- CARGAR DATOS GUARDADOS ---
+    function loadGame() {
+        const saved = localStorage.getItem('AntemuralSave');
+        if (saved) {
+            gameData = JSON.parse(saved);
+            // Calcular recursos producidos mientras no estabas
+            const now = Date.now();
+            const diff = (now - gameData.lastUpdate) / 1000; // segundos
+            gameData.wood += diff * (gameData.level * 1.5);
+            gameData.gold += diff * (gameData.level * 0.5);
+            addLog("Has regresado. Tus hombres recolectaron recursos en tu ausencia.");
+        }
+    }
+
+    // --- GUARDAR DATOS ---
+    function saveGame() {
+        gameData.lastUpdate = Date.now();
+        localStorage.setItem('AntemuralSave', JSON.stringify(gameData));
+    }
+
+    // --- LÓGICA DE PRODUCCIÓN (EL RELOJ) ---
+    function update() {
+        // La madera sube según el nivel del fuerte
+        gameData.wood += (gameData.level * 0.1); 
+        gameData.gold += (gameData.level * 0.05);
+
+        document.getElementById('wood-val').innerText = Math.floor(gameData.wood);
+        document.getElementById('gold-val').innerText = Math.floor(gameData.gold);
+        document.getElementById('level-val').innerText = gameData.level;
+        document.getElementById('upgrade-cost').innerText = gameData.level * 50;
+        
+        saveGame();
+    }
+
+    // --- ACCIONES ---
+    function upgradeBuilding() {
+        let cost = gameData.level * 50;
+        if (gameData.wood >= cost) {
+            gameData.wood -= cost;
+            gameData.level++;
+            addLog("¡Fortaleza ampliada! Producción aumentada.");
+        } else {
+            addLog("Falta madera para la construcción.");
+        }
+    }
+
+    function addLog(msg) {
+        const log = document.getElementById('log');
+        const div = document.createElement('div');
+        div.className = 'log-msg';
+        div.innerText = new Date().toLocaleTimeString() + ": " + msg;
+        log.prepend(div);
+    }
+
+    function resetGame() {
+        if(confirm("¿Seguro que quieres borrar tu progreso?")) {
+            localStorage.clear();
+            location.reload();
+        }
+    }
+
+    // Iniciar el juego
+    loadGame();
+    setInterval(update, 1000); // Se ejecuta cada segundo
+
+</script>
 </body>
 </html>
