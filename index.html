@@ -1,96 +1,277 @@
-<style>
-    /* Estilos específicos para la vista del Mapa */
-    .map-grid {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr); /* 5 sectores visibles */
-        gap: 10px;
-        background: url('https://www.transparenttextures.com/patterns/old-map.png'), #d4c4a8;
-        padding: 20px;
-        border: 10px solid #5d4037;
-        border-image: url("https://www.transparenttextures.com/patterns/dark-wood.png") 30 round;
-    }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morro & Imperium | Vista Táctica</title>
+    <style>
+        :root {
+            --bg-deep-sea: #0a1118;
+            --bg-panel: #121d26;
+            --bg-row-hover: #1a2a36;
+            --text-main: #b0c4de;
+            --gold-accent: #d4af37;
+            --bronze-border: #8b5a2b;
+            --danger-red: #ff4c4c;
+            --safe-green: #4caf50;
+            --action-blue: #4db8ff;
+        }
 
-    .map-slot {
-        aspect-ratio: 1 / 1;
-        border: 1px dashed rgba(0,0,0,0.2);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        transition: 0.3s;
-    }
+        body {
+            background-color: var(--bg-deep-sea);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
 
-    .map-slot:hover {
-        background: rgba(255,255,255,0.2);
-        cursor: pointer;
-    }
+        .map-container {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--bg-panel);
+            border: 1px solid var(--bronze-border);
+            border-radius: 4px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+        }
 
-    .island-icon {
-        width: 60px;
-        height: 60px;
-        background-size: contain;
-        background-repeat: no-repeat;
-    }
+        /* Controles de Navegación */
+        .map-header {
+            background: linear-gradient(180deg, #1c2b39 0%, #121d26 100%);
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 2px solid var(--bronze-border);
+        }
 
-    /* Simulación de iconos */
-    .villa { background-image: url('https://cdn-icons-png.flaticon.com/512/2642/2642255.png'); } /* Icono de fuerte */
-    .wreck { background-image: url('https://cdn-icons-png.flaticon.com/512/3066/3066515.png'); } /* Restos de barco */
-    .empty { opacity: 0.3; filter: grayscale(1); background-image: url('https://cdn-icons-png.flaticon.com/512/628/628555.png'); }
+        .coord-input {
+            background: #0a1118;
+            border: 1px solid var(--gold-accent);
+            color: var(--gold-accent);
+            padding: 5px 10px;
+            font-size: 16px;
+            width: 50px;
+            text-align: center;
+            border-radius: 3px;
+            font-weight: bold;
+        }
 
-    .slot-info {
-        font-size: 0.7em;
-        text-align: center;
-        margin-top: 5px;
-        font-weight: bold;
-        color: #3e2723;
-    }
+        .btn-nav {
+            background: transparent;
+            border: 1px solid var(--text-main);
+            color: var(--text-main);
+            padding: 5px 15px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
 
-    .fleet-indicator {
-        position: absolute;
-        top: 5px;
-        right: 5px;
-        background: red;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        box-shadow: 0 0 5px red;
-    }
-</style>
+        .btn-nav:hover {
+            background: var(--text-main);
+            color: var(--bg-deep-sea);
+        }
 
-<div class="view-title">
-    <h2>Navegación: Sector de la Florida [4:120:x]</h2>
-    <div>
-        <button>< Anterior</button>
-        <input type="text" value="120" style="width: 40px; text-align: center;">
-        <button>Siguiente ></button>
+        /* Tabla Táctica */
+        .tactical-grid {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .tactical-grid th {
+            background: #0d161e;
+            padding: 12px;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #7a8f9e;
+            border-bottom: 1px solid var(--bronze-border);
+        }
+
+        .tactical-grid td {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(139, 90, 43, 0.2);
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        .tactical-grid tr {
+            transition: background 0.2s;
+        }
+
+        .tactical-grid tr:hover {
+            background: var(--bg-row-hover);
+        }
+
+        /* Elementos Específicos */
+        .pos {
+            color: var(--gold-accent);
+            font-weight: bold;
+            width: 40px;
+            text-align: center;
+        }
+
+        .island-name {
+            color: #ffffff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .island-name:hover { color: var(--gold-accent); }
+
+        .player-status { font-size: 10px; margin-left: 5px; }
+        .status-strong { color: var(--danger-red); }
+        .status-weak { color: var(--safe-green); }
+        .status-vacation { color: var(--action-blue); }
+
+        .alliance {
+            color: var(--action-blue);
+            cursor: pointer;
+        }
+
+        .alliance:hover { text-decoration: underline; }
+
+        /* Iconos de Acción */
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-icon {
+            cursor: pointer;
+            font-size: 16px;
+            opacity: 0.7;
+            transition: 0.2s;
+            text-decoration: none;
+        }
+
+        .action-icon:hover {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        .icon-spy { color: var(--action-blue); }
+        .icon-attack { color: var(--danger-red); }
+        .icon-salvage { color: var(--safe-green); }
+
+        /* Restos / Naufragios */
+        .wreckage {
+            font-size: 12px;
+            color: #aaa;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .wreckage-icon { color: var(--gold-accent); font-size: 14px; }
+
+        /* Fila Vacía */
+        .empty-slot td {
+            color: #445;
+            font-style: italic;
+        }
+
+        /* Footer del Servidor */
+        .server-footer {
+            text-align: center;
+            padding: 10px;
+            background: #0a1118;
+            font-size: 11px;
+            color: #555;
+            border-top: 1px solid var(--bronze-border);
+        }
+    </style>
+</head>
+<body>
+
+<div class="map-container">
+    <div class="map-header">
+        <button class="btn-nav">◀ Sector Anterior</button>
+        <div style="color: var(--text-main); font-size: 14px;">
+            Archipiélago <input type="text" class="coord-input" value="4"> :
+            Sector <input type="text" class="coord-input" value="120">
+        </div>
+        <button class="btn-nav">Sector Siguiente ▶</button>
+    </div>
+
+    <table class="tactical-grid">
+        <thead>
+            <tr>
+                <th class="pos">Pos</th>
+                <th>Enclave / Isla</th>
+                <th>Naufragios</th>
+                <th>Gobernador</th>
+                <th>Alianza</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="pos">1</td>
+                <td><span class="island-name">San Cristóbal</span> 🛡️</td>
+                <td></td>
+                <td style="color: var(--gold-accent);">Tú</td>
+                <td>[ARMADA]</td>
+                <td class="actions">
+                    </td>
+            </tr>
+
+            <tr>
+                <td class="pos">2</td>
+                <td><span class="island-name">Tortuga</span></td>
+                <td>
+                    <div class="wreckage">
+                        <span class="wreckage-icon">⚓</span> 4.5M
+                    </div>
+                </td>
+                <td>Barbanegra <span class="player-status status-strong">(F)</span></td>
+                <td class="alliance">[PIRATES]</td>
+                <td class="actions">
+                    <span class="action-icon icon-spy" title="Espiar">👁️</span>
+                    <span class="action-icon icon-attack" title="Atacar">⚔️</span>
+                    <span class="action-icon icon-salvage" title="Rescatar Restos">♻️</span>
+                </td>
+            </tr>
+
+            <tr class="empty-slot">
+                <td class="pos">3</td>
+                <td colspan="4">Aguas inexploradas (Posición disponible)</td>
+                <td class="actions">
+                    <span class="action-icon icon-salvage" style="color: var(--text-main);" title="Colonizar">⛵</span>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="pos">4</td>
+                <td><span class="island-name">Puerto Plata</span></td>
+                <td></td>
+                <td>Corsario Novato <span class="player-status status-weak">(d)</span> <span class="player-status">(i)</span></td>
+                <td></td>
+                <td class="actions">
+                    <span class="action-icon icon-spy" title="Espiar">👁️</span>
+                    <span class="action-icon icon-attack" title="Atacar">⚔️</span>
+                </td>
+            </tr>
+
+            <tr class="empty-slot">
+                <td class="pos">5</td>
+                <td colspan="4">Aguas inexploradas (Posición disponible)</td>
+                <td class="actions">
+                    <span class="action-icon icon-salvage" style="color: var(--text-main);" title="Colonizar">⛵</span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="server-footer">
+        Conexión Segura | Nodo de Base de Datos: dns.madaras.work.gd | Motor de Combate v1.0
     </div>
 </div>
 
-<div class="map-grid">
-    <div class="map-slot">
-        <div class="island-icon villa"></div>
-        <div class="slot-info">La Habana<br>[4:120:1]</div>
-        <div class="fleet-indicator"></div> </div>
-
-    <div class="map-slot">
-        <div class="island-icon wreck"></div>
-        <div class="slot-info">Restos Galeón<br>(400 Madera)</div>
-    </div>
-
-    <div class="map-slot">
-        <div class="island-icon empty"></div>
-        <div class="slot-info">Cayo Virgen<br>[4:120:3]</div>
-    </div>
-
-    <div class="map-slot">
-        <div class="island-icon villa" style="filter: sepia(1) hue-rotate(320deg);"></div>
-        <div class="slot-info">Puerto Pirata<br>[4:120:4]</div>
-    </div>
-
-    <div class="map-slot">
-        <div class="island-icon empty"></div>
-        <div class="slot-info">Explorar...</div>
-    </div>
-</div>
-
+</body>
+</html>
