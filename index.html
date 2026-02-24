@@ -250,6 +250,7 @@
   <button class="primary" id="btnRun" onclick="runAll()">▶ Iniciar prueba</button>
   <button onclick="clearLog()">🗑 Limpiar log</button>
   <button onclick="toggleHtml()">👁 Ver HTML crudo</button>
+  <button onclick="copyHtml()">📋 Copiar HTML</button>
 </div>
 
 <!-- Log -->
@@ -319,6 +320,13 @@ function log(msg, type = "") {
 
 function clearLog() {
   document.getElementById("logBox").innerHTML = "";
+}
+
+function copyHtml() {
+  if (!rawHtml) { log("Aún no hay HTML capturado.", "warn"); return; }
+  navigator.clipboard.writeText(rawHtml).then(() => log("📋 HTML copiado al portapapeles (son " + rawHtml.length + " chars)", "ok")).catch(() => {
+    log("No se pudo copiar automáticamente. Usa el botón 👁 Ver HTML crudo y cópialo a mano.", "warn");
+  });
 }
 
 function toggleHtml() {
@@ -478,6 +486,7 @@ async function tryMethod(method) {
     if (!html || html.length < 500) throw new Error("Respuesta vacía o muy corta");
 
     log(`📄 HTML recibido: ${html.length.toLocaleString()} caracteres`, "");
+    log(`🔎 Primeros 800 chars: ${html.slice(0, 800).replace(/\s+/g, ' ')}`, "");
     rawHtml = html;
 
     const rates = extractRates(html);
