@@ -3,488 +3,627 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🔬 Test — Tasas + Déficit</title>
+<title>Monitor Citas — Consulado España La Habana</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400;700;800&display=swap');
 
   :root {
-    --bg: #0c0c0c;
-    --panel: #141414;
-    --border: #262626;
-    --a: #e8ff00;    /* amarillo neón */
-    --b: #00e5ff;    /* cian */
-    --e: #ff2d55;
-    --m: #555;
-    --t: #ddd;
+    --bg:        #0a0a0f;
+    --panel:     #0f0f1a;
+    --border:    #1e1e35;
+    --green:     #00ff9d;
+    --red:       #ff3c5a;
+    --yellow:    #ffd24d;
+    --blue:      #4da6ff;
+    --dim:       #4a4a6a;
+    --text:      #c8c8e8;
+    --mono:      'Share Tech Mono', monospace;
+    --sans:      'Syne', sans-serif;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
     background: var(--bg);
-    color: var(--t);
-    font-family: 'Space Mono', monospace;
+    color: var(--text);
+    font-family: var(--sans);
     min-height: 100vh;
-    padding: 1.5rem;
+    padding: 20px;
+    overflow-x: hidden;
   }
+
+  /* GRID SCANLINES overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,157,0.015) 2px, rgba(0,255,157,0.015) 4px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
 
   /* ── HEADER ── */
   header {
-    display: flex;
-    align-items: baseline;
-    gap: 1rem;
-    margin-bottom: 2rem;
     border-bottom: 1px solid var(--border);
-    padding-bottom: 1rem;
-  }
-  header h1 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2.2rem;
-    letter-spacing: .08em;
-    color: var(--a);
-    line-height: 1;
-  }
-  header p { font-size: .65rem; color: var(--m); }
-
-  /* ── GRID ── */
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-  }
-  @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
-
-  /* ── PANELS ── */
-  .panel {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 1.2rem;
-  }
-  .panel-title {
-    font-size: .6rem;
-    color: var(--m);
-    text-transform: uppercase;
-    letter-spacing: .12em;
-    margin-bottom: 1rem;
+    padding-bottom: 18px;
+    margin-bottom: 24px;
     display: flex;
-    align-items: center;
-    gap: .4rem;
-  }
-  .panel-title .dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--a);
-    animation: blink 1.4s infinite;
-  }
-  @keyframes blink { 0%,100%{opacity:1}50%{opacity:.2} }
-
-  /* ── RATES ── */
-  .rates { display: flex; flex-direction: column; gap: .6rem; }
-  .rate-row {
-    display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
-    padding: .5rem .6rem;
-    background: #1a1a1a;
-    border-radius: 3px;
-    border-left: 3px solid var(--border);
-    transition: border-color .3s;
-  }
-  .rate-row.ok { border-color: var(--a); }
-  .rate-row.fail { border-color: var(--e); }
-  .rate-label { font-size: .65rem; color: var(--m); }
-  .rate-val {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.6rem;
-    color: var(--a);
-    letter-spacing: .04em;
-  }
-  .rate-val.pending { color: var(--m); font-size: 1rem; }
-  .rate-val.fail { color: var(--e); font-size: .9rem; }
-  .rate-unit { font-size: .55rem; color: var(--m); margin-left: .2rem; }
-
-  /* ── DEFICIT ── */
-  .deficit-big {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 4rem;
-    color: var(--b);
-    letter-spacing: .04em;
-    line-height: 1;
-    margin-bottom: .3rem;
-  }
-  .deficit-big.pending { color: var(--m); font-size: 1.5rem; }
-  .deficit-big.fail { color: var(--e); font-size: 1.2rem; }
-  .deficit-source { font-size: .58rem; color: var(--m); line-height: 1.5; }
-
-  /* ── STATUS BADGES ── */
-  .status-row {
-    display: flex;
-    gap: .5rem;
+    gap: 16px;
     flex-wrap: wrap;
-    margin-bottom: 1rem;
   }
-  .badge {
-    font-size: .58rem;
-    font-weight: 700;
-    padding: .2rem .5rem;
-    border-radius: 2px;
-    border: 1px solid;
+  .title-block {}
+  .title-block h1 {
+    font-size: 1.3rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #fff;
   }
-  .badge.pending  { border-color: var(--m);  color: var(--m); }
-  .badge.running  { border-color: var(--a);  color: var(--a); animation: blink .7s infinite; }
-  .badge.ok       { border-color: var(--a);  color: var(--a); background: #1a1f00; }
-  .badge.fail     { border-color: var(--e);  color: var(--e); background: #1f0008; }
+  .title-block p {
+    font-size: 0.75rem;
+    color: var(--dim);
+    font-family: var(--mono);
+    margin-top: 4px;
+  }
 
-  /* ── BUTTONS ── */
-  .btns { display: flex; gap: .6rem; flex-wrap: wrap; margin-bottom: 1rem; }
-  button {
-    font-family: 'Space Mono', monospace;
-    font-size: .7rem;
-    padding: .5rem 1rem;
-    border-radius: 3px;
-    cursor: pointer;
-    border: 1px solid var(--border);
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
     background: var(--panel);
-    color: var(--t);
-    transition: all .15s;
-  }
-  button:hover { border-color: var(--a); color: var(--a); }
-  button.primary { background: var(--a); color: #000; border-color: var(--a); font-weight: 700; }
-  button.primary:hover { opacity: .85; }
-  button:disabled { opacity: .35; cursor: not-allowed; }
-
-  /* ── LOG ── */
-  .log {
-    background: #080808;
     border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: .8rem;
-    height: 320px;
-    overflow-y: auto;
-    font-size: .65rem;
-    line-height: 1.85;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    white-space: nowrap;
   }
-  .ll { display: flex; gap: .5rem; }
-  .lt { color: var(--m); min-width: 5.5rem; flex-shrink: 0; }
-  .lm { flex: 1; word-break: break-all; }
-  .lok  .lm { color: var(--a); }
-  .lwarn .lm { color: #ffaa00; }
-  .lerr  .lm { color: var(--e); }
-  .linfo .lm { color: var(--b); }
+  .pulse {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--yellow);
+    animation: blink 1.2s infinite;
+    flex-shrink: 0;
+  }
+  .pulse.done { background: var(--green); animation: none; }
+  .pulse.err  { background: var(--red);   animation: none; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
 
-  /* ── TITLES LIST ── */
-  .titles-section { margin-top: 1rem; display: none; }
-  .titles-section h3 { font-size: .6rem; color: var(--m); text-transform: uppercase; letter-spacing: .1em; margin-bottom: .6rem; }
-  .title-item {
-    font-size: .62rem;
-    padding: .35rem .6rem;
-    border-left: 2px solid var(--border);
-    margin-bottom: .3rem;
-    color: var(--m);
-    line-height: 1.5;
+  /* ── VEREDICTO ── */
+  .veredicto {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    min-height: 90px;
+  }
+  .veredicto-icon {
+    font-size: 2.8rem;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .veredicto-text {}
+  .veredicto-text .label {
+    font-size: 0.65rem;
+    font-family: var(--mono);
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  .veredicto-text .conclusion {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    margin-top: 4px;
+    line-height: 1.35;
+  }
+  .veredicto-text .sub {
+    font-size: 0.75rem;
+    color: var(--dim);
+    font-family: var(--mono);
+    margin-top: 5px;
+  }
+  .veredicto.ok     { border-color: var(--green); }
+  .veredicto.maybe  { border-color: var(--yellow); }
+  .veredicto.no     { border-color: var(--red); }
+  .veredicto.loading { border-color: var(--border); }
+
+  /* ── FUENTES GRID ── */
+  .sources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .source-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
     transition: border-color .2s;
   }
-  .title-item.hit { border-color: var(--b); color: var(--t); }
-  .title-item .mw-tag { color: var(--b); font-weight: 700; }
+  .source-card.ok     { border-color: rgba(0,255,157,.35); }
+  .source-card.warn   { border-color: rgba(255,210,77,.35); }
+  .source-card.err    { border-color: rgba(255,60,90,.35); }
+  .source-card.loading{ border-color: var(--border); }
+
+  .source-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .source-name {
+    font-size: 0.7rem;
+    font-family: var(--mono);
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+  .badge {
+    font-size: 0.6rem;
+    font-family: var(--mono);
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: bold;
+  }
+  .badge.ok   { background: rgba(0,255,157,.15); color: var(--green); }
+  .badge.warn { background: rgba(255,210,77,.15); color: var(--yellow); }
+  .badge.err  { background: rgba(255,60,90,.15);  color: var(--red); }
+  .badge.loading { background: rgba(255,255,255,.05); color: var(--dim); }
+
+  .source-result {
+    font-size: 0.8rem;
+    color: var(--text);
+    line-height: 1.45;
+  }
+  .source-result.empty { color: var(--dim); font-family: var(--mono); font-size: 0.72rem; }
+
+  /* ── LOG ── */
+  .log-wrap {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .log-header {
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--dim);
+    display: flex;
+    justify-content: space-between;
+  }
+  .log-body {
+    padding: 12px 14px;
+    max-height: 220px;
+    overflow-y: auto;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    line-height: 1.7;
+  }
+  .log-body::-webkit-scrollbar { width: 3px; }
+  .log-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .log-line { display: flex; gap: 10px; }
+  .log-time { color: var(--dim); flex-shrink: 0; }
+  .log-msg.g { color: var(--green); }
+  .log-msg.y { color: var(--yellow); }
+  .log-msg.r { color: var(--red); }
+  .log-msg.b { color: var(--blue); }
+  .log-msg.d { color: var(--dim); }
+
+  /* ── BOTÓN ── */
+  .run-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: 1px solid var(--green);
+    color: var(--green);
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    padding: 8px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all .2s;
+    margin-top: 16px;
+  }
+  .run-btn:hover { background: rgba(0,255,157,.1); }
+  .run-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+  /* ── INFO BOX ── */
+  .info-box {
+    margin-top: 16px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--blue);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: var(--text);
+  }
+  .info-box strong { color: #fff; }
+  .info-box a { color: var(--blue); text-decoration: none; }
+  .info-box a:hover { text-decoration: underline; }
+
+  /* ── KEYWORD HITS ── */
+  .kw-hit {
+    display: inline-block;
+    background: rgba(0,255,157,.12);
+    color: var(--green);
+    border-radius: 4px;
+    padding: 0 5px;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+  }
+  .kw-hit.neg {
+    background: rgba(255,60,90,.12);
+    color: var(--red);
+  }
+
+  @media (max-width: 500px) {
+    .sources-grid { grid-template-columns: 1fr; }
+    header { flex-direction: column; }
+  }
 </style>
 </head>
 <body>
+<div class="wrapper">
 
-<header>
-  <h1>DATA TEST</h1>
-  <p>El Toque (tasas) + Cubadebate (déficit) · extracción en tiempo real</p>
-</header>
-
-<div class="grid">
-
-  <!-- TASAS -->
-  <div class="panel">
-    <div class="panel-title"><div class="dot"></div> Tasas de cambio — El Toque</div>
-    <div class="status-row">
-      <span class="badge pending" id="badge-eltoque">ESPERA</span>
+  <header>
+    <div class="title-block">
+      <h1>🔍 Monitor de Citas — Consulado España / La Habana</h1>
+      <p>TEST DE FUENTES PÚBLICAS · Opción B · v1.0</p>
     </div>
-    <div class="rates">
-      <div class="rate-row" id="row-usd">
-        <span class="rate-label">💵 USD</span>
-        <span><span class="rate-val pending" id="val-usd">···</span><span class="rate-unit">CUP</span></span>
+    <div class="status-pill" id="globalPill">
+      <div class="pulse" id="globalDot"></div>
+      <span id="globalStatus">Listo para escanear</span>
+    </div>
+  </header>
+
+  <!-- VEREDICTO FINAL -->
+  <div class="veredicto loading" id="veredicto">
+    <div class="veredicto-icon" id="verdIcon">🔎</div>
+    <div class="veredicto-text">
+      <div class="label">Conclusión del análisis</div>
+      <div class="conclusion" id="verdText">Pulsa "Ejecutar Análisis" para comenzar</div>
+      <div class="sub" id="verdSub">El sistema consultará 4 fuentes públicas independientes</div>
+    </div>
+  </div>
+
+  <!-- FUENTES -->
+  <div class="sources-grid" id="sourcesGrid">
+
+    <div class="source-card loading" id="card-oficial">
+      <div class="source-header">
+        <span class="source-name">Web Oficial Consulado</span>
+        <span class="badge loading" id="badge-oficial">PENDIENTE</span>
       </div>
-      <div class="rate-row" id="row-eur">
-        <span class="rate-label">💶 EUR</span>
-        <span><span class="rate-val pending" id="val-eur">···</span><span class="rate-unit">CUP</span></span>
+      <div class="source-result empty" id="result-oficial">Esperando ejecución...</div>
+    </div>
+
+    <div class="source-card loading" id="card-twitter">
+      <div class="source-header">
+        <span class="source-name">X / Twitter @ConsEspLaHabana</span>
+        <span class="badge loading" id="badge-twitter">PENDIENTE</span>
       </div>
-      <div class="rate-row" id="row-mlc">
-        <span class="rate-label">💳 MLC</span>
-        <span><span class="rate-val pending" id="val-mlc">···</span><span class="rate-unit">CUP</span></span>
+      <div class="source-result empty" id="result-twitter">Esperando ejecución...</div>
+    </div>
+
+    <div class="source-card loading" id="card-dimecuba">
+      <div class="source-header">
+        <span class="source-name">DimeCuba — Noticias consulado</span>
+        <span class="badge loading" id="badge-dimecuba">PENDIENTE</span>
+      </div>
+      <div class="source-result empty" id="result-dimecuba">Esperando ejecución...</div>
+    </div>
+
+    <div class="source-card loading" id="card-directorio">
+      <div class="source-header">
+        <span class="source-name">DirectorioCubano — Foros</span>
+        <span class="badge loading" id="badge-directorio">PENDIENTE</span>
+      </div>
+      <div class="source-result empty" id="result-directorio">Esperando ejecución...</div>
+    </div>
+
+  </div>
+
+  <!-- LOG -->
+  <div class="log-wrap">
+    <div class="log-header">
+      <span>REGISTRO DE EJECUCIÓN</span>
+      <span id="logCount">0 entradas</span>
+    </div>
+    <div class="log-body" id="logBody">
+      <div class="log-line">
+        <span class="log-time">--:--:--</span>
+        <span class="log-msg d">Sistema iniciado. Pulsa ejecutar para comenzar el análisis.</span>
       </div>
     </div>
   </div>
 
-  <!-- DÉFICIT -->
-  <div class="panel">
-    <div class="panel-title"><div class="dot" style="background:var(--b)"></div> Déficit energético — Cubadebate RSS</div>
-    <div class="status-row">
-      <span class="badge pending" id="badge-deficit">ESPERA</span>
-    </div>
-    <div class="deficit-big pending" id="deficit-val">···</div>
-    <div class="deficit-source" id="deficit-source">Esperando...</div>
+  <button class="run-btn" id="runBtn" onclick="runAnalysis()">
+    ▶ Ejecutar Análisis Ahora
+  </button>
+
+  <div class="info-box">
+    <strong>¿Qué hace este test?</strong><br>
+    Consulta 4 fuentes públicas via proxy CORS y busca palabras clave relacionadas con disponibilidad de citas ("citas disponibles", "nueva fecha", "abierto", etc.).
+    La plataforma de citas oficial (<code>sede.maec.gob.es</code>) requiere login personal, por lo que <strong>no se puede verificar disponibilidad directamente sin credenciales</strong>.
+    Este análisis detecta señales indirectas: anuncios del consulado, comentarios de la comunidad y noticias recientes.<br><br>
+    <strong>Para pedir cita:</strong> regístrate enviando correo a
+    <a href="mailto:cog.lahabana.cleg@maec.es">cog.lahabana.cleg@maec.es</a>
+    con asunto <strong>CITA LEGA</strong> adjuntando foto con tu carné.
+    Recibirás usuario y contraseña para acceder al sistema.
   </div>
 
-</div>
-
-<!-- CONTROLES -->
-<div class="btns">
-  <button class="primary" id="btnRun" onclick="runAll()">▶ EXTRAER TODO</button>
-  <button onclick="clearLog()">🗑 Limpiar log</button>
-  <button onclick="toggleTitles()">📰 Títulos RSS</button>
-</div>
-
-<div class="log" id="logBox"></div>
-<div class="titles-section" id="titlesSection">
-  <h3>📰 Títulos del RSS de Cubadebate</h3>
-  <div id="titlesList"></div>
 </div>
 
 <script>
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // CONFIG
-// ─────────────────────────────────────────────────────────────
-const ELTOQUE_URL  = "https://eltoque.com/tasas-de-cambio-cuba";
-const CUBADEBATE_RSS = "http://www.cubadebate.cu/feed/";
-const PROXY_1 = url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-const PROXY_2 = url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`;
-const VALID = { usd:{min:200,max:700}, eur:{min:200,max:800}, mlc:{min:150,max:700} };
+// ─────────────────────────────────────────────
+const PROXIES = [
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+];
 
-let allRssTitles = [];
-let running = false;
+// Palabras clave positivas (hay citas)
+const KW_YES = [
+  "citas disponibles","cita disponible","nueva fecha","fechas disponibles",
+  "abierto.*citas","citas abiertas","se abren citas","hay citas",
+  "pueden sacar cita","nuevas citas","slots disponibles",
+  "ya hay cita","vuelven las citas"
+];
 
-// ─────────────────────────────────────────────────────────────
-// HELPERS
-// ─────────────────────────────────────────────────────────────
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+// Palabras clave negativas (no hay citas)
+const KW_NO = [
+  "no hay citas","sin citas","no están disponibles","no existen citas",
+  "no hay horas disponibles","página bloqueada","citas agotadas",
+  "no.*cita disponible","lista de espera","demora","saturado",
+  "no se aceptan","paraliz","no hay fechas"
+];
 
-function log(msg, type="") {
-  const box = document.getElementById("logBox");
-  const t = new Date().toLocaleTimeString("es",{hour12:false});
-  const d = document.createElement("div");
-  d.className = `ll l${type}`;
-  d.innerHTML = `<span class="lt">[${t}]</span><span class="lm">${esc(msg)}</span>`;
-  box.appendChild(d); box.scrollTop = box.scrollHeight;
-}
-function clearLog() {
-  document.getElementById("logBox").innerHTML = "";
-  allRssTitles = [];
-  document.getElementById("titlesSection").style.display = "none";
-}
-function toggleTitles() {
-  const s = document.getElementById("titlesSection");
-  if (!allRssTitles.length) { log("Sin títulos aún.", "warn"); return; }
-  s.style.display = s.style.display === "block" ? "none" : "block";
-}
-
-function setBadge(id, state, label) {
-  const el = document.getElementById(id);
-  el.className = "badge " + state;
-  el.textContent = label || { pending:"ESPERA", running:"CARGANDO...", ok:"✓ OK", fail:"✗ ERROR" }[state] || state;
-}
-
-function setRate(currency, value) {
-  const val = document.getElementById(`val-${currency}`);
-  const row = document.getElementById(`row-${currency}`);
-  const n = parseInt(value);
-  const { min, max } = VALID[currency];
-  if (!isNaN(n) && n >= min && n <= max) {
-    val.textContent = n; val.className = "rate-val"; row.className = "rate-row ok";
-  } else {
-    val.textContent = value || "N/D"; val.className = "rate-val fail"; row.className = "rate-row fail";
+const SOURCES = [
+  {
+    id: "oficial",
+    name: "Web oficial exteriores.gob.es",
+    url: "https://www.exteriores.gob.es/Consulados/lahabana/es/ServiciosConsulares/Paginas/index.aspx?scca=Legalizaci%C3%B3n+o+Apostilla.+Compulsa+y+Registro&scco=Cuba&scd=166&scs=Legalizaci%C3%B3n+y+apostilla+de+la+Haya",
+  },
+  {
+    id: "twitter",
+    name: "Nitter (X/Twitter) @ConsEspLaHabana",
+    url: "https://nitter.poast.org/ConsEspLaHabana",
+    fallback: "https://nitter.privacydev.net/ConsEspLaHabana"
+  },
+  {
+    id: "dimecuba",
+    name: "DimeCuba",
+    url: "https://www.dimecuba.com/revista/nacionalidad-espanola/consulado-espana-en-cuba/",
+  },
+  {
+    id: "directorio",
+    name: "DirectorioCubano",
+    url: "https://www.directoriocubano.info/panorama/nuevo-sistema-de-citas-para-legalizaciones-en-el-consulado-de-espana-en-la-habana/",
   }
+];
+
+// ─────────────────────────────────────────────
+// LOG
+// ─────────────────────────────────────────────
+let logLines = 0;
+function log(msg, type = 'd') {
+  const body = document.getElementById('logBody');
+  const now = new Date().toLocaleTimeString('es-ES');
+  const line = document.createElement('div');
+  line.className = 'log-line';
+  line.innerHTML = `<span class="log-time">${now}</span><span class="log-msg ${type}">${msg}</span>`;
+  body.appendChild(line);
+  body.scrollTop = body.scrollHeight;
+  logLines++;
+  document.getElementById('logCount').textContent = `${logLines} entradas`;
 }
 
-async function tryFetch(url, timeoutMs = 13000) {
-  const res = await Promise.race([
-    fetch(url),
-    new Promise((_,rej) => setTimeout(() => rej(new Error("Timeout")), timeoutMs))
-  ]);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res;
-}
-
-async function fetchViaProxies(targetUrl, label) {
-  for (const [i, proxyFn] of [[1, PROXY_1],[2, PROXY_2]]) {
-    log(`  📡 ${label} proxy ${i}...`, "");
-    try {
-      const res = await tryFetch(proxyFn(targetUrl));
-      const text = await res.text();
-      if (text.length < 500) throw new Error(`Respuesta corta (${text.length} chars)`);
-      log(`  ✅ Proxy ${i} OK — ${text.length.toLocaleString()} chars`, "ok");
-      return text;
-    } catch(e) {
-      log(`  ✗ Proxy ${i}: ${e.message}`, "err");
-    }
-  }
-  throw new Error("Todos los proxies fallaron");
-}
-
-// ─────────────────────────────────────────────────────────────
-// EL TOQUE — extrae de trmiExchange.data.api.statistics
-// ─────────────────────────────────────────────────────────────
-function extractElToqueRates(html) {
-  const match = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
-  if (!match) throw new Error("__NEXT_DATA__ no encontrado");
-  const json = JSON.parse(match[1]);
-  const stats = json?.props?.pageProps?.trmiExchange?.data?.api?.statistics;
-  if (!stats) throw new Error("trmiExchange.data.api.statistics no encontrado");
-  return {
-    usd: stats.USD?.median  ? String(Math.round(stats.USD.median))  : null,
-    eur: stats.ECU?.avg     ? String(Math.round(stats.ECU.avg))     : null,
-    mlc: stats.MLC?.median  ? String(Math.round(stats.MLC.median))  : null,
-  };
-}
-
-async function runElToque() {
-  setBadge("badge-eltoque", "running");
-  log("━━ EL TOQUE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "info");
-  try {
-    const html = await fetchViaProxies(ELTOQUE_URL, "El Toque");
-    const rates = extractElToqueRates(html);
-    log(`  USD median  = ${rates.usd}`, "");
-    log(`  ECU avg     = ${rates.eur}`, "");
-    log(`  MLC median  = ${rates.mlc}`, "");
-    setRate("usd", rates.usd);
-    setRate("eur", rates.eur);
-    setRate("mlc", rates.mlc);
-    const ok = rates.usd && parseInt(rates.usd) >= VALID.usd.min;
-    setBadge("badge-eltoque", ok ? "ok" : "fail");
-    log(ok ? `  🎉 Tasas extraídas correctamente` : `  ⚠️ Valores fuera de rango`, ok ? "ok" : "warn");
-  } catch(e) {
-    setBadge("badge-eltoque", "fail");
-    log(`  ✗ ${e.message}`, "err");
-    setRate("usd", null); setRate("eur", null); setRate("mlc", null);
-  }
-}
-
-// ─────────────────────────────────────────────────────────────
-// CUBADEBATE — extrae déficit del RSS
-// ─────────────────────────────────────────────────────────────
-const UNE_KEYWORDS = ["déficit","deficit","afectación","afectacion","unión eléctrica","union electrica","une pronostica","une prevé","une prev"];
-
-function isUNETitle(t) {
-  const tl = t.toLowerCase();
-  return UNE_KEYWORDS.some(k => tl.includes(k));
-}
-
-function extractMW(title) {
-  const t = title.toLowerCase();
-  const pats = [
-    /(\d[\d\s\.]{1,6}\d)\s*mw/i,
-    /(\d{3,4})\s*megawatt/i,
-  ];
-  for (const p of pats) {
-    const m = t.match(p);
-    if (m) {
-      const n = parseInt(m[1].replace(/[\s\.]/g,""));
-      if (n >= 100 && n <= 5000) return n;
+// ─────────────────────────────────────────────
+// FETCH VIA PROXY
+// ─────────────────────────────────────────────
+async function fetchViaProxy(url, fallback = null) {
+  const urls = [url, ...(fallback ? [fallback] : [])];
+  for (const target of urls) {
+    for (const makeProxy of PROXIES) {
+      const proxy = makeProxy(target);
+      try {
+        log(`Intentando proxy: ${proxy.slice(0,60)}...`, 'd');
+        const res = await Promise.race([
+          fetch(proxy),
+          new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000))
+        ]);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const text = await res.text();
+        if (text.length < 200) throw new Error('Respuesta demasiado corta');
+        log(`✓ Obtenido (${(text.length/1024).toFixed(1)} KB)`, 'g');
+        return text;
+      } catch(e) {
+        log(`✗ Falló: ${e.message}`, 'r');
+      }
     }
   }
   return null;
 }
 
-function parseTitlesFromXml(xml) {
-  return [...xml.matchAll(/<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/gi)]
-    .map(m => m[1].trim())
-    .filter(t => t.length > 5)
-    .slice(1, 25);
+// ─────────────────────────────────────────────
+// ANÁLISIS DE TEXTO
+// ─────────────────────────────────────────────
+function analyzeText(html) {
+  // Limpiar HTML a texto plano
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html.replace(/<script[\s\S]*?<\/script>/gi,'').replace(/<style[\s\S]*?<\/style>/gi,'');
+  const text = (tmp.innerText || tmp.textContent || '').toLowerCase();
+
+  const hitsYes = KW_YES.filter(kw => new RegExp(kw,'i').test(text));
+  const hitsNo  = KW_NO.filter(kw  => new RegExp(kw,'i').test(text));
+
+  // Buscar fechas recientes mencionadas (últimos 7 días)
+  const today  = new Date();
+  const dayNames = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  const monthNames = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+  // Extraer fragmentos de contexto para keywords
+  const snippets = [];
+  [...hitsYes, ...hitsNo].slice(0,3).forEach(kw => {
+    const idx = text.search(new RegExp(kw, 'i'));
+    if (idx !== -1) {
+      const raw = text.slice(Math.max(0, idx-60), idx+100).replace(/\s+/g,' ').trim();
+      snippets.push(`"…${raw}…"`);
+    }
+  });
+
+  return { hitsYes, hitsNo, snippets, textLength: text.length };
 }
 
-async function runCubadebate() {
-  setBadge("badge-deficit", "running");
-  log("━━ CUBADEBATE RSS ━━━━━━━━━━━━━━━━━━━━━━", "info");
+// ─────────────────────────────────────────────
+// ACTUALIZAR TARJETA DE FUENTE
+// ─────────────────────────────────────────────
+function updateCard(id, status, badgeText, resultHTML) {
+  const card  = document.getElementById(`card-${id}`);
+  const badge = document.getElementById(`badge-${id}`);
+  const res   = document.getElementById(`result-${id}`);
 
-  const defVal = document.getElementById("deficit-val");
-  const defSrc = document.getElementById("deficit-source");
-
-  try {
-    const xml = await fetchViaProxies(CUBADEBATE_RSS, "Cubadebate");
-
-    const titles = parseTitlesFromXml(xml);
-    allRssTitles = titles;
-    log(`  📰 ${titles.length} títulos en el RSS`, "");
-
-    // Render títulos
-    document.getElementById("titlesList").innerHTML = titles.map(t => {
-      const une = isUNETitle(t);
-      const mw = extractMW(t);
-      return `<div class="title-item ${une?'hit':''}">
-        ${une?'⚡':'·'} ${esc(t)} ${mw?`<span class="mw-tag">[${mw} MW]</span>`:''}
-      </div>`;
-    }).join("");
-
-    // Buscar déficit
-    let found = null, foundTitle = "";
-    for (const title of titles) {
-      if (!isUNETitle(title)) continue;
-      log(`  🔍 Candidato UNE: "${title.slice(0,60)}"`, "warn");
-      const mw = extractMW(title);
-      if (mw) {
-        found = mw; foundTitle = title;
-        log(`  ✅ MW encontrado: ${mw}`, "ok");
-        break;
-      }
-    }
-
-    if (found) {
-      defVal.textContent = `${found} MW`;
-      defVal.className = "deficit-big";
-      defSrc.textContent = `"${foundTitle.slice(0,80)}${foundTitle.length>80?'…':''}"`;
-      setBadge("badge-deficit", "ok");
-      log(`  🎉 Déficit: ${found} MW`, "ok");
-    } else {
-      defVal.textContent = "N/D";
-      defVal.className = "deficit-big fail";
-      defSrc.textContent = `RSS obtenido (${titles.length} artículos) pero sin artículo de la UNE hoy. Son las ${new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})} — el pronóstico se publica por la mañana.`;
-      setBadge("badge-deficit", "fail", "SIN DATOS HOY");
-      log(`  ⚠️ No hay artículo de la UNE en el RSS actual`, "warn");
-      log(`  → Pulsa '📰 Títulos RSS' para ver qué hay publicado`, "warn");
-    }
-
-  } catch(e) {
-    setBadge("badge-deficit", "fail");
-    defVal.textContent = "Error"; defVal.className = "deficit-big fail";
-    defSrc.textContent = e.message;
-    log(`  ✗ ${e.message}`, "err");
-  }
+  card.className  = `source-card ${status}`;
+  badge.className = `badge ${status}`;
+  badge.textContent = badgeText;
+  res.className   = `source-result`;
+  res.innerHTML   = resultHTML;
 }
 
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // MAIN
-// ─────────────────────────────────────────────────────────────
-async function runAll() {
-  if (running) return;
-  running = true;
-  document.getElementById("btnRun").disabled = true;
+// ─────────────────────────────────────────────
+async function runAnalysis() {
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
 
   // Reset UI
-  ["usd","eur","mlc"].forEach(c => {
-    document.getElementById(`val-${c}`).textContent = "···";
-    document.getElementById(`val-${c}`).className = "rate-val pending";
-    document.getElementById(`row-${c}`).className = "rate-row";
-  });
-  document.getElementById("deficit-val").textContent = "···";
-  document.getElementById("deficit-val").className = "deficit-big pending";
+  SOURCES.forEach(s => updateCard(s.id, 'loading', 'CONSULTANDO...', 'Descargando contenido...'));
+  setVeredicto('loading', '🔄', 'Analizando fuentes...', 'Por favor espera');
+  setGlobalStatus('Analizando...', false);
 
-  // Lanzar ambas en paralelo
-  await Promise.all([runElToque(), runCubadebate()]);
+  log('═══ INICIO DE ANÁLISIS ═══', 'b');
 
-  log("", "");
-  log("✅ Prueba completada.", "ok");
-  running = false;
-  document.getElementById("btnRun").disabled = false;
+  const results = [];
+
+  for (const source of SOURCES) {
+    log(`► Consultando: ${source.name}`, 'b');
+    const html = await fetchViaProxy(source.url, source.fallback || null);
+
+    if (!html) {
+      log(`  ✗ Fuente inaccesible`, 'r');
+      updateCard(source.id, 'err', 'ERROR', '⚠️ No se pudo obtener el contenido (proxy bloqueado o fuente caída).');
+      results.push({ id: source.id, ok: false, hitsYes: [], hitsNo: [], snippets: [] });
+      continue;
+    }
+
+    const analysis = analyzeText(html);
+    log(`  Texto obtenido: ${analysis.textLength} chars`, 'd');
+    log(`  Keywords positivas: ${analysis.hitsYes.length > 0 ? analysis.hitsYes.join(', ') : 'ninguna'}`, analysis.hitsYes.length > 0 ? 'g' : 'd');
+    log(`  Keywords negativas: ${analysis.hitsNo.length > 0 ? analysis.hitsNo.join(', ') : 'ninguna'}`, analysis.hitsNo.length > 0 ? 'r' : 'd');
+
+    const hasPositive = analysis.hitsYes.length > 0;
+    const hasNegative = analysis.hitsNo.length > 0;
+    const cardStatus  = hasPositive ? 'ok' : hasNegative ? 'warn' : 'loading';
+    const badgeText   = hasPositive ? '✓ SEÑALES POSITIVAS' : hasNegative ? '✗ SEÑALES NEGATIVAS' : 'SIN SEÑALES';
+
+    let resultHTML = '';
+    if (analysis.hitsYes.length) {
+      resultHTML += `<div style="margin-bottom:6px">🟢 Encontrado: ${analysis.hitsYes.map(k => `<span class="kw-hit">${k}</span>`).join(' ')}</div>`;
+    }
+    if (analysis.hitsNo.length) {
+      resultHTML += `<div style="margin-bottom:6px">🔴 Encontrado: ${analysis.hitsNo.map(k => `<span class="kw-hit neg">${k}</span>`).join(' ')}</div>`;
+    }
+    if (analysis.snippets.length) {
+      resultHTML += `<div style="font-size:0.7rem;color:#888;font-family:monospace;margin-top:4px">${analysis.snippets[0]}</div>`;
+    }
+    if (!resultHTML) {
+      resultHTML = `<span style="color:#555;font-family:monospace;font-size:0.72rem">Sin menciones relevantes en el texto (${(analysis.textLength/1024).toFixed(1)} KB leídos)</span>`;
+    }
+
+    updateCard(source.id, cardStatus, badgeText, resultHTML);
+    results.push({ ...analysis, id: source.id, ok: true });
+  }
+
+  // ─── VEREDICTO FINAL ───
+  log('═══ CALCULANDO VEREDICTO FINAL ═══', 'b');
+
+  const totalYes      = results.reduce((a, r) => a + r.hitsYes.length, 0);
+  const totalNo       = results.reduce((a, r) => a + r.hitsNo.length, 0);
+  const accessible    = results.filter(r => r.ok).length;
+  const noSignalCount = results.filter(r => r.ok && r.hitsYes.length === 0 && r.hitsNo.length === 0).length;
+
+  log(`Fuentes accesibles: ${accessible}/${SOURCES.length}`, accessible > 0 ? 'g' : 'r');
+  log(`Total señales positivas: ${totalYes}`, totalYes > 0 ? 'g' : 'd');
+  log(`Total señales negativas: ${totalNo}`, totalNo > 0 ? 'r' : 'd');
+
+  let verdClass, verdIcon, verdText, verdSub;
+
+  if (accessible === 0) {
+    verdClass = 'no';
+    verdIcon  = '🚫';
+    verdText  = 'No se pudo consultar ninguna fuente';
+    verdSub   = 'Todos los proxies fallaron. Esto puede ocurrir por bloqueo de red o Cuba. Intenta de nuevo en unos minutos.';
+  } else if (totalYes > totalNo && totalYes > 0) {
+    verdClass = 'ok';
+    verdIcon  = '🟢';
+    verdText  = `Señales positivas detectadas (${totalYes} indicios)`;
+    verdSub   = 'Se encontraron menciones de citas disponibles en fuentes públicas. Esto no garantiza que haya slots hoy — entra en sede.maec.gob.es con tus credenciales para confirmar.';
+    log('CONCLUSIÓN: SEÑALES POSITIVAS detectadas', 'g');
+  } else if (totalNo > totalYes && totalNo > 0) {
+    verdClass = 'no';
+    verdIcon  = '🔴';
+    verdText  = `Señales negativas — probable falta de citas (${totalNo} indicios)`;
+    verdSub   = 'Las fuentes consultadas mencionan dificultad para obtener citas o sistema saturado. La situación puede cambiar en cualquier momento.';
+    log('CONCLUSIÓN: SEÑALES NEGATIVAS predominan', 'r');
+  } else if (noSignalCount === accessible) {
+    verdClass = 'maybe';
+    verdIcon  = '🟡';
+    verdText  = 'Sin señales claras en ninguna fuente';
+    verdSub   = `Se leyeron ${accessible} fuente(s) pero ninguna menciona explícitamente disponibilidad ni bloqueo. La información más reciente puede estar en grupos de WhatsApp o Telegram de la comunidad.`;
+    log('CONCLUSIÓN: SIN SEÑALES CLARAS', 'y');
+  } else {
+    verdClass = 'maybe';
+    verdIcon  = '⚠️';
+    verdText  = 'Señales mixtas — situación ambigua';
+    verdSub   = `${totalYes} indicios positivos vs ${totalNo} negativos. Recomendamos verificar directamente en la plataforma de citas.`;
+    log('CONCLUSIÓN: SEÑALES MIXTAS', 'y');
+  }
+
+  setVeredicto(verdClass, verdIcon, verdText, verdSub);
+  setGlobalStatus('Análisis completado', true);
+  btn.disabled = false;
+  log('═══ FIN DE ANÁLISIS ═══', 'b');
 }
 
-log("👋 Listo. Pulsa ▶ EXTRAER TODO para probar ambas fuentes en paralelo.", "info");
-log("   El Toque  → trmiExchange.data.api.statistics (USD/EUR/MLC)", "");
-log("   Cubadebate → RSS feed (déficit MW de la UNE)", "");
+function setVeredicto(cls, icon, text, sub) {
+  const v = document.getElementById('veredicto');
+  v.className = `veredicto ${cls}`;
+  document.getElementById('verdIcon').textContent = icon;
+  document.getElementById('verdText').textContent = text;
+  document.getElementById('verdSub').textContent  = sub;
+}
+
+function setGlobalStatus(text, done) {
+  document.getElementById('globalStatus').textContent = text;
+  const dot = document.getElementById('globalDot');
+  dot.className = done ? 'pulse done' : 'pulse';
+}
 </script>
 </body>
 </html>
