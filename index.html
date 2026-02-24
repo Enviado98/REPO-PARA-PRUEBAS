@@ -2,514 +2,268 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Monitor Citas — Consulado España La Habana</title>
+<title>🔍 Test El Toque – Todas las Divisas</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400;700;800&display=swap');
-
-  :root {
-    --bg:     #0a0a0f;
-    --panel:  #0f0f1a;
-    --border: #1e1e35;
-    --green:  #00ff9d;
-    --red:    #ff3c5a;
-    --yellow: #ffd24d;
-    --blue:   #4da6ff;
-    --dim:    #4a4a6a;
-    --text:   #c8c8e8;
-    --mono:   'Share Tech Mono', monospace;
-    --sans:   'Syne', sans-serif;
-  }
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    min-height: 100vh;
-    padding: 20px;
-  }
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,157,0.012) 2px, rgba(0,255,157,0.012) 4px);
-    pointer-events: none; z-index: 0;
-  }
-
-  .wrapper { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
-
-  /* HEADER */
-  header {
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 18px; margin-bottom: 24px;
-    display: flex; align-items: flex-start; justify-content: space-between;
-    gap: 16px; flex-wrap: wrap;
-  }
-  header h1 { font-size: 1.25rem; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
-  header p  { font-size: 0.72rem; color: var(--dim); font-family: var(--mono); margin-top: 4px; }
-
-  .pill {
-    display: inline-flex; align-items: center; gap: 7px;
-    background: var(--panel); border: 1px solid var(--border);
-    border-radius: 20px; padding: 6px 14px;
-    font-family: var(--mono); font-size: 0.7rem; white-space: nowrap;
-  }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--yellow); flex-shrink: 0; }
-  .dot.run  { animation: blink 1.1s infinite; }
-  .dot.ok   { background: var(--green); }
-  .dot.done { background: var(--green); }
-  .dot.err  { background: var(--red); }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.15} }
-
-  /* VEREDICTO */
-  .verdict {
-    background: var(--panel); border: 1px solid var(--border);
-    border-radius: 12px; padding: 20px 22px; margin-bottom: 20px;
-    display: flex; align-items: center; gap: 18px; min-height: 90px;
-    transition: border-color .4s;
-  }
-  .verdict.ok    { border-color: var(--green); }
-  .verdict.maybe { border-color: var(--yellow); }
-  .verdict.no    { border-color: var(--red); }
-  .verdict-icon  { font-size: 2.8rem; flex-shrink: 0; line-height: 1; }
-  .verdict-label { font-size: 0.62rem; font-family: var(--mono); color: var(--dim); text-transform: uppercase; letter-spacing: 2px; }
-  .verdict-main  { font-size: 1.05rem; font-weight: 700; color: #fff; margin-top: 5px; line-height: 1.35; }
-  .verdict-sub   { font-size: 0.75rem; color: var(--dim); font-family: var(--mono); margin-top: 6px; line-height: 1.5; }
-
-  /* GRID DE FUENTES */
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(255px,1fr)); gap: 12px; margin-bottom: 20px; }
-
-  .card {
-    background: var(--panel); border: 1px solid var(--border);
-    border-radius: 10px; padding: 14px 16px; transition: border-color .3s;
-  }
-  .card.ok    { border-color: rgba(0,255,157,.35); }
-  .card.warn  { border-color: rgba(255,210,77,.35); }
-  .card.err   { border-color: rgba(255,60,90,.35); }
-
-  .card-head  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 9px; }
-  .card-name  { font-size: 0.68rem; font-family: var(--mono); color: var(--dim); text-transform: uppercase; letter-spacing: 1.2px; }
-
-  .badge      { font-size: 0.58rem; font-family: var(--mono); padding: 2px 7px; border-radius: 10px; font-weight: bold; }
-  .badge.ok   { background: rgba(0,255,157,.15);  color: var(--green); }
-  .badge.warn { background: rgba(255,210,77,.15); color: var(--yellow); }
-  .badge.err  { background: rgba(255,60,90,.15);  color: var(--red); }
-  .badge.idle { background: rgba(255,255,255,.05);color: var(--dim); }
-
-  .card-body  { font-size: 0.8rem; line-height: 1.5; color: var(--text); }
-  .card-body.empty { color: var(--dim); font-family: var(--mono); font-size: 0.7rem; }
-
-  /* SNIPPETS con hits */
-  .kw { display: inline-block; border-radius: 3px; padding: 0 5px; font-family: var(--mono); font-size: 0.7rem; }
-  .kw.pos { background: rgba(0,255,157,.15); color: var(--green); }
-  .kw.neg { background: rgba(255,60,90,.15);  color: var(--red); }
-  .snippet { font-size: 0.68rem; color: #666; font-family: var(--mono); margin-top: 6px; line-height: 1.5; border-left: 2px solid var(--border); padding-left: 7px; }
-
-  /* LOG */
-  .log-wrap { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-  .log-top  { padding: 8px 14px; border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 0.63rem; color: var(--dim); display: flex; justify-content: space-between; }
-  .log-body { padding: 12px 14px; max-height: 240px; overflow-y: auto; font-family: var(--mono); font-size: 0.68rem; line-height: 1.75; }
-  .log-body::-webkit-scrollbar { width: 3px; }
-  .log-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-  .ll { display: flex; gap: 10px; }
-  .lt { color: var(--dim); flex-shrink: 0; }
-  .lm.g { color: var(--green); }
-  .lm.y { color: var(--yellow); }
-  .lm.r { color: var(--red); }
-  .lm.b { color: var(--blue); }
-  .lm.d { color: var(--dim); }
-
-  /* BTN */
-  .run-btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: transparent; border: 1px solid var(--green); color: var(--green);
-    font-family: var(--mono); font-size: 0.78rem; padding: 8px 20px;
-    border-radius: 6px; cursor: pointer; transition: all .2s; margin-top: 16px;
-  }
-  .run-btn:hover:not(:disabled) { background: rgba(0,255,157,.1); }
-  .run-btn:disabled { opacity: .35; cursor: not-allowed; }
-
-  /* INFO */
-  .info {
-    margin-top: 16px; background: var(--panel); border: 1px solid var(--border);
-    border-left: 3px solid var(--blue); border-radius: 0 8px 8px 0;
-    padding: 12px 16px; font-size: 0.78rem; line-height: 1.65; color: var(--text);
-  }
-  .info strong { color: #fff; }
-  .info a { color: var(--blue); text-decoration: none; }
-  .info a:hover { text-decoration: underline; }
-  .info code { background: rgba(255,255,255,.07); padding: 1px 5px; border-radius: 3px; font-family: var(--mono); font-size: 0.72rem; }
-
-  @media (max-width: 500px) {
-    .grid { grid-template-columns: 1fr; }
-    header { flex-direction: column; }
-  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: monospace; background: #0d1117; color: #c9d1d9; padding: 20px; }
+  h1 { color: #58a6ff; margin-bottom: 6px; }
+  p  { color: #8b949e; margin-bottom: 16px; font-size: 13px; }
+  .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; margin: 12px 0; }
+  .ok   { color: #3fb950; }
+  .err  { color: #f85149; }
+  .warn { color: #d29922; }
+  .dim  { color: #8b949e; }
+  table { border-collapse: collapse; width: 100%; }
+  td, th { border: 1px solid #30363d; padding: 8px 12px; text-align: left; font-size: 13px; }
+  th { color: #58a6ff; background: #0d1117; }
+  tr:hover td { background: #1f2937; }
+  .val { font-weight: bold; font-size: 15px; color: #3fb950; }
+  pre  { overflow-x: auto; background: #0d1117; padding: 12px; border-radius: 6px;
+         font-size: 11px; max-height: 400px; overflow-y: auto; }
+  button { background: #238636; color: white; border: none; padding: 10px 20px;
+           border-radius: 6px; cursor: pointer; font-size: 14px; margin: 4px; }
+  button:hover { background: #2ea043; }
+  button.sec { background: #21262d; }
+  button.sec:hover { background: #30363d; }
+  #timestamp { color: #58a6ff; font-size: 12px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px;
+           font-size: 11px; background: #21262d; color: #8b949e; }
+  .badge.new { background: #1f3a1f; color: #3fb950; }
+  .section-title { color: #8b949e; font-size: 11px; text-transform: uppercase;
+                   letter-spacing: 1px; margin: 16px 0 6px; }
 </style>
 </head>
 <body>
-<div class="wrapper">
+<h1>🔍 El Toque – Test completo de divisas</h1>
+<p>Extrae USD, EUR, MLC, CAD, MXN, BRL, CLA y cualquier otra moneda disponible en el JSON.</p>
 
-  <header>
-    <div>
-      <h1>🔍 Monitor de Citas — Consulado España · La Habana</h1>
-      <p>TEST FUENTES PÚBLICAS · v2.0 · Parser corregido · +Telegram</p>
-    </div>
-    <div class="pill">
-      <div class="dot run" id="dot"></div>
-      <span id="statusTxt">Listo</span>
-    </div>
-  </header>
+<button onclick="runTest()">▶ Ejecutar test</button>
+<button class="sec" onclick="toggleRaw()">📦 Ver JSON crudo</button>
+<button class="sec" onclick="clearLog()">🗑 Limpiar</button>
+<span id="timestamp"></span>
 
-  <!-- VEREDICTO -->
-  <div class="verdict" id="verdict">
-    <div class="verdict-icon" id="vIcon">🔎</div>
-    <div>
-      <div class="verdict-label">Conclusión del análisis</div>
-      <div class="verdict-main" id="vMain">Pulsa "Ejecutar" para analizar las fuentes</div>
-      <div class="verdict-sub"  id="vSub">Se consultarán 5 fuentes públicas, incluyendo canales de Telegram de la comunidad cubana</div>
-    </div>
-  </div>
+<div class="card" id="resultado"><em class="dim">Haz clic en "Ejecutar test"…</em></div>
 
-  <!-- FUENTES -->
-  <div class="grid" id="grid">
-    <div class="card" id="card-telegram1">
-      <div class="card-head">
-        <span class="card-name">Telegram · @alertacitasconsulado</span>
-        <span class="badge idle" id="badge-telegram1">PENDIENTE</span>
-      </div>
-      <div class="card-body empty" id="body-telegram1">Canal colaborativo de alertas de citas</div>
-    </div>
-    <div class="card" id="card-telegram2">
-      <div class="card-head">
-        <span class="card-name">Telegram · @cubatramite</span>
-        <span class="badge idle" id="badge-telegram2">PENDIENTE</span>
-      </div>
-      <div class="card-body empty" id="body-telegram2">Canal oficial de trámites Cuba-España</div>
-    </div>
-    <div class="card" id="card-dimecuba">
-      <div class="card-head">
-        <span class="card-name">DimeCuba · Noticias Consulado</span>
-        <span class="badge idle" id="badge-dimecuba">PENDIENTE</span>
-      </div>
-      <div class="card-body empty" id="body-dimecuba">Noticias y comentarios de la comunidad</div>
-    </div>
-    <div class="card" id="card-directorio">
-      <div class="card-head">
-        <span class="card-name">DirectorioCubano · Foro citas</span>
-        <span class="badge idle" id="badge-directorio">PENDIENTE</span>
-      </div>
-      <div class="card-body empty" id="body-directorio">Foro con experiencias de usuarios</div>
-    </div>
-    <div class="card" id="card-oficial">
-      <div class="card-head">
-        <span class="card-name">Exteriores.gob.es · Oficial</span>
-        <span class="badge idle" id="badge-oficial">PENDIENTE</span>
-      </div>
-      <div class="card-body empty" id="body-oficial">Web oficial del consulado en La Habana</div>
-    </div>
-  </div>
-
-  <!-- LOG -->
-  <div class="log-wrap">
-    <div class="log-top">
-      <span>REGISTRO EN VIVO</span>
-      <span id="logCount">0 entradas</span>
-    </div>
-    <div class="log-body" id="logBody">
-      <div class="ll"><span class="lt">--:--:--</span><span class="lm d">Sistema listo. Pulsa ejecutar.</span></div>
-    </div>
-  </div>
-
-  <button class="run-btn" id="runBtn" onclick="run()">▶ Ejecutar Análisis</button>
-
-  <div class="info">
-    <strong>Fuentes monitorizadas:</strong> Los canales de Telegram <code>@alertacitasconsulado</code> y <code>@cubatramite</code>
-    son públicos y tienen vista web (<code>t.me/s/canal</code>), lo que permite leerlos sin autenticación.
-    Son las fuentes más fiables para detectar disponibilidad real ya que la comunidad reporta en tiempo real.<br><br>
-    <strong>Limitación principal:</strong> La plataforma de citas <code>sede.maec.gob.es</code> requiere login personal —
-    no se puede verificar disponibilidad sin credenciales propias. Este monitor detecta <em>señales indirectas</em>.<br><br>
-    <strong>Para registrarte:</strong> envía correo a
-    <a href="mailto:cog.lahabana.cleg@maec.es">cog.lahabana.cleg@maec.es</a>
-    con asunto <code>CITA LEGA</code> + foto con tu carné de identidad.
-  </div>
-
+<div class="card" id="all-keys-card" style="display:none">
+  <div class="section-title">🗝 Todas las claves disponibles en statistics</div>
+  <div id="all-keys"></div>
 </div>
+
+<div class="card" id="raw-card" style="display:none">
+  <div class="section-title">📦 JSON crudo – monedas objetivo</div>
+  <pre id="raw-json"></pre>
+</div>
+
+<div class="card">
+  <div class="section-title">📋 Log</div>
+  <pre id="log"></pre>
+</div>
+
 <script>
-// ──────────────────────────────────────────────
-// FUENTES
-// ──────────────────────────────────────────────
-const SOURCES = [
-  {
-    id: 'telegram1',
-    url: 'https://t.me/s/alertacitasconsulado',
-    // fallback: vista alternativa del mismo canal
-    fallback: 'https://t.me/s/alertacitasconsulado?before=9999',
-  },
-  {
-    id: 'telegram2',
-    url: 'https://t.me/s/cubatramite',
-    fallback: null,
-  },
-  {
-    id: 'dimecuba',
-    url: 'https://www.dimecuba.com/revista/nacionalidad-espanola/consulado-espana-en-cuba/',
-    fallback: null,
-  },
-  {
-    id: 'directorio',
-    url: 'https://www.directoriocubano.info/panorama/nuevo-sistema-de-citas-para-legalizaciones-en-el-consulado-de-espana-en-la-habana/',
-    fallback: null,
-  },
-  {
-    id: 'oficial',
-    url: 'https://www.exteriores.gob.es/Consulados/lahabana/es/Paginas/index.aspx',
-    fallback: null,
-  },
+// ─── Configuración de monedas ───────────────────────────────────────────────
+// key    = clave en el JSON de El Toque (statistics.KEY.median)
+// label  = texto a mostrar
+// icon   = emoji de bandera
+// isNew  = true = recién agregada (destacar)
+const CURRENCIES = [
+  { key: 'USD', label: 'Dólar USD',        icon: '🇺🇸', isNew: false },
+  { key: 'ECU', label: 'Euro EUR',          icon: '🇪🇺', isNew: false },
+  { key: 'MLC', label: 'MLC',              icon: '💳',  isNew: false },
+  { key: 'CAD', label: 'Dólar Canadiense', icon: '🇨🇦', isNew: true  },
+  { key: 'MXN', label: 'Peso Mexicano',    icon: '🇲🇽', isNew: true  },
+  { key: 'BRL', label: 'Real Brasileño',   icon: '🇧🇷', isNew: true  },
+  { key: 'CLA', label: 'Clásica CLA',      icon: '💎',  isNew: true  },
 ];
 
-// ──────────────────────────────────────────────
-// KEYWORDS
-// ──────────────────────────────────────────────
-const KW_YES = [
-  'citas disponibles','cita disponible','nueva fecha','fechas disponibles',
-  'hay citas','citas abiertas','se abren citas','nuevas citas',
-  'ya hay cita','vuelven las citas','pueden sacar cita',
-  'slots disponibles','abre.*cita','cita.*abierta','disponible.*cita',
-  'encontr.*cita','sac.*cita','cita.*libre','libre.*cita',
-  'pud.*sacar','pud.*cita','logr.*cita','consegui.*cita',
-  'hay fecha','fecha libre','acaban de abrir','abrieron citas',
-  'mañana hay','hoy hay cita','esta semana','¡hay!'
+// ─── Proxies ─────────────────────────────────────────────────────────────────
+const PROXIES = [
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
 ];
-const KW_NO = [
-  'no hay citas','sin citas','no hay fechas','no hay horas disponibles',
-  'no.*cita disponible','citas agotadas','lista de espera',
-  'saturado','no se aceptan','no.*aceptan','sistema.*caído',
-  'no hay nada','meses de espera','imposible.*cita','cita.*imposible',
-  'bloqueado','página.*error','no.*fechas'
-];
+const TARGET = 'https://eltoque.com/tasas-de-cambio-cuba';
 
-// ──────────────────────────────────────────────
-// PROXIES
-// ──────────────────────────────────────────────
-const PROXY_FNS = [
-  u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,       // devuelve JSON {contents}
-  u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,       // devuelve raw
-  u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,  // devuelve raw
-];
-
-// ──────────────────────────────────────────────
-// LOG
-// ──────────────────────────────────────────────
-let logN = 0;
-function log(msg, t = 'd') {
-  const body = document.getElementById('logBody');
-  const now  = new Date().toLocaleTimeString('es-ES');
-  const el   = document.createElement('div');
-  el.className = 'll';
-  el.innerHTML = `<span class="lt">${now}</span><span class="lm ${t}">${msg}</span>`;
-  body.appendChild(el);
-  body.scrollTop = body.scrollHeight;
-  document.getElementById('logCount').textContent = `${++logN} entradas`;
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+function log(msg, cls = '') {
+  const pre = document.getElementById('log');
+  const ts  = new Date().toLocaleTimeString('es-ES');
+  pre.innerHTML += `<span class="${cls}">[${ts}] ${msg}</span>\n`;
+  pre.scrollTop  = pre.scrollHeight;
 }
 
-// ──────────────────────────────────────────────
-// FETCH — gestiona JSON wrapper y raw
-// ──────────────────────────────────────────────
-async function fetchSource(url, fallback) {
-  const targets = [url, ...(fallback ? [fallback] : [])];
+function clearLog() {
+  document.getElementById('log').innerHTML      = '';
+  document.getElementById('resultado').innerHTML = '<em class="dim">Log limpiado.</em>';
+  document.getElementById('all-keys-card').style.display = 'none';
+  document.getElementById('raw-card').style.display      = 'none';
+}
 
-  for (const target of targets) {
-    for (const mkProxy of PROXY_FNS) {
-      const proxy = mkProxy(target);
-      try {
-        log(`Probando → ${proxy.slice(0,65)}…`, 'd');
-        const res = await Promise.race([
-          fetch(proxy),
-          new Promise((_, r) => setTimeout(() => r(new Error('timeout 13s')), 13000))
-        ]);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+function toggleRaw() {
+  const c = document.getElementById('raw-card');
+  c.style.display = c.style.display === 'none' ? 'block' : 'none';
+}
 
-        // ─── PARSER CORREGIDO ───────────────────────
-        // allorigins /get devuelve: {"contents":"<html>…","status":{…}}
-        // allorigins /raw y codetabs devuelven el HTML/texto directamente
-        const raw = await res.text();
-        let html = raw;
+function fmt(val, decimals = 2) {
+  return val != null ? Number(val).toFixed(decimals) : '<span class="dim">N/A</span>';
+}
 
-        // Detectar si es JSON wrapper de allorigins
-        if (raw.trimStart().startsWith('{') && raw.includes('"contents"')) {
-          try {
-            const parsed = JSON.parse(raw);
-            html = parsed.contents || parsed.content || raw;
-          } catch { /* no es JSON válido, usar raw */ }
-        }
+// ─── Fetch via proxy ──────────────────────────────────────────────────────────
+async function fetchViaProxy(proxyFn) {
+  const url = proxyFn(TARGET);
+  log(`⏳ Proxy: ${url.slice(0, 55)}…`);
+  const res = await fetch(url, { signal: AbortSignal.timeout(13000) });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return await res.text();
+}
 
-        if (html.length < 300) throw new Error(`Contenido demasiado corto (${html.length} chars)`);
-        log(`✓ Obtenido: ${(html.length/1024).toFixed(1)} KB de texto real`, 'g');
-        return html;
+// ─── Extrae statistics del __NEXT_DATA__ ─────────────────────────────────────
+function extractStats(html) {
+  const match = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
+  if (!match) throw new Error('__NEXT_DATA__ no encontrado');
+  const json  = JSON.parse(match[1]);
+  const stats = json?.props?.pageProps?.trmiExchange?.data?.api?.statistics;
+  if (!stats)  throw new Error('trmiExchange.data.api.statistics no encontrado');
+  return stats;
+}
 
-      } catch (e) {
-        log(`✗ ${e.message}`, 'r');
-      }
+// ─── Test principal ───────────────────────────────────────────────────────────
+async function runTest() {
+  document.getElementById('resultado').innerHTML        = '<em class="dim">⏳ Consultando El Toque…</em>';
+  document.getElementById('all-keys-card').style.display = 'none';
+  document.getElementById('raw-card').style.display      = 'none';
+  document.getElementById('timestamp').textContent       = '';
+  log('═══════════════════════════════════════════');
+  log('🚀 Iniciando test – ' + new Date().toLocaleString('es-ES'));
+
+  // Intentar proxies
+  let html = null, proxyUsed = '?';
+  for (let i = 0; i < PROXIES.length; i++) {
+    try {
+      html      = await fetchViaProxy(PROXIES[i]);
+      proxyUsed = i === 0 ? 'allorigins.win' : 'codetabs.com';
+      log(`✅ Proxy ${i+1} OK — ${html.length.toLocaleString()} chars`, 'ok');
+      break;
+    } catch (e) {
+      log(`❌ Proxy ${i+1} falló: ${e.message}`, 'err');
     }
   }
-  return null;
-}
 
-// ──────────────────────────────────────────────
-// ANÁLISIS DE TEXTO
-// ──────────────────────────────────────────────
-function analyze(html) {
-  // 1. Extraer texto limpio
-  const tmp = document.createElement('div');
-  tmp.innerHTML = html
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/<style[\s\S]*?<\/style>/gi, '');
-  const text = (tmp.innerText || tmp.textContent || '').toLowerCase().trim();
-
-  const hitsYes = KW_YES.filter(kw => new RegExp(kw, 'i').test(text));
-  const hitsNo  = KW_NO.filter(kw  => new RegExp(kw, 'i').test(text));
-
-  // Extraer hasta 2 snippets de contexto
-  const snippets = [];
-  const allHits  = [...hitsYes.slice(0,2), ...hitsNo.slice(0,1)];
-  for (const kw of allHits) {
-    const idx = text.search(new RegExp(kw, 'i'));
-    if (idx === -1) continue;
-    const chunk = text.slice(Math.max(0, idx - 55), idx + 110)
-      .replace(/\s+/g, ' ').trim();
-    snippets.push(`…${chunk}…`);
-    if (snippets.length >= 2) break;
+  if (!html) {
+    log('💀 Todos los proxies fallaron.', 'err');
+    document.getElementById('resultado').innerHTML =
+      '<span class="err">❌ No se pudo obtener datos. Intenta de nuevo.</span>';
+    return;
   }
 
-  return { hitsYes, hitsNo, snippets, textLen: text.length };
-}
+  // Extraer stats
+  let stats;
+  try {
+    stats = extractStats(html);
+    log(`✅ statistics extraído — ${Object.keys(stats).length} monedas encontradas`, 'ok');
+  } catch (e) {
+    log(`❌ Error parseando: ${e.message}`, 'err');
+    document.getElementById('resultado').innerHTML = `<span class="err">❌ ${e.message}</span>`;
+    return;
+  }
 
-// ──────────────────────────────────────────────
-// ACTUALIZAR TARJETA
-// ──────────────────────────────────────────────
-function setCard(id, status, badgeText, html) {
-  document.getElementById(`card-${id}`).className = `card ${status}`;
-  const badge = document.getElementById(`badge-${id}`);
-  badge.className   = `badge ${status === 'ok' ? 'ok' : status === 'warn' ? 'warn' : status === 'err' ? 'err' : 'idle'}`;
-  badge.textContent = badgeText;
-  document.getElementById(`body-${id}`).className = 'card-body';
-  document.getElementById(`body-${id}`).innerHTML = html;
-}
+  // Mostrar todas las claves disponibles
+  const allKeys = Object.keys(stats).sort();
+  log(`🗝 Claves: ${allKeys.join(', ')}`);
+  document.getElementById('all-keys').innerHTML = allKeys.map(k => {
+    const median = stats[k]?.median;
+    const found  = CURRENCIES.find(c => c.key === k);
+    const cls    = found ? 'badge new' : 'badge';
+    return `<span class="${cls}" title="${k}: median=${median ?? 'N/A'}">${k}${median != null ? ' ✓' : ''}</span> `;
+  }).join('');
+  document.getElementById('all-keys-card').style.display = 'block';
 
-// ──────────────────────────────────────────────
-// VEREDICTO
-// ──────────────────────────────────────────────
-function setVerdict(cls, icon, main, sub) {
-  const v = document.getElementById('verdict');
-  v.className = `verdict ${cls}`;
-  document.getElementById('vIcon').textContent = icon;
-  document.getElementById('vMain').textContent = main;
-  document.getElementById('vSub').textContent  = sub;
-}
+  // JSON crudo de monedas objetivo
+  const targetKeys = CURRENCIES.reduce((acc, c) => { acc[c.key] = stats[c.key] ?? null; return acc; }, {});
+  document.getElementById('raw-json').textContent = JSON.stringify(targetKeys, null, 2);
 
-// ──────────────────────────────────────────────
-// MAIN
-// ──────────────────────────────────────────────
-async function run() {
-  const btn = document.getElementById('runBtn');
-  btn.disabled = true;
-  logN = 0;
-  document.getElementById('logBody').innerHTML = '';
+  // Construir tabla de resultados
+  let rows = '';
+  const results = {};
 
-  // Reset tarjetas
-  SOURCES.forEach(s => setCard(s.id, '', 'CONSULTANDO…', '<span style="color:var(--dim);font-family:var(--mono);font-size:.7rem">Descargando…</span>'));
-  setVerdict('', '⏳', 'Analizando fuentes…', 'Por favor espera, esto puede tardar hasta 1 minuto');
-  document.getElementById('dot').className    = 'dot run';
-  document.getElementById('statusTxt').textContent = 'Analizando…';
-
-  log('══════ INICIO ══════', 'b');
-
-  const results = [];
-
-  for (const src of SOURCES) {
-    log(`► ${src.id.toUpperCase()} → ${src.url}`, 'b');
-    const html = await fetchSource(src.url, src.fallback);
-
-    if (!html) {
-      log(`  ✗ Sin contenido utilizable`, 'r');
-      setCard(src.id, 'err', 'SIN ACCESO',
-        '⚠️ Proxy bloqueado o fuente caída. Prueba de nuevo en unos minutos.');
-      results.push({ id: src.id, ok: false, hitsYes: [], hitsNo: [], snippets: [] });
+  for (const cur of CURRENCIES) {
+    const s = stats[cur.key];
+    if (!s) {
+      log(`⚠️ ${cur.key}: clave no encontrada en statistics`, 'warn');
+      rows += `
+        <tr>
+          <td>${cur.icon} ${cur.label}</td>
+          <td><code>${cur.key}</code></td>
+          <td colspan="4" class="err">❌ No disponible en el JSON</td>
+        </tr>`;
       continue;
     }
 
-    const a = analyze(html);
-    log(`  Texto real: ${a.textLen.toLocaleString()} chars`, 'd');
-    log(`  ✓ Pos: ${a.hitsYes.length ? a.hitsYes.join(', ') : '—'}`, a.hitsYes.length ? 'g' : 'd');
-    log(`  ✗ Neg: ${a.hitsNo.length  ? a.hitsNo.join(', ')  : '—'}`, a.hitsNo.length  ? 'r' : 'd');
+    const median  = s.median != null ? s.median : null;
+    const avg     = s.avg    != null ? s.avg    : null;
+    const diff    = (median != null && avg != null) ? (avg - median) : null;
+    const diffCls = diff != null && Math.abs(diff) > 3 ? 'err' : 'ok';
+    const rounded = median != null ? Math.round(median) : null;
 
-    const hasPos = a.hitsYes.length > 0;
-    const hasNeg = a.hitsNo.length  > 0;
-    const cStatus = hasPos ? 'ok' : hasNeg ? 'warn' : '';
-    const cBadge  = hasPos ? '✓ POSITIVO' : hasNeg ? '✗ NEGATIVO' : 'SIN SEÑAL';
+    results[cur.key] = rounded;
+    log(
+      `${cur.icon} ${cur.key}: median=${fmt(median)} | avg=${fmt(avg)} | diff=${diff != null ? fmt(diff) : 'N/A'}`,
+      diff != null && Math.abs(diff) > 3 ? 'warn' : 'ok'
+    );
 
-    let bodyHTML = '';
-    if (hasPos) bodyHTML += `<div style="margin-bottom:7px">🟢 ${a.hitsYes.map(k=>`<span class="kw pos">${k}</span>`).join(' ')}</div>`;
-    if (hasNeg) bodyHTML += `<div style="margin-bottom:7px">🔴 ${a.hitsNo.map(k=>`<span class="kw neg">${k}</span>`).join(' ')}</div>`;
-    if (a.snippets.length) bodyHTML += `<div class="snippet">${a.snippets[0]}</div>`;
-    if (!bodyHTML) bodyHTML = `<span style="color:var(--dim);font-family:var(--mono);font-size:.7rem">Sin menciones relevantes · ${(a.textLen/1024).toFixed(1)} KB leídos</span>`;
+    const newBadge = cur.isNew ? ' <span class="badge new">NUEVO</span>' : '';
 
-    setCard(src.id, cStatus, cBadge, bodyHTML);
-    results.push({ ...a, id: src.id, ok: true });
+    rows += `
+      <tr>
+        <td>${cur.icon} ${cur.label}${newBadge}</td>
+        <td><code>${cur.key}</code></td>
+        <td class="val">${rounded != null ? rounded + ' CUP' : '<span class="err">N/A</span>'}</td>
+        <td class="dim">${fmt(avg)}</td>
+        <td class="ok">${fmt(median)}</td>
+        <td class="${diffCls}">${diff != null ? (diff > 0 ? '+' : '') + fmt(diff) : 'N/A'}</td>
+      </tr>`;
   }
 
-  // ── VEREDICTO FINAL ──────────────────────────
-  log('══════ VEREDICTO ══════', 'b');
+  const now = new Date().toLocaleString('es-ES');
+  document.getElementById('timestamp').textContent = `  ·  ${now}  ·  ${proxyUsed}`;
 
-  const totalYes    = results.reduce((s, r) => s + r.hitsYes.length, 0);
-  const totalNo     = results.reduce((s, r) => s + r.hitsNo.length,  0);
-  const accessible  = results.filter(r => r.ok).length;
-  const noSignal    = results.filter(r => r.ok && !r.hitsYes.length && !r.hitsNo.length).length;
-  const telegramOk  = results.filter(r => r.ok && r.id.startsWith('telegram'));
+  document.getElementById('resultado').innerHTML = `
+    <div class="section-title">✅ Resultados — ${now} — proxy: ${proxyUsed}</div>
+    <br>
+    <table>
+      <thead>
+        <tr>
+          <th>Moneda</th>
+          <th>Clave JSON</th>
+          <th>Valor (median redondeado) ✅</th>
+          <th>avg ⚠️</th>
+          <th>median exacto</th>
+          <th>Diferencia avg−median</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <br>
+    <div class="section-title">📋 Snippet para tu script.js</div>
+    <pre>${generateSnippet(results)}</pre>
+  `;
 
-  log(`Fuentes accesibles: ${accessible}/${SOURCES.length}`, accessible > 0 ? 'g' : 'r');
-  log(`Señales positivas: ${totalYes}  ·  negativas: ${totalNo}`, 'd');
+  log('✅ Test completado', 'ok');
+}
 
-  let vCls, vIcon, vMain, vSub;
+function generateSnippet(results) {
+  return `// Tasas extraídas con .median (correcto)
+return {
+    usd: stats.USD?.median != null ? String(Math.round(stats.USD.median)) : null,
+    eur: stats.ECU?.median != null ? String(Math.round(stats.ECU.median)) : null,
+    mlc: stats.MLC?.median != null ? String(Math.round(stats.MLC.median)) : null,
+    cad: stats.CAD?.median != null ? String(Math.round(stats.CAD.median)) : null,
+    mxn: stats.MXN?.median != null ? String(Math.round(stats.MXN.median)) : null,
+    brl: stats.BRL?.median != null ? String(Math.round(stats.BRL.median)) : null,
+    cla: stats.CLA?.median != null ? String(Math.round(stats.CLA.median)) : null,
+};
 
-  if (accessible === 0) {
-    vCls  = 'no';
-    vIcon = '🚫';
-    vMain = 'No se pudo contactar ninguna fuente';
-    vSub  = 'Todos los proxies fallaron. Posible bloqueo de red desde Cuba o fallo temporal. Reintenta en 5 min.';
-  } else if (totalYes > 0 && totalYes >= totalNo) {
-    vCls  = 'ok';
-    vIcon = '🟢';
-    vMain = `Señales POSITIVAS detectadas — posiblemente hay citas (${totalYes} indicio${totalYes>1?'s':''})`;
-    vSub  = 'Se encontraron menciones de disponibilidad en fuentes públicas. ¡Entra YA a sede.maec.gob.es con tus credenciales para confirmar y reservar antes de que se agoten!';
-    log('CONCLUSIÓN: SEÑALES POSITIVAS', 'g');
-  } else if (totalNo > 0 && totalNo > totalYes) {
-    vCls  = 'no';
-    vIcon = '🔴';
-    vMain = `Señales NEGATIVAS — probable falta de citas (${totalNo} indicio${totalNo>1?'s':''})`;
-    vSub  = 'Las fuentes consultadas sugieren dificultad para obtener citas en este momento. Vuelve a intentarlo más tarde o sigue los canales de Telegram para ser avisado.';
-    log('CONCLUSIÓN: SEÑALES NEGATIVAS', 'r');
-  } else if (telegramOk.length === 0 && accessible > 0) {
-    vCls  = 'maybe';
-    vIcon = '⚠️';
-    vMain = 'Telegram inaccesible — fuente clave bloqueada';
-    vSub  = `Se leyeron ${accessible} fuente(s) pero los canales de Telegram (los más fiables) no respondieron. Resultado inconcluso. Prueba de nuevo o accede manualmente a t.me/alertacitasconsulado`;
-    log('CONCLUSIÓN: TELEGRAM BLOQUEADO', 'y');
-  } else {
-    vCls  = 'maybe';
-    vIcon = '🟡';
-    vMain = 'Sin señales claras en este momento';
-    vSub  = `Se leyeron ${accessible} fuente(s) con ${(results.reduce((s,r)=>s+r.textLen,0)/1024).toFixed(0)} KB de texto total, sin menciones explícitas de disponibilidad. Esto suele indicar que no hay citas ahora mismo, pero la situación cambia rápido.`;
-    log('CONCLUSIÓN: SIN SEÑALES', 'y');
-  }
-
-  setVerdict(vCls, vIcon, vMain, vSub);
-  document.getElementById('dot').className     = `dot ${vCls === 'ok' ? 'ok' : vCls === 'no' ? 'err' : 'done'}`;
-  document.getElementById('statusTxt').textContent = 'Completado';
-  log('══════ FIN ══════', 'b');
-  btn.disabled = false;
+// Valores actuales detectados:
+${Object.entries(results).map(([k,v]) => `// ${k}: ${v} CUP`).join('\n')}`;
 }
 </script>
 </body>
 </html>
-
