@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🔬 El Toque Scraper v2</title>
+<title>🔬 El Toque Scraper v3</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@800&display=swap');
   :root { --bg:#0a0a0f; --s:#12121a; --b:#1e1e2e; --a:#00ffb3; --w:#ffb300; --e:#ff4d6d; --t:#e0e0f0; --m:#555577; }
@@ -23,14 +23,14 @@
   .mi { min-width:1.4rem; text-align:center; }
   .mn { flex:1; min-width:0; }
   .mname { font-size:.7rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .mst { font-size:.6rem; color:var(--m); }
+  .mst { font-size:.58rem; color:var(--m); }
   .badge { font-size:.58rem; font-weight:700; padding:.18rem .45rem; border-radius:3px; white-space:nowrap; }
   .bp { background:#1e1e2e; color:var(--m); }
   .br { background:#1a1a00; color:var(--w); animation:pulse 1s infinite; }
   .bo { background:#001a10; color:var(--a); }
   .bf { background:#1a0010; color:var(--e); }
   @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
-  .log { background:#080810; border:1px solid var(--b); border-radius:8px; padding:.8rem; height:280px; overflow-y:auto; font-size:.68rem; line-height:1.9; margin-bottom:1rem; }
+  .log { background:#080810; border:1px solid var(--b); border-radius:8px; padding:.8rem; height:340px; overflow-y:auto; font-size:.68rem; line-height:1.9; margin-bottom:1rem; }
   .ll { display:flex; gap:.5rem; }
   .lt { color:var(--m); min-width:5rem; }
   .lm { flex:1; word-break:break-all; }
@@ -41,13 +41,13 @@
   button.p { background:var(--a); border-color:var(--a); color:#000; font-weight:700; }
   button.p:hover { opacity:.85; }
   button:disabled { opacity:.4; cursor:not-allowed; }
-  .html-box { display:none; background:#080810; border:1px solid var(--b); border-radius:8px; padding:.8rem; margin-top:.8rem; font-size:.62rem; height:180px; overflow:auto; color:#aabbcc; white-space:pre-wrap; word-break:break-all; }
-  .section-title { font-size:.65rem; color:var(--m); text-transform:uppercase; letter-spacing:.12em; margin-bottom:.5rem; margin-top:1rem; }
+  .html-box { display:none; background:#080810; border:1px solid var(--b); border-radius:8px; padding:.8rem; margin-top:.8rem; font-size:.62rem; height:220px; overflow:auto; color:#aabbcc; white-space:pre-wrap; word-break:break-all; }
+  select { background:var(--s); border:1px solid var(--b); color:var(--t); font-family:'JetBrains Mono',monospace; font-size:.7rem; padding:.4rem .6rem; border-radius:6px; cursor:pointer; }
 </style>
 </head>
 <body>
-<h1>🔬 El Toque — Scraper v2</h1>
-<p class="sub">Probando fuentes alternativas · eltoque.online + API directa + proxies</p>
+<h1>🔬 El Toque Scraper v3</h1>
+<p class="sub">Extracción inteligente con validación estricta de tasas cubanas</p>
 
 <div class="rates">
   <div class="rc" id="card-usd"><div class="rl">💵 USD/CUP</div><div class="rv p" id="val-usd">···</div><div class="ru">pesos cubanos</div></div>
@@ -55,7 +55,6 @@
   <div class="rc" id="card-mlc"><div class="rl">💳 MLC/CUP</div><div class="rv p" id="val-mlc">···</div><div class="ru">pesos cubanos</div></div>
 </div>
 
-<p class="section-title">📡 Métodos a probar</p>
 <div class="grid" id="methodsGrid"></div>
 
 <div class="btns">
@@ -70,238 +69,304 @@
 
 <script>
 // ─────────────────────────────────────────────────────────────────
-// MÉTODOS A PROBAR
+// VALIDACIÓN ESTRICTA DE TASAS CUBANAS
+// Reglas de sentido común:
+//   - USD informal en Cuba: entre 300 y 600 CUP (ajustar si cambia mucho)
+//   - EUR suele ser 5-15% más que USD
+//   - MLC suele ser 50-80% del valor del USD
+//   - Los 3 valores NO pueden ser iguales entre sí
 // ─────────────────────────────────────────────────────────────────
-// El token del usuario ya expiró, pero lo incluimos para diagnóstico
-const OLD_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc2MzU4NDg4MCwianRpIjoiZmVhZTc2Y2YtODc4Yy00MjdmLTg5MGUtMmQ4MzRmOGE1MzAyIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjY5MWUyNWI3ZTkyYmU3N2VhM2RlMjE0ZSIsIm5iZiI6MTc2MzU4NDg4MCwiZXhwIjoxNzk1MTIwODgwfQ.qpxiSsg8ptDTYsXZPnnxC694lUoWmT1qyAvzLUfl1-8";
+const VALID = {
+  usd: { min: 200, max: 700 },
+  eur: { min: 200, max: 800 },
+  mlc: { min: 150, max: 700 },
+};
 
-const today = new Date().toISOString().split('T')[0];
+function validateRate(currency, value) {
+  const n = parseInt(value);
+  if (isNaN(n)) return false;
+  const { min, max } = VALID[currency] || { min: 200, max: 800 };
+  return n >= min && n <= max;
+}
 
-const METHODS = [
-  // ── Grupo 1: API oficial directa (con token viejo, para ver el error exacto)
-  {
-    id: "api_direct",
-    icon: "🔑",
-    name: "API oficial (token viejo)",
-    desc: "tasas.eltoque.com/v1/trmi",
-    run: async () => {
-      const r = await noSignalFetch("https://tasas.eltoque.com/v1/trmi", {
-        headers: { 'Authorization': `Bearer ${OLD_TOKEN}` }
-      });
-      const json = await r.json();
-      return extractFromApiJson(json);
-    }
-  },
-  // ── Grupo 2: eltoque.online (sitio espejo con HTML estático)
-  {
-    id: "online_allorigins",
-    icon: "🌐",
-    name: "eltoque.online via allorigins",
-    desc: "Sitio espejo con HTML real",
-    run: async () => {
-      const target = "https://eltoque.online/tasas-de-cambio-de-moneda-en-cuba-hoy";
-      const r = await noSignalFetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`);
-      const html = await r.text();
-      return extractFromHtml(html, "eltoque.online");
-    }
-  },
-  {
-    id: "online_codetabs",
-    icon: "🌐",
-    name: "eltoque.online via codetabs",
-    desc: "Proxy alternativo",
-    run: async () => {
-      const target = "https://eltoque.online/tasas-de-cambio-de-moneda-en-cuba-hoy";
-      const r = await noSignalFetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(target)}`);
-      const html = await r.text();
-      return extractFromHtml(html, "eltoque.online codetabs");
-    }
-  },
-  // ── Grupo 3: eltoque.com /tasas-de-cambio-cuba (URL nueva)
-  {
-    id: "new_url",
-    icon: "🔗",
-    name: "eltoque.com/tasas-de-cambio-cuba",
-    desc: "URL nueva del sitio",
-    run: async () => {
-      const target = "https://eltoque.com/tasas-de-cambio-cuba";
-      const r = await noSignalFetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`);
-      const html = await r.text();
-      return extractFromHtml(html, "new url");
-    }
-  },
-  // ── Grupo 4: Next.js data endpoint (SSG JSON)
-  {
-    id: "nextjs_json",
-    icon: "⚡",
-    name: "Next.js _next/data JSON",
-    desc: "Endpoint interno de Next.js",
-    run: async () => {
-      // Next.js SSG expone los datos en /_next/data/{buildId}/page.json
-      // El buildId lo vimos en el HTML: zOiLZtafGePTT1qQZ-PTe
-      const buildId = "zOiLZtafGePTT1qQZ-PTe";
-      const jsonUrl = `https://eltoque.com/_next/data/${buildId}/tasas-de-cambio-de-moneda-en-cuba-hoy.json`;
-      const r = await noSignalFetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(jsonUrl)}`);
-      const json = await r.json();
-      return extractFromNextJson(json);
-    }
-  },
-  // ── Grupo 5: Yadio.io API (alternativa confiable)
-  {
-    id: "yadio",
-    icon: "💱",
-    name: "Yadio.io API (alternativa)",
-    desc: "API abierta de tasas Cuba",
-    run: async () => {
-      const r = await noSignalFetch("https://api.yadio.io/exrates/CUP");
-      const json = await r.json();
-      // Yadio devuelve CUP como base, necesitamos invertir
-      const usd = json.CUP?.USD ? (1 / json.CUP.USD).toFixed(0) : null;
-      const eur = json.CUP?.EUR ? (1 / json.CUP.EUR).toFixed(0) : null;
-      return { usd, eur, mlc: null, source: "yadio.io" };
-    }
-  },
-  // ── Grupo 6: cambio.today
-  {
-    id: "cambio_today",
-    icon: "📊",
-    name: "cambio.today scrape",
-    desc: "Sitio de tasas cubanas",
-    run: async () => {
-      const target = "https://cambio.today/cuc/cup/1";
-      const r = await noSignalFetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`);
-      const html = await r.text();
-      const m = html.match(/(\d{3,4}(?:[.,]\d+)?)\s*(?:CUP|peso)/i);
-      const val = m ? Math.round(parseFloat(m[1].replace(',', '.'))).toString() : null;
-      return { usd: val, eur: null, mlc: null, source: "cambio.today" };
-    }
-  },
-];
+function validateRateSet(rates) {
+  // Al menos USD debe ser válido
+  if (!rates.usd || !validateRate('usd', rates.usd)) return false;
+  // Si tenemos EUR y MLC, no pueden ser iguales a USD
+  if (rates.eur && rates.usd === rates.eur) return false;
+  if (rates.mlc && rates.usd === rates.mlc) return false;
+  return true;
+}
 
 // ─────────────────────────────────────────────────────────────────
-// FETCH SIN AbortSignal (compatible con todos los browsers)
+// EXTRACTOR INTELIGENTE
+// Busca en el HTML patrones específicos de tasas de cambio
+// ─────────────────────────────────────────────────────────────────
+function extractRatesFromHtml(html) {
+  // 1. Buscar el __NEXT_DATA__ JSON (Next.js embebe datos del servidor aquí)
+  const nextDataMatch = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
+  if (nextDataMatch) {
+    try {
+      const json = JSON.parse(nextDataMatch[1]);
+      const result = deepSearchRates(json);
+      if (result) {
+        log(`   ✅ Encontrado en __NEXT_DATA__`, "ok");
+        return result;
+      }
+    } catch(e) {
+      log(`   ⚠️ __NEXT_DATA__ no parseable: ${e.message}`, "warn");
+    }
+  }
+
+  // 2. Buscar en scripts inline
+  const scripts = [...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)];
+  for (const s of scripts) {
+    const content = s[1];
+    if (!content.includes('USD') && !content.includes('usd')) continue;
+    try {
+      // Buscar objetos JSON dentro del script
+      const jsonMatches = content.matchAll(/\{[^{}]{20,500}\}/g);
+      for (const jm of jsonMatches) {
+        try {
+          const obj = JSON.parse(jm[0]);
+          const r = deepSearchRates(obj);
+          if (r) {
+            log(`   ✅ Encontrado en script inline`, "ok");
+            return r;
+          }
+        } catch {}
+      }
+    } catch {}
+  }
+
+  // 3. Buscar contexto semántico: "USD" cerca de un número en rango válido
+  // con contexto de que es una tasa de cambio
+  const contextualPatterns = [
+    // "USD\n...\n350" o "USD ... 350 CUP"  
+    /USD[^<\d]{0,50}(\d{3,4})(?:\.\d+)?(?:\s*CUP)?/gi,
+    // Tablas: <td>USD</td><td>350</td>
+    />\s*USD\s*<\/[^>]+>[^<]*<[^>]+>\s*(\d{3,4})\s*</gi,
+    // JSON: "USD":350 o "USD": "350"
+    /"USD"\s*:\s*"?(\d{3,4})"?/gi,
+  ];
+
+  const candidates = { usd: [], eur: [], mlc: [] };
+  
+  for (const pat of contextualPatterns) {
+    for (const m of html.matchAll(pat)) {
+      const n = parseInt(m[1]);
+      if (validateRate('usd', n)) candidates.usd.push(n);
+    }
+  }
+
+  const eurPatterns = [
+    /EUR[^<\d]{0,50}(\d{3,4})(?:\.\d+)?/gi,
+    /"EUR"\s*:\s*"?(\d{3,4})"?/gi,
+    /"ECU"\s*:\s*"?(\d{3,4})"?/gi,
+  ];
+  for (const pat of eurPatterns) {
+    for (const m of html.matchAll(pat)) {
+      const n = parseInt(m[1]);
+      if (validateRate('eur', n)) candidates.eur.push(n);
+    }
+  }
+
+  const mlcPatterns = [
+    /MLC[^<\d]{0,50}(\d{3,4})(?:\.\d+)?/gi,
+    /"MLC"\s*:\s*"?(\d{3,4})"?/gi,
+  ];
+  for (const pat of mlcPatterns) {
+    for (const m of html.matchAll(pat)) {
+      const n = parseInt(m[1]);
+      if (validateRate('mlc', n)) candidates.mlc.push(n);
+    }
+  }
+
+  // Log todos los candidatos para diagnóstico
+  log(`   🔢 Candidatos USD: [${[...new Set(candidates.usd)].join(', ')||'ninguno'}]`, "");
+  log(`   🔢 Candidatos EUR: [${[...new Set(candidates.eur)].join(', ')||'ninguno'}]`, "");
+  log(`   🔢 Candidatos MLC: [${[...new Set(candidates.mlc)].join(', ')||'ninguno'}]`, "");
+
+  // Tomar el valor más frecuente / más probable (el primero válido)
+  const usd = candidates.usd.length > 0 ? String(candidates.usd[0]) : null;
+  const eur = candidates.eur.length > 0 ? String(candidates.eur[0]) : null;
+  const mlc = candidates.mlc.length > 0 ? String(candidates.mlc[0]) : null;
+
+  return { usd, eur, mlc };
+}
+
+// Busca recursivamente en un objeto JSON propiedades que parezcan tasas
+function deepSearchRates(obj, depth = 0) {
+  if (depth > 8 || !obj || typeof obj !== 'object') return null;
+  
+  const str = JSON.stringify(obj);
+  // Si no contiene USD no tiene tasas
+  if (!str.includes('USD') && !str.includes('usd')) return null;
+
+  // Buscar directamente propiedades USD/EUR/MLC
+  const candidates = {};
+  
+  function search(o) {
+    if (!o || typeof o !== 'object') return;
+    for (const [k, v] of Object.entries(o)) {
+      const key = k.toUpperCase();
+      if (['USD', 'DOLLAR', 'DOLAR'].includes(key) && validateRate('usd', v)) {
+        candidates.usd = String(Math.round(v));
+      }
+      if (['EUR', 'EURO', 'ECU'].includes(key) && validateRate('eur', v)) {
+        candidates.eur = String(Math.round(v));
+      }
+      if (['MLC'].includes(key) && validateRate('mlc', v)) {
+        candidates.mlc = String(Math.round(v));
+      }
+      if (typeof v === 'object') search(v);
+    }
+  }
+  search(obj);
+  
+  if (candidates.usd) return candidates;
+  return null;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// FETCH SIN AbortSignal
 // ─────────────────────────────────────────────────────────────────
 async function noSignalFetch(url, opts = {}) {
-  const fetchPromise = fetch(url, opts);
-  const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error("Timeout 12s")), 12000));
-  const res = await Promise.race([fetchPromise, timeout]);
+  const fetchP = fetch(url, opts);
+  const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error("Timeout 15s")), 15000));
+  const res = await Promise.race([fetchP, timeout]);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res;
 }
 
 // ─────────────────────────────────────────────────────────────────
-// EXTRACTORES
+// MÉTODOS
 // ─────────────────────────────────────────────────────────────────
-function inRange(v) { const n = parseInt(v); return n >= 100 && n <= 9999; }
+const PROXIES = [
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+];
 
-function extractFromApiJson(json) {
-  // Formato: { tasas: { USD: 380, ECU: 420, MLC: 210 } }
-  if (json?.tasas) {
-    return {
-      usd: json.tasas.USD?.toString(),
-      eur: (json.tasas.EUR || json.tasas.ECU)?.toString(),
-      mlc: json.tasas.MLC?.toString(),
-      source: "API oficial"
-    };
-  }
-  throw new Error("JSON sin formato esperado: " + JSON.stringify(json).slice(0, 200));
-}
-
-function extractFromNextJson(json) {
-  // Next.js SSG pageProps
-  const str = JSON.stringify(json);
-  const find = (codes) => {
-    for (const code of codes) {
-      const m = str.match(new RegExp(`"${code}"[^\\d]{0,20}?(\\d{3,4})`, 'i'));
-      if (m && inRange(m[1])) return m[1];
-    }
-    return null;
-  };
-  return {
-    usd: find(['USD']),
-    eur: find(['EUR', 'ECU']),
-    mlc: find(['MLC']),
-    source: "Next.js SSG JSON"
-  };
-}
-
-function extractFromHtml(html, sourceName) {
-  if (!html || html.length < 500) throw new Error("HTML vacío o muy corto (" + html.length + " chars)");
-  
+async function fetchViaProxy(targetUrl, proxyFn) {
+  const r = await noSignalFetch(proxyFn(targetUrl));
+  const html = await r.text();
+  if (!html || html.length < 1000) throw new Error(`HTML demasiado corto (${html.length} chars)`);
+  if (html.includes('"Page not found"') || html.includes('Página no encontrada')) throw new Error("Página 404");
   rawHtml = html;
-  log(`📄 ${sourceName}: ${html.length.toLocaleString()} chars recibidos`, "");
-
-  // Check if it's also a 404
-  if (html.includes('"Page not found"') || html.includes('>404<') || html.includes('Página no encontrada')) {
-    throw new Error("El proxy recibió una página 404");
-  }
-
-  const find = (codes) => {
-    for (const code of codes) {
-      const patterns = [
-        // JSON dentro de script
-        new RegExp(`"${code}"\\s*:\\s*(\\d{3,4})`, 'i'),
-        // Tabla: código seguido de número en celda
-        new RegExp(`${code}[\\s\\S]{1,150}?<td[^>]*>[^<]*(\\d{3,4})[^<]*<\\/td>`, 'i'),
-        // Span/div con número
-        new RegExp(`>${code}</[^>]+>[\\s\\S]{1,100}?>(\\d{3,4})<`, 'i'),
-        // Texto plano
-        new RegExp(`\\b${code}\\b[^\\d]{0,25}(\\d{3,4})`, 'i'),
-      ];
-      for (const pat of patterns) {
-        const m = html.match(pat);
-        if (m && inRange(m[1])) return m[1];
-      }
-    }
-    return null;
-  };
-
-  return {
-    usd: find(['USD']),
-    eur: find(['EUR', 'ECU']),
-    mlc: find(['MLC']),
-    source: sourceName
-  };
+  return html;
 }
+
+const METHODS = [
+  {
+    id: "nextdata_tasas_cuba",
+    icon: "⚡",
+    name: "Next.js data: tasas-de-cambio-cuba",
+    desc: "Endpoint SSG de Next.js",
+    run: async () => {
+      const buildId = "zOiLZtafGePTT1qQZ-PTe";
+      const jsonUrl = `https://eltoque.com/_next/data/${buildId}/tasas-de-cambio-cuba.json`;
+      log(`   📡 Intentando: ${jsonUrl}`, "");
+      const r = await noSignalFetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(jsonUrl)}`);
+      const text = await r.text();
+      log(`   📄 Respuesta: ${text.slice(0, 150)}`, "");
+      const json = JSON.parse(text);
+      return deepSearchRates(json) || {};
+    }
+  },
+  {
+    id: "tasas_cuba_allorigins",
+    icon: "🌐",
+    name: "tasas-de-cambio-cuba (allorigins)",
+    desc: "URL nueva + proxy allorigins",
+    run: async () => {
+      const html = await fetchViaProxy("https://eltoque.com/tasas-de-cambio-cuba", PROXIES[0]);
+      log(`   📄 HTML: ${html.length.toLocaleString()} chars`, "");
+      return extractRatesFromHtml(html);
+    }
+  },
+  {
+    id: "tasas_cuba_codetabs",
+    icon: "🌐",
+    name: "tasas-de-cambio-cuba (codetabs)",
+    desc: "URL nueva + proxy codetabs",
+    run: async () => {
+      const html = await fetchViaProxy("https://eltoque.com/tasas-de-cambio-cuba", PROXIES[1]);
+      log(`   📄 HTML: ${html.length.toLocaleString()} chars`, "");
+      return extractRatesFromHtml(html);
+    }
+  },
+  {
+    id: "yadio",
+    icon: "💱",
+    name: "Yadio.io API",
+    desc: "API abierta de tasas Cuba",
+    run: async () => {
+      // yadio.io tiene endpoint de tasa informal CUP
+      const r = await noSignalFetch("https://api.yadio.io/exrates/CUP");
+      const json = await r.json();
+      log(`   📄 Yadio respuesta: ${JSON.stringify(json).slice(0, 200)}`, "");
+      // Yadio da cuántos CUP vale 1 unidad de cada moneda
+      const usd = json.CUP?.USD ? String(Math.round(1 / json.CUP.USD)) : null;
+      const eur = json.CUP?.EUR ? String(Math.round(1 / json.CUP.EUR)) : null;
+      return { usd, eur, mlc: null };
+    }
+  },
+  {
+    id: "yadio_json",
+    icon: "💱",
+    name: "Yadio.io /json/USD",
+    desc: "Endpoint alternativo de Yadio",
+    run: async () => {
+      const r = await noSignalFetch("https://api.yadio.io/json/USD");
+      const json = await r.json();
+      log(`   📄 Yadio USD respuesta: ${JSON.stringify(json).slice(0, 300)}`, "");
+      const usd = json?.USD?.CUP ? String(Math.round(json.USD.CUP)) : null;
+      return { usd, eur: null, mlc: null };
+    }
+  },
+];
 
 // ─────────────────────────────────────────────────────────────────
 // UI
 // ─────────────────────────────────────────────────────────────────
-let rawHtml = "", running = false, winner = null;
+let rawHtml = "", running = false;
 
 function log(msg, type = "") {
   const box = document.getElementById("logBox");
   const t = new Date().toLocaleTimeString("es", { hour12: false });
   const d = document.createElement("div");
   d.className = `ll l${type}`;
-  d.innerHTML = `<span class="lt">[${t}]</span><span class="lm">${msg}</span>`;
+  d.innerHTML = `<span class="lt">[${t}]</span><span class="lm">${escHtml(msg)}</span>`;
   box.appendChild(d); box.scrollTop = box.scrollHeight;
 }
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function clearLog() { document.getElementById("logBox").innerHTML = ""; }
 function toggleHtml() {
   const b = document.getElementById("htmlBox");
   if (!rawHtml) { log("Sin HTML capturado aún.", "warn"); return; }
   b.style.display = b.style.display === "block" ? "none" : "block";
-  b.textContent = rawHtml.slice(0, 10000);
+  b.textContent = rawHtml.slice(0, 12000) + (rawHtml.length > 12000 ? "\n\n[truncado...]" : "");
 }
 function copyHtml() {
   if (!rawHtml) { log("Sin HTML capturado.", "warn"); return; }
   navigator.clipboard.writeText(rawHtml)
-    .then(() => log("📋 HTML copiado (" + rawHtml.length + " chars)", "ok"))
-    .catch(() => log("No se pudo copiar automáticamente.", "warn"));
+    .then(() => log(`📋 HTML copiado (${rawHtml.length} chars)`, "ok"))
+    .catch(() => log("No se pudo copiar. Usa el botón 👁.", "warn"));
 }
 function setBadge(id, state, extra = "") {
   const el = document.getElementById("badge-" + id);
   const st = document.getElementById("status-" + id);
   if (!el) return;
-  el.className = "badge b" + state[0];
-  el.textContent = { p: "ESPERA", r: "PROBANDO...", o: "✓ OK", f: "✗ FALLO" }[state[0]] || state;
+  const states = { p: ["bp","ESPERA"], r: ["br","PROBANDO..."], o: ["bo","✓ OK"], f: ["bf","✗ FALLO"] };
+  const [cls, label] = states[state[0]] || ["bp", state];
+  el.className = "badge " + cls;
+  el.textContent = label;
   if (st && extra) st.textContent = extra;
 }
 function setRate(c, v) {
   const el = document.getElementById("val-" + c);
   const card = document.getElementById("card-" + c);
-  if (v && inRange(v)) {
+  if (v && validateRate(c, v)) {
     el.textContent = v; el.className = "rv"; card.className = "rc ok";
   } else {
     el.textContent = "N/D"; el.className = "rv f"; card.className = "rc err";
@@ -320,11 +385,11 @@ function buildCards() {
 }
 
 // ─────────────────────────────────────────────────────────────────
-// RUN
+// RUN — ahora NO para al primer resultado, valida todos
 // ─────────────────────────────────────────────────────────────────
 async function runAll() {
   if (running) return;
-  running = true; winner = null;
+  running = true;
   document.getElementById("btnRun").disabled = true;
   ["usd","eur","mlc"].forEach(c => {
     document.getElementById("val-" + c).textContent = "···";
@@ -334,53 +399,54 @@ async function runAll() {
   METHODS.forEach(m => setBadge(m.id, "pending", m.desc));
 
   log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "");
-  log("🚀 Iniciando " + METHODS.length + " métodos...", "info");
+  log(`🚀 Probando ${METHODS.length} métodos con validación estricta...`, "info");
+  log(`📏 Rangos válidos: USD ${VALID.usd.min}-${VALID.usd.max} | EUR ${VALID.eur.min}-${VALID.eur.max} | MLC ${VALID.mlc.min}-${VALID.mlc.max}`, "");
   log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "");
 
+  const winners = [];
+
   for (const m of METHODS) {
-    if (winner) {
-      setBadge(m.id, "pending", "Saltado");
-      continue;
-    }
     setBadge(m.id, "running");
     log(`🔌 ${m.name}...`, "info");
     try {
       const rates = await m.run();
-      log(`   Resultado: USD=${rates.usd||'null'} EUR=${rates.eur||'null'} MLC=${rates.mlc||'null'}`, "");
+      const valid = validateRateSet(rates);
       
-      if (rates.usd || rates.eur || rates.mlc) {
-        winner = { method: m, rates };
-        setBadge(m.id, "ok", "¡GANADOR!");
-        setRate("usd", rates.usd); setRate("eur", rates.eur); setRate("mlc", rates.mlc);
-        log(`🎉 ¡ÉXITO! Fuente: ${rates.source}`, "ok");
-        log(`   💵 USD = ${rates.usd||'N/D'} CUP`, "ok");
-        log(`   💶 EUR = ${rates.eur||'N/D'} CUP`, "ok");
-        log(`   💳 MLC = ${rates.mlc||'N/D'} CUP`, "ok");
-        log(`   🔑 ID del método: "${m.id}"`, "ok");
+      log(`   Resultado bruto: USD=${rates.usd||'null'} EUR=${rates.eur||'null'} MLC=${rates.mlc||'null'}`, "");
+      log(`   Validación: ${valid ? '✅ VÁLIDO' : '❌ RECHAZADO (valores fuera de rango o iguales)'}`, valid ? "ok" : "warn");
+
+      if (valid) {
+        setBadge(m.id, "ok", `USD=${rates.usd}`);
+        winners.push({ method: m, rates });
+        setRate("usd", rates.usd);
+        setRate("eur", rates.eur);
+        setRate("mlc", rates.mlc);
+        log(`   🎉 MÉTODO VÁLIDO: ${m.name}`, "ok");
       } else {
-        setBadge(m.id, "fail", "Sin tasas");
-        log(`   ⚠️ Respondió pero sin tasas detectables`, "warn");
+        setBadge(m.id, "fail", "Datos inválidos");
       }
     } catch (err) {
-      setBadge(m.id, "fail", err.message.slice(0, 40));
-      log(`   ✗ Error: ${err.message}`, "err");
+      setBadge(m.id, "fail", err.message.slice(0, 45));
+      log(`   ✗ ${err.message}`, "err");
     }
-    await new Promise(r => setTimeout(r, 300));
+    log("", "");
+    await new Promise(r => setTimeout(r, 400));
   }
 
   log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "");
-  if (!winner) {
-    log("❌ Ningún método devolvió tasas.", "err");
-    log("💡 Pulsa '👁 HTML crudo' para ver qué llegó.", "warn");
-    log("💡 O considera ingresar las tasas manualmente.", "warn");
+  if (winners.length > 0) {
+    log(`✅ ${winners.length} método(s) válido(s):`, "ok");
+    winners.forEach(w => log(`   → "${w.method.id}" → USD=${w.rates.usd} EUR=${w.rates.eur} MLC=${w.rates.mlc}`, "ok"));
+    log("", "");
+    log(`🏆 Mejor método para usar: "${winners[0].method.id}"`, "ok");
+  } else {
+    log("❌ Ningún método pasó la validación.", "err");
+    log("💡 Pulsa '📋 Copiar HTML' para pegar el HTML aquí y analizo la estructura.", "warn");
     ["usd","eur","mlc"].forEach(c => {
-      document.getElementById("val-" + c).textContent = "Error";
+      document.getElementById("val-" + c).textContent = "---";
       document.getElementById("val-" + c).className = "rv f";
       document.getElementById("card-" + c).className = "rc err";
     });
-  } else {
-    log(`✅ MÉTODO GANADOR: ${winner.method.id}`, "ok");
-    log("   Usa este ID para configurar tu script.js", "ok");
   }
 
   running = false;
@@ -389,7 +455,8 @@ async function runAll() {
 
 buildCards();
 log("👋 Listo. Pulsa ▶ para iniciar.", "info");
-log("🔍 Esta versión prueba 7 métodos incluyendo fuentes alternativas.", "");
+log("🔍 v3: validación estricta, todos los métodos se prueban aunque alguno funcione.", "");
+log(`📏 Tasas aceptadas: USD ${VALID.usd.min}-${VALID.usd.max} CUP, EUR ${VALID.eur.min}-${VALID.eur.max} CUP, MLC ${VALID.mlc.min}-${VALID.mlc.max} CUP`, "");
 </script>
 </body>
 </html>
