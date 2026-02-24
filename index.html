@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🔬 El Toque Scraper v6 — Contexto</title>
+<title>🔬 Cubadebate — Déficit Test</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@800&display=swap');
   :root { --bg:#0a0a0f; --s:#12121a; --b:#1e1e2e; --a:#00ffb3; --w:#ffb300; --e:#ff4d6d; --t:#e0e0f0; --m:#555577; }
@@ -11,13 +11,28 @@
   body { background:var(--bg); color:var(--t); font-family:'JetBrains Mono',monospace; padding:1.5rem; }
   h1 { font-family:'Syne',sans-serif; font-size:1.4rem; color:var(--a); margin-bottom:.2rem; }
   .sub { color:var(--m); font-size:.72rem; margin-bottom:1.5rem; }
-  .log { background:#080810; border:1px solid var(--b); border-radius:8px; padding:.8rem; height:500px; overflow-y:auto; font-size:.68rem; line-height:1.9; margin-bottom:1rem; }
+
+  .result-card { background:var(--s); border:1px solid var(--b); border-radius:12px; padding:1.5rem; text-align:center; margin-bottom:1.5rem; transition:border-color .3s; }
+  .result-card.ok { border-color:var(--a); }
+  .result-card.err { border-color:var(--e); }
+  .rc-label { font-size:.65rem; color:var(--m); text-transform:uppercase; letter-spacing:.1em; margin-bottom:.5rem; }
+  .rc-value { font-family:'Syne',sans-serif; font-size:3rem; font-weight:800; color:var(--a); line-height:1; }
+  .rc-value.pending { color:var(--m); font-size:1.5rem; }
+  .rc-value.fail { color:var(--e); font-size:1.2rem; }
+  .rc-source { font-size:.6rem; color:var(--m); margin-top:.5rem; }
+
+  .log { background:#080810; border:1px solid var(--b); border-radius:8px; padding:.8rem; height:380px; overflow-y:auto; font-size:.68rem; line-height:1.9; margin-bottom:1rem; }
   .ll { display:flex; gap:.5rem; }
   .lt { color:var(--m); min-width:5rem; }
   .lm { flex:1; word-break:break-all; }
   .lok .lm { color:var(--a); } .lwarn .lm { color:var(--w); } .lerr .lm { color:var(--e); } .linfo .lm { color:#7788ff; }
-  .ctx { background:#0d0d1a; border-left:3px solid var(--w); padding:.4rem .6rem; margin:.2rem 0; font-size:.63rem; line-height:1.6; color:#ccc; white-space:pre-wrap; word-break:break-all; }
-  .ctx .hi { background:#3a2a00; color:var(--w); font-weight:700; padding:0 2px; }
+
+  .titles-box { background:#080810; border:1px solid var(--b); border-radius:8px; padding:.8rem; margin-bottom:1rem; display:none; }
+  .titles-box h3 { font-size:.7rem; color:var(--m); text-transform:uppercase; letter-spacing:.1em; margin-bottom:.6rem; }
+  .title-item { padding:.4rem .6rem; border-left:3px solid var(--b); margin-bottom:.4rem; font-size:.65rem; line-height:1.5; }
+  .title-item.match { border-color:var(--a); color:var(--a); }
+  .title-item.nomatch { border-color:var(--b); color:var(--m); }
+
   .btns { display:flex; gap:.6rem; flex-wrap:wrap; margin-bottom:.8rem; }
   button { background:var(--s); border:1px solid var(--b); color:var(--t); font-family:'JetBrains Mono',monospace; font-size:.72rem; padding:.5rem 1rem; border-radius:7px; cursor:pointer; transition:all .2s; }
   button:hover { border-color:var(--a); color:var(--a); }
@@ -26,147 +41,199 @@
 </style>
 </head>
 <body>
-<h1>🔬 El Toque Scraper v6</h1>
-<p class="sub">Muestra el contexto exacto de cada número candidato en el HTML</p>
+
+<h1>⚡ Cubadebate — Déficit Energético</h1>
+<p class="sub">Extracción desde RSS · cubadebate.cu/feed/</p>
+
+<div class="result-card" id="resultCard">
+  <div class="rc-label">🔌 Déficit pronosticado</div>
+  <div class="rc-value pending" id="resultValue">···</div>
+  <div class="rc-source" id="resultSource">Esperando...</div>
+</div>
 
 <div class="btns">
-  <button class="p" id="btnRun" onclick="runAll()">▶ Analizar contexto</button>
+  <button class="p" id="btnRun" onclick="runTest()">▶ Extraer déficit</button>
   <button onclick="clearLog()">🗑 Limpiar</button>
+  <button onclick="toggleTitles()">📰 Ver todos los títulos RSS</button>
 </div>
 
 <div class="log" id="logBox"></div>
+<div class="titles-box" id="titlesBox">
+  <h3>📰 Todos los títulos del RSS (primeros 20)</h3>
+  <div id="titlesList"></div>
+</div>
 
 <script>
-const PROXY = url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+const PROXIES = [
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+];
+
+const RSS_URL = "http://www.cubadebate.cu/feed/";
+
+// Patrones de título que publica la UNE en Cubadebate
+const UNE_KEYWORDS = ["déficit", "deficit", "afectación", "afectacion", "unión eléctrica", "union electrica", "une ", "pronóstico", "pronostico"];
+
+let allTitles = [];
 let running = false;
 
-function log(msg, type="", isHtml=false) {
+function log(msg, type="") {
   const box = document.getElementById("logBox");
   const t = new Date().toLocaleTimeString("es",{hour12:false});
   const d = document.createElement("div");
   d.className = `ll l${type}`;
-  if (isHtml) {
-    d.innerHTML = `<span class="lt">[${t}]</span><span class="lm">${msg}</span>`;
-  } else {
-    d.innerHTML = `<span class="lt">[${t}]</span><span class="lm">${esc(msg)}</span>`;
-  }
+  d.innerHTML = `<span class="lt">[${t}]</span><span class="lm">${esc(msg)}</span>`;
   box.appendChild(d); box.scrollTop = box.scrollHeight;
 }
-function logCtx(label, context, highlight) {
-  const box = document.getElementById("logBox");
-  const div = document.createElement("div");
-  div.className = "ctx";
-  const escaped = esc(context).replace(
-    new RegExp(esc(highlight), 'g'),
-    `<span class="hi">${esc(highlight)}</span>`
-  );
-  div.innerHTML = `<strong style="color:var(--w)">${esc(label)}</strong>\n${escaped}`;
-  box.appendChild(div); box.scrollTop = box.scrollHeight;
-}
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function clearLog() { document.getElementById("logBox").innerHTML = ""; }
+function clearLog() { document.getElementById("logBox").innerHTML = ""; allTitles = []; document.getElementById("titlesBox").style.display="none"; }
 
-async function runAll() {
+function toggleTitles() {
+  const box = document.getElementById("titlesBox");
+  if (!allTitles.length) { log("Sin títulos aún, ejecuta primero.", "warn"); return; }
+  box.style.display = box.style.display === "block" ? "none" : "block";
+}
+
+function setResult(value, source, state) {
+  const card = document.getElementById("resultCard");
+  const val = document.getElementById("resultValue");
+  const src = document.getElementById("resultSource");
+  val.textContent = value;
+  src.textContent = source;
+  val.className = "rc-value " + state;
+  card.className = "result-card " + (state === "" ? "ok" : state === "fail" ? "err" : "");
+}
+
+// Extraer número de MW de un título
+function extractMW(title) {
+  const t = title.toLowerCase();
+  // Patrones: "1 680 MW", "1680 MW", "1.680 MW"
+  const patterns = [
+    /(\d[\d\s\.]{1,6}\d)\s*mw/i,
+    /(\d{3,4})\s*megawatt/i,
+  ];
+  for (const pat of patterns) {
+    const m = t.match(pat);
+    if (m) {
+      const n = parseInt(m[1].replace(/[\s\.]/g, ""));
+      if (n >= 100 && n <= 5000) return n;
+    }
+  }
+  return null;
+}
+
+// ¿Este título es de la UNE sobre déficit?
+function isUNETitle(title) {
+  const t = title.toLowerCase();
+  return UNE_KEYWORDS.some(k => t.includes(k));
+}
+
+async function runTest() {
   if (running) return;
   running = true;
   document.getElementById("btnRun").disabled = true;
+  setResult("···", "Buscando...", "pending");
+  allTitles = [];
 
   log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "");
-  log("🚀 Fetching HTML...", "info");
+  log(`🚀 Fetching RSS: ${RSS_URL}`, "info");
 
-  try {
-    const res = await Promise.race([
-      fetch(PROXY("https://eltoque.com/tasas-de-cambio-cuba")),
-      new Promise((_,rej) => setTimeout(() => rej(new Error("Timeout 15s")), 15000))
-    ]);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const html = await res.text();
-    log(`✅ HTML: ${html.length.toLocaleString()} chars`, "ok");
+  let xml = null;
 
-    // ── 1. Mostrar el __NEXT_DATA__ completo (primeros 3000 chars)
-    log("", "");
-    log("📦 __NEXT_DATA__ (primeros 3000 chars):", "info");
-    const nd = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
-    if (nd) {
-      const snippet = nd[1].slice(0, 3000);
-      logCtx("__NEXT_DATA__", snippet, "tasa");
-      
-      // Parse y mostrar estructura de trmiExchange
-      try {
-        const json = JSON.parse(nd[1]);
-        const pp = json?.props?.pageProps;
-        if (pp?.trmiExchange !== undefined) {
-          log("", "");
-          log("🎯 trmiExchange encontrado:", "ok");
-          logCtx("trmiExchange completo", JSON.stringify(pp.trmiExchange, null, 2).slice(0, 3000), "tasa");
-        }
-        if (pp?.banksXRates !== undefined) {
-          log("", "");
-          log("🏦 banksXRates:", "info");
-          logCtx("banksXRates", JSON.stringify(pp.banksXRates, null, 2).slice(0, 2000), "USD");
-        }
-        // Mostrar TODOS los números 200-800 con su path
-        log("", "");
-        log("🔢 Todos los números 200-800 en pageProps:", "info");
-        const found = [];
-        function hunt(obj, path="", d=0) {
-          if (d>10||!obj||typeof obj!=='object') return;
-          for (const [k,v] of Object.entries(obj)) {
-            const p = path?`${path}.${k}`:k;
-            if (typeof v==='number') {
-              const n = Math.round(v);
-              if (n>=200&&n<=800) found.push(`${p} = ${n}`);
-            } else if (typeof v==='object') hunt(v,p,d+1);
-          }
-        }
-        if (pp) hunt(pp);
-        if (found.length) {
-          found.forEach(f => log(`   ${f}`, "warn"));
-        } else {
-          log("   ⚠️ NINGUNO — los datos llegan por fetch del cliente", "err");
-          log("   → Necesitamos interceptar la llamada API interna", "err");
-        }
-      } catch(e) {
-        log(`   Error parseando NEXT_DATA: ${e.message}`, "err");
-      }
+  // Intentar proxies en orden
+  for (let i = 0; i < PROXIES.length; i++) {
+    const proxyUrl = PROXIES[i](RSS_URL);
+    log(`📡 Proxy ${i+1}: ${proxyUrl.slice(0, 60)}...`, "");
+    try {
+      const res = await Promise.race([
+        fetch(proxyUrl),
+        new Promise((_,rej) => setTimeout(() => rej(new Error("Timeout 12s")), 12000))
+      ]);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const text = await res.text();
+      if (text.length < 500) throw new Error(`Respuesta muy corta (${text.length} chars)`);
+      xml = text;
+      log(`✅ Proxy ${i+1} OK — ${text.length.toLocaleString()} chars`, "ok");
+      break;
+    } catch(e) {
+      log(`✗ Proxy ${i+1}: ${e.message}`, "err");
+    }
+  }
+
+  if (!xml) {
+    setResult("Error", "Todos los proxies fallaron", "fail");
+    log("❌ No se pudo obtener el RSS.", "err");
+    running = false; document.getElementById("btnRun").disabled = false;
+    return;
+  }
+
+  // Parsear títulos del XML
+  log("", "");
+  log("🔍 Analizando títulos del RSS...", "info");
+
+  // Extraer todos los <title> (saltando el primero que es el del sitio)
+  const rawTitles = [...xml.matchAll(/<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/gi)]
+    .map(m => m[1].trim())
+    .filter(t => t.length > 5)
+    .slice(1, 25); // saltar el primero (nombre del sitio), tomar hasta 25
+
+  log(`📰 ${rawTitles.length} títulos encontrados`, "");
+  allTitles = rawTitles;
+
+  // Render en el panel de títulos
+  const listEl = document.getElementById("titlesList");
+  listEl.innerHTML = rawTitles.map(t => {
+    const isUne = isUNETitle(t);
+    const mw = extractMW(t);
+    return `<div class="title-item ${isUne ? 'match' : 'nomatch'}">
+      ${isUne ? '⚡' : '·'} ${esc(t)} ${mw ? `<strong>[${mw} MW]</strong>` : ''}
+    </div>`;
+  }).join("");
+
+  // Buscar el primer título que coincida y tenga número
+  let found = null;
+  let foundTitle = "";
+
+  for (const title of rawTitles) {
+    if (!isUNETitle(title)) continue;
+    const mw = extractMW(title);
+    if (mw) {
+      found = mw;
+      foundTitle = title;
+      log(`✅ MATCH: "${title}"`, "ok");
+      log(`   → ${mw} MW`, "ok");
+      break;
     } else {
-      log("   No encontrado", "err");
+      log(`⚠️ Título UNE sin número MW: "${title}"`, "warn");
     }
-
-    // ── 2. Mostrar contexto de cada número candidato (200-800) en el HTML crudo
-    log("", "");
-    log("🔍 Contexto de cada número 200-800 en el HTML completo:", "info");
-    const WINDOW = 120; // chars antes y después
-    const seen = new Set();
-    const matches = [...html.matchAll(/\b(\d{3,4})\b/g)];
-    let count = 0;
-    for (const m of matches) {
-      const n = parseInt(m[1]);
-      if (n < 200 || n > 800) continue;
-      const key = `${n}-${Math.floor(m.index/200)}`; // dedupe por zona
-      if (seen.has(key)) continue;
-      seen.add(key);
-      const start = Math.max(0, m.index - WINDOW);
-      const end = Math.min(html.length, m.index + m[0].length + WINDOW);
-      const context = html.slice(start, end);
-      logCtx(`Nº ${n} @ pos ${m.index}`, context, m[1]);
-      count++;
-      if (count >= 25) { log("   [truncado a 25 coincidencias]", "warn"); break; }
-    }
-    if (count === 0) log("   No hay ningún número 200-800 en el HTML crudo", "err");
-
-  } catch(e) {
-    log(`✗ Error: ${e.message}`, "err");
   }
 
   log("", "");
+
+  if (found) {
+    setResult(`${found} MW`, `Fuente: "${foundTitle.slice(0, 60)}..."`, "");
+    log(`🎉 RESULTADO: ${found} MW de déficit`, "ok");
+    log(`📰 Título: "${foundTitle}"`, "ok");
+    log("", "");
+    log("✅ El método funciona. Este es el código para script.js:", "ok");
+    log(`   stats = json.trmiExchange... ← tasas`, "");
+    log(`   deficitMW = extractMW(rssTitle) ← déficit`, "");
+  } else {
+    setResult("N/D", "No encontrado en RSS de hoy", "fail");
+    log("⚠️ No se encontró artículo de déficit en el RSS actual.", "warn");
+    log("   Posibles causas:", "warn");
+    log("   1. La UNE no publicó hoy aún (se publica por la mañana)", "warn");
+    log("   2. El título usa palabras distintas a las esperadas", "warn");
+    log("   3. Abre '📰 Ver todos los títulos RSS' para inspeccionar", "warn");
+  }
+
   log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "");
   running = false;
   document.getElementById("btnRun").disabled = false;
 }
 
-log("👋 Listo. Pulsa ▶ para ver exactamente de dónde vienen los números.", "info");
+log("👋 Listo. Pulsa ▶ para extraer el déficit desde Cubadebate.", "info");
+log("📡 Fuente: cubadebate.cu/feed/ (RSS público, sin autenticación)", "");
 </script>
 </body>
 </html>
-
