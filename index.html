@@ -1,246 +1,96 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Morro & Imperium - Caribbean Conquest</title>
-    <style>
-        :root {
-            --parchment: #f4e4bc;
-            --wood: #5d4037;
-            --stone: #78909c;
-            --gold: #ffc107;
-            --ocean: #263238;
-        }
+<style>
+    /* Estilos específicos para la vista del Mapa */
+    .map-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr); /* 5 sectores visibles */
+        gap: 10px;
+        background: url('https://www.transparenttextures.com/patterns/old-map.png'), #d4c4a8;
+        padding: 20px;
+        border: 10px solid #5d4037;
+        border-image: url("https://www.transparenttextures.com/patterns/dark-wood.png") 30 round;
+    }
 
-        body {
-            background-color: var(--ocean);
-            color: var(--wood);
-            font-family: 'Georgia', serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
+    .map-slot {
+        aspect-ratio: 1 / 1;
+        border: 1px dashed rgba(0,0,0,0.2);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        transition: 0.3s;
+    }
 
-        /* Barra de Recursos Superior */
-        header {
-            background: linear-gradient(to bottom, #3e2723, #1b0000);
-            color: var(--parchment);
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-around;
-            border-bottom: 3px solid var(--gold);
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
+    .map-slot:hover {
+        background: rgba(255,255,255,0.2);
+        cursor: pointer;
+    }
 
-        .resource {
-            text-align: center;
-        }
+    .island-icon {
+        width: 60px;
+        height: 60px;
+        background-size: contain;
+        background-repeat: no-repeat;
+    }
 
-        .resource span {
-            display: block;
-            font-size: 0.8em;
-            color: var(--gold);
-        }
+    /* Simulación de iconos */
+    .villa { background-image: url('https://cdn-icons-png.flaticon.com/512/2642/2642255.png'); } /* Icono de fuerte */
+    .wreck { background-image: url('https://cdn-icons-png.flaticon.com/512/3066/3066515.png'); } /* Restos de barco */
+    .empty { opacity: 0.3; filter: grayscale(1); background-image: url('https://cdn-icons-png.flaticon.com/512/628/628555.png'); }
 
-        /* Contenedor Principal */
-        .main-container {
-            display: flex;
-            flex: 1;
-        }
+    .slot-info {
+        font-size: 0.7em;
+        text-align: center;
+        margin-top: 5px;
+        font-weight: bold;
+        color: #3e2723;
+    }
 
-        /* Menú Lateral Izquierdo */
-        nav {
-            width: 200px;
-            background: var(--wood);
-            padding: 20px 0;
-            border-right: 2px solid var(--gold);
-        }
+    .fleet-indicator {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: red;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        box-shadow: 0 0 5px red;
+    }
+</style>
 
-        nav ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        nav li {
-            padding: 15px 20px;
-            color: var(--parchment);
-            cursor: pointer;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            transition: 0.3s;
-        }
-
-        nav li:hover {
-            background: #795548;
-            padding-left: 30px;
-        }
-
-        nav li.active {
-            border-left: 5px solid var(--gold);
-            background: #4e342e;
-        }
-
-        /* Área de Juego Central */
-        main {
-            flex: 1;
-            background: url('https://www.transparenttextures.com/patterns/papyrus-dark.png'), var(--parchment);
-            padding: 30px;
-            overflow-y: auto;
-            position: relative;
-        }
-
-        .view-title {
-            border-bottom: 2px solid var(--wood);
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        /* Grilla de Construcciones */
-        .buildings-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            background: rgba(255,255,255,0.5);
-            border: 2px solid var(--wood);
-            padding: 15px;
-            border-radius: 4px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .card h3 {
-            margin: 0 0 10px 0;
-            color: #2e1a16;
-        }
-
-        .card p {
-            font-size: 0.9em;
-            flex: 1;
-        }
-
-        .cost {
-            font-size: 0.85em;
-            background: rgba(0,0,0,0.1);
-            padding: 5px;
-            margin-bottom: 10px;
-        }
-
-        button {
-            background: var(--wood);
-            color: white;
-            border: none;
-            padding: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.2s;
-        }
-
-        button:hover {
-            background: #2e1a16;
-        }
-
-        /* Footer / Status */
-        footer {
-            background: #10181d;
-            color: #888;
-            font-size: 0.8em;
-            padding: 5px 20px;
-            text-align: right;
-        }
-    </style>
-</head>
-<body>
-
-<header>
-    <div class="resource">
-        <span>Piedra</span> 14.500
+<div class="view-title">
+    <h2>Navegación: Sector de la Florida [4:120:x]</h2>
+    <div>
+        <button>< Anterior</button>
+        <input type="text" value="120" style="width: 40px; text-align: center;">
+        <button>Siguiente ></button>
     </div>
-    <div class="resource">
-        <span>Madera</span> 8.200
-    </div>
-    <div class="resource">
-        <span>Oro</span> 1.250
-    </div>
-    <div class="resource">
-        <span>Población</span> 450 / 1.000
-    </div>
-    <div class="resource">
-        <span>Energía (Agua)</span> 95%
-    </div>
-</header>
-
-<div class="main-container">
-    <nav>
-        <ul>
-            <li class="active">Infraestructura</li>
-            <li>Astillero Real</li>
-            <li>Investigación</li>
-            <li>Flota</li>
-            <li>Mapa del Caribe</li>
-            <li>Defensas</li>
-        </ul>
-    </nav>
-
-    <main>
-        <div class="view-title">
-            <h2>Asentamiento: San Cristóbal de la Habana</h2>
-            <p>Coordenadas: [4:120:8]</p>
-        </div>
-
-        <div class="buildings-grid">
-            <div class="card">
-                <h3>Cantera de Piedra Caliza</h3>
-                <p>Nivel 12</p>
-                <p>Extrae roca de los fosos para las murallas de la ciudad.</p>
-                <div class="cost">
-                    Costo: 4.200 Piedra | 1.100 Madera
-                </div>
-                <button>Mejorar al Nivel 13</button>
-            </div>
-
-            <div class="card">
-                <h3>Aserradero de Caoba</h3>
-                <p>Nivel 10</p>
-                <p>Procesa maderas preciosas para la construcción de Galeones.</p>
-                <div class="cost">
-                    Costo: 2.500 Piedra | 800 Madera
-                </div>
-                <button>Mejorar al Nivel 11</button>
-            </div>
-
-            <div class="card">
-                <h3>Castillo del Morro</h3>
-                <p>Nivel 5</p>
-                <p>Aumenta la capacidad defensiva y el almacenamiento de munición.</p>
-                <div class="cost">
-                    Costo: 12.000 Piedra | 4.000 Madera | 500 Oro
-                </div>
-                <button>Mejorar al Nivel 6</button>
-            </div>
-
-            <div class="card">
-                <h3>Casa de Contratación</h3>
-                <p>Nivel 8</p>
-                <p>Gestiona el comercio con España y aumenta la producción de Oro.</p>
-                <div class="cost">
-                    Costo: 3.000 Piedra | 2.500 Madera
-                </div>
-                <button>Mejorar al Nivel 9</button>
-            </div>
-        </div>
-    </main>
 </div>
 
-<footer>
-    Servidor: Antemural de las Indias | Jugadores en línea: 142 | Fecha: 24 de Agosto, 1762
-</footer>
+<div class="map-grid">
+    <div class="map-slot">
+        <div class="island-icon villa"></div>
+        <div class="slot-info">La Habana<br>[4:120:1]</div>
+        <div class="fleet-indicator"></div> </div>
 
-</body>
-</html>
+    <div class="map-slot">
+        <div class="island-icon wreck"></div>
+        <div class="slot-info">Restos Galeón<br>(400 Madera)</div>
+    </div>
+
+    <div class="map-slot">
+        <div class="island-icon empty"></div>
+        <div class="slot-info">Cayo Virgen<br>[4:120:3]</div>
+    </div>
+
+    <div class="map-slot">
+        <div class="island-icon villa" style="filter: sepia(1) hue-rotate(320deg);"></div>
+        <div class="slot-info">Puerto Pirata<br>[4:120:4]</div>
+    </div>
+
+    <div class="map-slot">
+        <div class="island-icon empty"></div>
+        <div class="slot-info">Explorar...</div>
+    </div>
+</div>
+
