@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🔬 El Toque Scraper v4</title>
+<title>🔬 El Toque Scraper v5 — trmiExchange</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@800&display=swap');
   :root { --bg:#0a0a0f; --s:#12121a; --b:#1e1e2e; --a:#00ffb3; --w:#ffb300; --e:#ff4d6d; --t:#e0e0f0; --m:#555577; }
@@ -18,7 +18,7 @@
   .rv { font-size:2rem; font-weight:700; font-family:'Syne',sans-serif; color:var(--a); }
   .rv.p { color:var(--m); font-size:1.2rem; } .rv.f { color:var(--e); font-size:1rem; }
   .ru { font-size:.6rem; color:var(--m); }
-  .log { background:#080810; border:1px solid var(--b); border-radius:8px; padding:.8rem; height:420px; overflow-y:auto; font-size:.68rem; line-height:1.9; margin-bottom:1rem; }
+  .log { background:#080810; border:1px solid var(--b); border-radius:8px; padding:.8rem; height:440px; overflow-y:auto; font-size:.68rem; line-height:1.9; margin-bottom:1rem; }
   .ll { display:flex; gap:.5rem; }
   .lt { color:var(--m); min-width:5rem; }
   .lm { flex:1; word-break:break-all; }
@@ -27,14 +27,16 @@
   button { background:var(--s); border:1px solid var(--b); color:var(--t); font-family:'JetBrains Mono',monospace; font-size:.72rem; padding:.5rem 1rem; border-radius:7px; cursor:pointer; transition:all .2s; }
   button:hover { border-color:var(--a); color:var(--a); }
   button.p { background:var(--a); border-color:var(--a); color:#000; font-weight:700; }
-  button.p:hover { opacity:.85; }
   button:disabled { opacity:.4; cursor:not-allowed; }
   pre { background:#080810; border:1px solid var(--b); border-radius:8px; padding:.8rem; margin-top:.8rem; font-size:.62rem; max-height:250px; overflow:auto; color:#aabbcc; white-space:pre-wrap; word-break:break-all; display:none; }
+  .winner { background:#001a10; border:1px solid var(--a); border-radius:8px; padding:1rem; margin-bottom:1rem; display:none; }
+  .winner h3 { color:var(--a); font-size:.8rem; margin-bottom:.5rem; }
+  .winner code { background:#0a0a0f; padding:.3rem .6rem; border-radius:4px; font-size:.7rem; display:block; margin-top:.4rem; line-height:1.8; }
 </style>
 </head>
 <body>
-<h1>🔬 El Toque Scraper v4</h1>
-<p class="sub">Inspección directa del JSON de Next.js · identificando estructura exacta</p>
+<h1>🔬 El Toque Scraper v5</h1>
+<p class="sub">Objetivo: extraer tasas de <strong style="color:var(--a)">trmiExchange</strong> en pageProps</p>
 
 <div class="rates">
   <div class="rc" id="card-usd"><div class="rl">💵 USD/CUP</div><div class="rv p" id="val-usd">···</div><div class="ru">pesos cubanos</div></div>
@@ -42,30 +44,26 @@
   <div class="rc" id="card-mlc"><div class="rl">💳 MLC/CUP</div><div class="rv p" id="val-mlc">···</div><div class="ru">pesos cubanos</div></div>
 </div>
 
+<div class="winner" id="winnerBox">
+  <h3>🎉 ¡Código listo para script.js!</h3>
+  <code id="winnerCode"></code>
+</div>
+
 <div class="btns">
-  <button class="p" id="btnRun" onclick="runAll()">▶ Iniciar prueba</button>
+  <button class="p" id="btnRun" onclick="runAll()">▶ Iniciar</button>
   <button onclick="clearLog()">🗑 Limpiar</button>
-  <button onclick="toggleRaw()">👁 Ver JSON crudo</button>
-  <button onclick="copyRaw()">📋 Copiar JSON</button>
+  <button onclick="toggleRaw()">👁 Ver trmiExchange</button>
+  <button onclick="copyRaw()">📋 Copiar trmiExchange</button>
 </div>
 
 <div class="log" id="logBox"></div>
 <pre id="rawBox"></pre>
 
 <script>
-// ─────────────────────────────────────────────────────────────────
-// Estado
-// ─────────────────────────────────────────────────────────────────
-let rawJson = null;
-let running = false;
-const VALID = { usd:{min:200,max:700}, eur:{min:200,max:800}, mlc:{min:150,max:700} };
 const PROXY = url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-// BuildId extraído del HTML real de eltoque.com en sesión anterior
-const BUILD_ID = "zOiLZtafGePTT1qQZ-PTe";
+const VALID = { usd:{min:200,max:700}, eur:{min:200,max:800}, mlc:{min:150,max:700} };
+let rawTrmi = null, running = false;
 
-// ─────────────────────────────────────────────────────────────────
-// UI helpers
-// ─────────────────────────────────────────────────────────────────
 function log(msg, type="") {
   const box = document.getElementById("logBox");
   const t = new Date().toLocaleTimeString("es",{hour12:false});
@@ -78,129 +76,122 @@ function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').re
 function clearLog() { document.getElementById("logBox").innerHTML = ""; }
 function toggleRaw() {
   const b = document.getElementById("rawBox");
-  if (!rawJson) { log("Sin JSON aún.", "warn"); return; }
-  b.style.display = b.style.display === "block" ? "none" : "block";
-  b.textContent = JSON.stringify(rawJson, null, 2).slice(0, 15000);
+  if (!rawTrmi) { log("Sin datos aún.", "warn"); return; }
+  b.style.display = b.style.display==="block" ? "none" : "block";
+  b.textContent = JSON.stringify(rawTrmi, null, 2).slice(0, 20000);
 }
 function copyRaw() {
-  if (!rawJson) { log("Sin JSON aún.", "warn"); return; }
-  navigator.clipboard.writeText(JSON.stringify(rawJson, null, 2))
-    .then(() => log("📋 JSON copiado", "ok"))
-    .catch(() => log("No se pudo copiar. Usa 👁 y copia manualmente.", "warn"));
+  if (!rawTrmi) { log("Sin datos aún.", "warn"); return; }
+  navigator.clipboard.writeText(JSON.stringify(rawTrmi, null, 2))
+    .then(() => log("📋 trmiExchange copiado", "ok"))
+    .catch(() => log("Usa 👁 y copia manualmente.", "warn"));
 }
 function setRate(c, v) {
-  const el = document.getElementById("val-" + c);
-  const card = document.getElementById("card-" + c);
+  const el = document.getElementById("val-"+c);
+  const card = document.getElementById("card-"+c);
   const n = parseInt(v);
-  const { min, max } = VALID[c];
-  if (!isNaN(n) && n >= min && n <= max) {
-    el.textContent = n; el.className = "rv"; card.className = "rc ok";
-  } else {
-    el.textContent = v || "N/D"; el.className = "rv f"; card.className = "rc err";
+  const {min,max} = VALID[c];
+  if (!isNaN(n) && n>=min && n<=max) {
+    el.textContent = n; el.className = "rv"; card.className = "rc ok"; return true;
   }
+  el.textContent = "N/D"; el.className = "rv f"; card.className = "rc err"; return false;
 }
 
-async function noSignalFetch(url, opts={}) {
+async function noSignalFetch(url) {
   const r = await Promise.race([
-    fetch(url, opts),
+    fetch(url),
     new Promise((_,rej) => setTimeout(() => rej(new Error("Timeout 15s")), 15000))
   ]);
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   return r;
 }
 
-// ─────────────────────────────────────────────────────────────────
-// Extractor principal — busca en el array "monedas" del pageProps
-// La estructura que vimos es:
-// pageProps.monedas = [{ short_show:"USD", tasas:[{ tasa:505, ... }] }, ...]
-// ─────────────────────────────────────────────────────────────────
-function extractFromPageProps(pageProps) {
-  const results = {};
-
-  // Estrategia 1: array "monedas"
-  if (pageProps.monedas && Array.isArray(pageProps.monedas)) {
-    log(`   📦 Encontrado array 'monedas' con ${pageProps.monedas.length} elementos`, "");
+// ── Extraer tasa de un objeto de moneda ────────────────────────
+// trmiExchange probablemente tiene estructura como:
+// { USD: { tasa: 505, ... }, EUR: { tasa: 565 }, MLC: { tasa: 405 } }
+// O puede ser un array: [{ moneda: "USD", tasa: 505 }, ...]
+function extractFromTrmi(trmi) {
+  log("   📊 Tipo: " + (Array.isArray(trmi) ? "Array" : typeof trmi), "");
+  
+  if (Array.isArray(trmi)) {
+    log(`   📊 Array con ${trmi.length} elementos`, "");
+    log(`   📊 Primer elemento: ${JSON.stringify(trmi[0]).slice(0, 300)}`, "");
     
-    for (const moneda of pageProps.monedas) {
-      const code = (moneda.short_show || moneda.codigo || moneda.code || "").toUpperCase();
-      log(`   → Moneda: ${code} | keys: ${Object.keys(moneda).join(", ")}`, "");
+    const result = {};
+    for (const item of trmi) {
+      // Buscar el código de moneda
+      const code = (item.moneda || item.code || item.currency || item.short || 
+                    item.short_show || item.ticker || "").toString().toUpperCase();
+      // Buscar el valor
+      const val = item.tasa ?? item.value ?? item.rate ?? item.precio ?? 
+                  item.cup ?? item.last ?? item.promedio ?? item.avg;
       
-      // Buscar el valor de tasa dentro de la moneda
-      // Puede estar en: moneda.tasa, moneda.tasas[0].tasa, moneda.last, moneda.value, etc.
-      let value = null;
-      
-      if (typeof moneda.tasa === 'number') value = moneda.tasa;
-      else if (typeof moneda.last === 'number') value = moneda.last;
-      else if (typeof moneda.value === 'number') value = moneda.value;
-      else if (typeof moneda.rate === 'number') value = moneda.rate;
-      else if (typeof moneda.precio === 'number') value = moneda.precio;
-      else if (typeof moneda.cup === 'number') value = moneda.cup;
-      else if (Array.isArray(moneda.tasas) && moneda.tasas.length > 0) {
-        // Tomar el más reciente (último del array o primero según orden)
-        const t = moneda.tasas[moneda.tasas.length - 1];
-        value = t.tasa ?? t.value ?? t.rate ?? t.precio ?? null;
-        log(`     tasas[] último elemento: ${JSON.stringify(t)}`, "");
-      } else if (Array.isArray(moneda.rates) && moneda.rates.length > 0) {
-        const t = moneda.rates[moneda.rates.length - 1];
-        value = t.tasa ?? t.value ?? t.rate ?? null;
-      }
-
-      if (value !== null) {
-        const n = Math.round(parseFloat(value));
-        log(`     Valor encontrado: ${value} → ${n} CUP`, "");
-        if (code === 'USD' && n >= VALID.usd.min && n <= VALID.usd.max) results.usd = String(n);
-        if ((code === 'EUR' || code === 'ECU') && n >= VALID.eur.min && n <= VALID.eur.max) results.eur = String(n);
-        if (code === 'MLC' && n >= VALID.mlc.min && n <= VALID.mlc.max) results.mlc = String(n);
-      } else {
-        // Mostrar todos los valores numéricos para diagnóstico
-        const numericKeys = Object.entries(moneda)
-          .filter(([,v]) => typeof v === 'number')
-          .map(([k,v]) => `${k}:${v}`);
-        if (numericKeys.length) log(`     Valores numéricos: ${numericKeys.join(" | ")}`, "warn");
+      if (code && val !== undefined && val !== null) {
+        const n = Math.round(parseFloat(val));
+        log(`   → ${code}: ${val} → ${n} CUP`, "");
+        if (code==='USD' && n>=VALID.usd.min && n<=VALID.usd.max) result.usd = String(n);
+        if ((code==='EUR'||code==='ECU') && n>=VALID.eur.min && n<=VALID.eur.max) result.eur = String(n);
+        if (code==='MLC' && n>=VALID.mlc.min && n<=VALID.mlc.max) result.mlc = String(n);
+      } else if (code) {
+        // Mostrar todas las keys numéricas para diagnóstico
+        const nums = Object.entries(item)
+          .filter(([,v]) => typeof v === 'number' && v > 50)
+          .map(([k,v]) => `${k}=${v}`).join(", ");
+        log(`   → ${code}: keys numéricas > 50: [${nums||'ninguna'}]`, "warn");
+        log(`     keys totales: ${Object.keys(item).join(", ")}`, "");
       }
     }
+    return result;
+    
+  } else if (typeof trmi === 'object' && trmi !== null) {
+    log(`   📊 Object con keys: ${Object.keys(trmi).join(", ")}`, "");
+    
+    // Puede ser { USD: {...}, EUR: {...}, MLC: {...} }
+    const result = {};
+    for (const [code, data] of Object.entries(trmi)) {
+      const KEY = code.toUpperCase();
+      if (!['USD','EUR','ECU','MLC','ZELLE','CAD','GBP','CHF','BRL','MXN'].includes(KEY)) continue;
+      
+      let val = null;
+      if (typeof data === 'number') {
+        val = data;
+      } else if (typeof data === 'object') {
+        val = data.tasa ?? data.value ?? data.rate ?? data.precio ?? data.last ?? 
+              data.promedio ?? data.avg ?? data.cup ?? data.informal;
+        log(`   → ${KEY}: ${JSON.stringify(data).slice(0,150)}`, "");
+      }
+      
+      if (val !== null) {
+        const n = Math.round(parseFloat(val));
+        log(`   → ${KEY}: valor=${val} → ${n} CUP`, "");
+        if (KEY==='USD' && n>=VALID.usd.min && n<=VALID.usd.max) result.usd = String(n);
+        if ((KEY==='EUR'||KEY==='ECU') && n>=VALID.eur.min && n<=VALID.eur.max) result.eur = String(n);
+        if (KEY==='MLC' && n>=VALID.mlc.min && n<=VALID.mlc.max) result.mlc = String(n);
+      }
+    }
+    return result;
   }
-
-  // Estrategia 2: buscar propiedades directas USD/EUR/MLC en cualquier nivel
-  if (!results.usd) {
-    log("   🔍 No encontrado en 'monedas', buscando recursivamente...", "warn");
-    const found = deepFind(pageProps);
-    if (found.usd) results.usd = found.usd;
-    if (found.eur) results.eur = found.eur;
-    if (found.mlc) results.mlc = found.mlc;
-  }
-
-  return results;
+  
+  return {};
 }
 
-function deepFind(obj, depth=0) {
-  const r = {};
-  if (depth > 10 || !obj || typeof obj !== 'object') return r;
-  for (const [k, v] of Object.entries(obj)) {
-    const key = k.toUpperCase();
-    if (typeof v === 'number') {
-      const n = Math.round(v);
-      if (key === 'USD' && n >= VALID.usd.min && n <= VALID.usd.max) r.usd = String(n);
-      if ((key === 'EUR' || key === 'ECU') && n >= VALID.eur.min && n <= VALID.eur.max) r.eur = String(n);
-      if (key === 'MLC' && n >= VALID.mlc.min && n <= VALID.mlc.max) r.mlc = String(n);
-    }
-    if (typeof v === 'object' && !r.usd) {
-      const sub = deepFind(v, depth+1);
-      if (sub.usd && !r.usd) r.usd = sub.usd;
-      if (sub.eur && !r.eur) r.eur = sub.eur;
-      if (sub.mlc && !r.mlc) r.mlc = sub.mlc;
-    }
+// ── Inspeccionar banksXRates también ──────────────────────────
+function extractFromBanks(banksXRates) {
+  if (!banksXRates) return {};
+  log(`   📊 banksXRates tipo: ${Array.isArray(banksXRates)?'Array':typeof banksXRates}`, "");
+  if (Array.isArray(banksXRates) && banksXRates.length > 0) {
+    log(`   📊 Primer elemento: ${JSON.stringify(banksXRates[0]).slice(0,300)}`, "");
+  } else if (typeof banksXRates === 'object') {
+    log(`   📊 Keys: ${Object.keys(banksXRates).slice(0,10).join(", ")}`, "");
   }
-  return r;
+  return {};
 }
 
-// ─────────────────────────────────────────────────────────────────
-// MAIN
-// ─────────────────────────────────────────────────────────────────
 async function runAll() {
   if (running) return;
   running = true;
   document.getElementById("btnRun").disabled = true;
+  document.getElementById("winnerBox").style.display = "none";
   ["usd","eur","mlc"].forEach(c => {
     document.getElementById("val-"+c).textContent = "···";
     document.getElementById("val-"+c).className = "rv p";
@@ -208,92 +199,98 @@ async function runAll() {
   });
 
   log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "");
-  log("🚀 Iniciando diagnóstico profundo del JSON de Next.js...", "info");
+  log("🚀 Fetching HTML de /tasas-de-cambio-cuba...", "info");
 
-  // ── PASO 1: Obtener el JSON del endpoint Next.js SSG ─────────────
-  log("", "");
-  log("📡 PASO 1: Fetching Next.js SSG endpoint...", "info");
-  const jsonUrl = `https://eltoque.com/_next/data/${BUILD_ID}/tasas-de-cambio-cuba.json`;
-  log(`   URL: ${jsonUrl}`, "");
-
-  let pageProps = null;
   try {
-    const r = await noSignalFetch(PROXY(jsonUrl));
-    const text = await r.text();
-    log(`   Respuesta cruda (primeros 400 chars):`, "");
-    log(`   ${text.slice(0, 400)}`, "");
+    const r = await noSignalFetch(PROXY("https://eltoque.com/tasas-de-cambio-cuba"));
+    const html = await r.text();
+    log(`✅ HTML recibido: ${html.length.toLocaleString()} chars`, "ok");
+
+    const m = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
+    if (!m) throw new Error("__NEXT_DATA__ no encontrado en el HTML");
     
-    const json = JSON.parse(text);
-    rawJson = json;
-    pageProps = json?.pageProps;
-    log(`   ✅ JSON parseado. Keys en pageProps: ${Object.keys(pageProps||{}).join(", ")}`, "ok");
-  } catch(e) {
-    log(`   ✗ Error: ${e.message}`, "err");
-  }
+    const fullJson = JSON.parse(m[1]);
+    const pp = fullJson?.props?.pageProps;
+    if (!pp) throw new Error("pageProps no encontrado");
 
-  // ── PASO 2: Extraer tasas del JSON ───────────────────────────────
-  if (pageProps) {
+    log(`✅ pageProps keys: ${Object.keys(pp).join(", ")}`, "ok");
     log("", "");
-    log("🔍 PASO 2: Extrayendo tasas del JSON...", "info");
-    const rates = extractFromPageProps(pageProps);
-    log("", "");
-    log(`   Resultado final: USD=${rates.usd||'N/D'} EUR=${rates.eur||'N/D'} MLC=${rates.mlc||'N/D'}`, rates.usd ? "ok" : "warn");
-    setRate("usd", rates.usd);
-    setRate("eur", rates.eur);
-    setRate("mlc", rates.mlc);
-  }
 
-  // ── PASO 3: Si el endpoint Next.js falló o está vacío, intentar con el HTML ─
-  const hasData = pageProps && (
-    document.getElementById("val-usd").className === "rv"
-  );
-
-  if (!hasData) {
-    log("", "");
-    log("📡 PASO 3: Fallback — fetching HTML completo de /tasas-de-cambio-cuba...", "info");
-    try {
-      const r = await noSignalFetch(PROXY("https://eltoque.com/tasas-de-cambio-cuba"));
-      const html = await r.text();
-      log(`   HTML: ${html.length.toLocaleString()} chars`, "");
-
-      // Extraer __NEXT_DATA__
-      const m = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
-      if (m) {
-        try {
-          const json = JSON.parse(m[1]);
-          rawJson = json;
-          log(`   ✅ __NEXT_DATA__ encontrado. Keys: ${Object.keys(json?.props?.pageProps||{}).join(", ")}`, "ok");
-          const pp = json?.props?.pageProps;
-          if (pp) {
-            const rates = extractFromPageProps(pp);
-            setRate("usd", rates.usd);
-            setRate("eur", rates.eur);
-            setRate("mlc", rates.mlc);
-            log(`   Resultado: USD=${rates.usd||'N/D'} EUR=${rates.eur||'N/D'} MLC=${rates.mlc||'N/D'}`, rates.usd ? "ok" : "warn");
-          }
-        } catch(e) {
-          log(`   ✗ Error parseando __NEXT_DATA__: ${e.message}`, "err");
-        }
-      } else {
-        log("   ⚠️ __NEXT_DATA__ no encontrado en el HTML", "warn");
+    // ── trmiExchange ──────────────────────────────────────────
+    log("🔍 Inspeccionando trmiExchange...", "info");
+    if (pp.trmiExchange !== undefined) {
+      rawTrmi = pp.trmiExchange;
+      const rates = extractFromTrmi(pp.trmiExchange);
+      log("", "");
+      log(`   Resultado trmiExchange: USD=${rates.usd||'N/D'} EUR=${rates.eur||'N/D'} MLC=${rates.mlc||'N/D'}`, rates.usd?"ok":"warn");
+      const ok = setRate("usd",rates.usd) | setRate("eur",rates.eur) | setRate("mlc",rates.mlc);
+      
+      if (ok) {
+        showWinnerCode("trmiExchange", rates);
       }
-    } catch(e) {
-      log(`   ✗ Error fetching HTML: ${e.message}`, "err");
+    } else {
+      log("   ⚠️ trmiExchange no existe o es undefined", "warn");
     }
+
+    // ── banksXRates ───────────────────────────────────────────
+    log("", "");
+    log("🔍 Inspeccionando banksXRates...", "info");
+    extractFromBanks(pp.banksXRates);
+
+    // ── Dump de todos los valores numéricos en pageProps ──────
+    log("", "");
+    log("🔍 Buscando TODOS los valores numéricos 200-800 en pageProps...", "info");
+    const allNums = [];
+    function hunt(obj, path="", depth=0) {
+      if (depth>8||!obj||typeof obj!=='object') return;
+      for (const [k,v] of Object.entries(obj)) {
+        const p = path ? `${path}.${k}` : k;
+        if (typeof v==='number') {
+          const n = Math.round(v);
+          if (n>=200 && n<=800) allNums.push(`${p}=${n}`);
+        } else if (typeof v==='object') hunt(v, p, depth+1);
+      }
+    }
+    hunt(pp);
+    if (allNums.length > 0) {
+      log(`   Valores 200-800 encontrados:`, "warn");
+      // Mostrar en grupos de 4
+      for (let i=0; i<Math.min(allNums.length,40); i+=4) {
+        log(`   ${allNums.slice(i,i+4).join("  |  ")}`, "warn");
+      }
+    } else {
+      log("   ⚠️ No hay ningún número entre 200-800 en pageProps", "err");
+      log("   → Las tasas se cargan dinámicamente (fetch del cliente)", "err");
+    }
+
+  } catch(e) {
+    log(`✗ Error: ${e.message}`, "err");
   }
 
   log("", "");
   log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "");
-  log("💡 Si los valores son N/D, pulsa '📋 Copiar JSON' y pégalo en el chat.", "warn");
-  log("   El JSON mostrará exactamente dónde están las tasas.", "warn");
-
+  log("💡 Si no hay valores 200-800, copia el log completo y pégalo.", "warn");
+  
   running = false;
   document.getElementById("btnRun").disabled = false;
 }
 
-log("👋 Listo. Pulsa ▶ para diagnóstico profundo.", "info");
-log("🎯 Esta versión analiza la estructura exacta del JSON de Next.js.", "");
-log("   Valores esperados hoy: USD≈505, EUR≈565, MLC≈405", "");
+function showWinnerCode(key, rates) {
+  const box = document.getElementById("winnerBox");
+  const code = document.getElementById("winnerCode");
+  box.style.display = "block";
+  code.textContent = 
+`// En script.js — extracción desde pageProps.${key}
+const pp = json.props.pageProps;
+const trmi = pp.${key};
+
+// trmi es: ${Array.isArray(rawTrmi)?'Array['+rawTrmi.length+']':'Object con keys: '+Object.keys(rawTrmi||{}).join(', ')}
+// USD=${rates.usd||'?'} EUR=${rates.eur||'?'} MLC=${rates.mlc||'?'}`;
+}
+
+log("👋 Listo. Pulsa ▶ para iniciar.", "info");
+log("🎯 Esta versión se enfoca en 'trmiExchange' y 'banksXRates'", "");
+log("   + dump de TODOS los valores 200-800 en el pageProps completo", "");
 </script>
 </body>
 </html>
