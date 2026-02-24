@@ -8,20 +8,19 @@
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400;700;800&display=swap');
 
   :root {
-    --bg:        #0a0a0f;
-    --panel:     #0f0f1a;
-    --border:    #1e1e35;
-    --green:     #00ff9d;
-    --red:       #ff3c5a;
-    --yellow:    #ffd24d;
-    --blue:      #4da6ff;
-    --dim:       #4a4a6a;
-    --text:      #c8c8e8;
-    --mono:      'Share Tech Mono', monospace;
-    --sans:      'Syne', sans-serif;
+    --bg:     #0a0a0f;
+    --panel:  #0f0f1a;
+    --border: #1e1e35;
+    --green:  #00ff9d;
+    --red:    #ff3c5a;
+    --yellow: #ffd24d;
+    --blue:   #4da6ff;
+    --dim:    #4a4a6a;
+    --text:   #c8c8e8;
+    --mono:   'Share Tech Mono', monospace;
+    --sans:   'Syne', sans-serif;
   }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
     background: var(--bg);
@@ -29,249 +28,120 @@
     font-family: var(--sans);
     min-height: 100vh;
     padding: 20px;
-    overflow-x: hidden;
   }
-
-  /* GRID SCANLINES overlay */
   body::before {
     content: '';
     position: fixed; inset: 0;
-    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,157,0.015) 2px, rgba(0,255,157,0.015) 4px);
-    pointer-events: none;
-    z-index: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,157,0.012) 2px, rgba(0,255,157,0.012) 4px);
+    pointer-events: none; z-index: 0;
   }
 
   .wrapper { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
 
-  /* ── HEADER ── */
+  /* HEADER */
   header {
     border-bottom: 1px solid var(--border);
-    padding-bottom: 18px;
-    margin-bottom: 24px;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 16px;
-    flex-wrap: wrap;
+    padding-bottom: 18px; margin-bottom: 24px;
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
   }
-  .title-block {}
-  .title-block h1 {
-    font-size: 1.3rem;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    color: #fff;
-  }
-  .title-block p {
-    font-size: 0.75rem;
-    color: var(--dim);
-    font-family: var(--mono);
-    margin-top: 4px;
-  }
+  header h1 { font-size: 1.25rem; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+  header p  { font-size: 0.72rem; color: var(--dim); font-family: var(--mono); margin-top: 4px; }
 
-  .status-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 6px 14px;
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    white-space: nowrap;
+  .pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 20px; padding: 6px 14px;
+    font-family: var(--mono); font-size: 0.7rem; white-space: nowrap;
   }
-  .pulse {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--yellow);
-    animation: blink 1.2s infinite;
-    flex-shrink: 0;
-  }
-  .pulse.done { background: var(--green); animation: none; }
-  .pulse.err  { background: var(--red);   animation: none; }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--yellow); flex-shrink: 0; }
+  .dot.run  { animation: blink 1.1s infinite; }
+  .dot.ok   { background: var(--green); }
+  .dot.done { background: var(--green); }
+  .dot.err  { background: var(--red); }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.15} }
 
-  /* ── VEREDICTO ── */
-  .veredicto {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px 22px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    min-height: 90px;
+  /* VEREDICTO */
+  .verdict {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px 22px; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 18px; min-height: 90px;
+    transition: border-color .4s;
   }
-  .veredicto-icon {
-    font-size: 2.8rem;
-    flex-shrink: 0;
-    line-height: 1;
-  }
-  .veredicto-text {}
-  .veredicto-text .label {
-    font-size: 0.65rem;
-    font-family: var(--mono);
-    color: var(--dim);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-  }
-  .veredicto-text .conclusion {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: #fff;
-    margin-top: 4px;
-    line-height: 1.35;
-  }
-  .veredicto-text .sub {
-    font-size: 0.75rem;
-    color: var(--dim);
-    font-family: var(--mono);
-    margin-top: 5px;
-  }
-  .veredicto.ok     { border-color: var(--green); }
-  .veredicto.maybe  { border-color: var(--yellow); }
-  .veredicto.no     { border-color: var(--red); }
-  .veredicto.loading { border-color: var(--border); }
+  .verdict.ok    { border-color: var(--green); }
+  .verdict.maybe { border-color: var(--yellow); }
+  .verdict.no    { border-color: var(--red); }
+  .verdict-icon  { font-size: 2.8rem; flex-shrink: 0; line-height: 1; }
+  .verdict-label { font-size: 0.62rem; font-family: var(--mono); color: var(--dim); text-transform: uppercase; letter-spacing: 2px; }
+  .verdict-main  { font-size: 1.05rem; font-weight: 700; color: #fff; margin-top: 5px; line-height: 1.35; }
+  .verdict-sub   { font-size: 0.75rem; color: var(--dim); font-family: var(--mono); margin-top: 6px; line-height: 1.5; }
 
-  /* ── FUENTES GRID ── */
-  .sources-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 12px;
-    margin-bottom: 20px;
-  }
+  /* GRID DE FUENTES */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(255px,1fr)); gap: 12px; margin-bottom: 20px; }
 
-  .source-card {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 16px;
-    transition: border-color .2s;
+  .card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px; transition: border-color .3s;
   }
-  .source-card.ok     { border-color: rgba(0,255,157,.35); }
-  .source-card.warn   { border-color: rgba(255,210,77,.35); }
-  .source-card.err    { border-color: rgba(255,60,90,.35); }
-  .source-card.loading{ border-color: var(--border); }
+  .card.ok    { border-color: rgba(0,255,157,.35); }
+  .card.warn  { border-color: rgba(255,210,77,.35); }
+  .card.err   { border-color: rgba(255,60,90,.35); }
 
-  .source-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-  .source-name {
-    font-size: 0.7rem;
-    font-family: var(--mono);
-    color: var(--dim);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-  }
-  .badge {
-    font-size: 0.6rem;
-    font-family: var(--mono);
-    padding: 2px 7px;
-    border-radius: 10px;
-    font-weight: bold;
-  }
-  .badge.ok   { background: rgba(0,255,157,.15); color: var(--green); }
+  .card-head  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 9px; }
+  .card-name  { font-size: 0.68rem; font-family: var(--mono); color: var(--dim); text-transform: uppercase; letter-spacing: 1.2px; }
+
+  .badge      { font-size: 0.58rem; font-family: var(--mono); padding: 2px 7px; border-radius: 10px; font-weight: bold; }
+  .badge.ok   { background: rgba(0,255,157,.15);  color: var(--green); }
   .badge.warn { background: rgba(255,210,77,.15); color: var(--yellow); }
   .badge.err  { background: rgba(255,60,90,.15);  color: var(--red); }
-  .badge.loading { background: rgba(255,255,255,.05); color: var(--dim); }
+  .badge.idle { background: rgba(255,255,255,.05);color: var(--dim); }
 
-  .source-result {
-    font-size: 0.8rem;
-    color: var(--text);
-    line-height: 1.45;
-  }
-  .source-result.empty { color: var(--dim); font-family: var(--mono); font-size: 0.72rem; }
+  .card-body  { font-size: 0.8rem; line-height: 1.5; color: var(--text); }
+  .card-body.empty { color: var(--dim); font-family: var(--mono); font-size: 0.7rem; }
 
-  /* ── LOG ── */
-  .log-wrap {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    overflow: hidden;
-  }
-  .log-header {
-    padding: 8px 14px;
-    border-bottom: 1px solid var(--border);
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    color: var(--dim);
-    display: flex;
-    justify-content: space-between;
-  }
-  .log-body {
-    padding: 12px 14px;
-    max-height: 220px;
-    overflow-y: auto;
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    line-height: 1.7;
-  }
+  /* SNIPPETS con hits */
+  .kw { display: inline-block; border-radius: 3px; padding: 0 5px; font-family: var(--mono); font-size: 0.7rem; }
+  .kw.pos { background: rgba(0,255,157,.15); color: var(--green); }
+  .kw.neg { background: rgba(255,60,90,.15);  color: var(--red); }
+  .snippet { font-size: 0.68rem; color: #666; font-family: var(--mono); margin-top: 6px; line-height: 1.5; border-left: 2px solid var(--border); padding-left: 7px; }
+
+  /* LOG */
+  .log-wrap { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .log-top  { padding: 8px 14px; border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 0.63rem; color: var(--dim); display: flex; justify-content: space-between; }
+  .log-body { padding: 12px 14px; max-height: 240px; overflow-y: auto; font-family: var(--mono); font-size: 0.68rem; line-height: 1.75; }
   .log-body::-webkit-scrollbar { width: 3px; }
   .log-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-  .log-line { display: flex; gap: 10px; }
-  .log-time { color: var(--dim); flex-shrink: 0; }
-  .log-msg.g { color: var(--green); }
-  .log-msg.y { color: var(--yellow); }
-  .log-msg.r { color: var(--red); }
-  .log-msg.b { color: var(--blue); }
-  .log-msg.d { color: var(--dim); }
+  .ll { display: flex; gap: 10px; }
+  .lt { color: var(--dim); flex-shrink: 0; }
+  .lm.g { color: var(--green); }
+  .lm.y { color: var(--yellow); }
+  .lm.r { color: var(--red); }
+  .lm.b { color: var(--blue); }
+  .lm.d { color: var(--dim); }
 
-  /* ── BOTÓN ── */
+  /* BTN */
   .run-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: transparent;
-    border: 1px solid var(--green);
-    color: var(--green);
-    font-family: var(--mono);
-    font-size: 0.78rem;
-    padding: 8px 18px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all .2s;
-    margin-top: 16px;
+    display: inline-flex; align-items: center; gap: 8px;
+    background: transparent; border: 1px solid var(--green); color: var(--green);
+    font-family: var(--mono); font-size: 0.78rem; padding: 8px 20px;
+    border-radius: 6px; cursor: pointer; transition: all .2s; margin-top: 16px;
   }
-  .run-btn:hover { background: rgba(0,255,157,.1); }
-  .run-btn:disabled { opacity: .4; cursor: not-allowed; }
+  .run-btn:hover:not(:disabled) { background: rgba(0,255,157,.1); }
+  .run-btn:disabled { opacity: .35; cursor: not-allowed; }
 
-  /* ── INFO BOX ── */
-  .info-box {
-    margin-top: 16px;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--blue);
-    border-radius: 0 8px 8px 0;
-    padding: 12px 16px;
-    font-size: 0.78rem;
-    line-height: 1.6;
-    color: var(--text);
+  /* INFO */
+  .info {
+    margin-top: 16px; background: var(--panel); border: 1px solid var(--border);
+    border-left: 3px solid var(--blue); border-radius: 0 8px 8px 0;
+    padding: 12px 16px; font-size: 0.78rem; line-height: 1.65; color: var(--text);
   }
-  .info-box strong { color: #fff; }
-  .info-box a { color: var(--blue); text-decoration: none; }
-  .info-box a:hover { text-decoration: underline; }
-
-  /* ── KEYWORD HITS ── */
-  .kw-hit {
-    display: inline-block;
-    background: rgba(0,255,157,.12);
-    color: var(--green);
-    border-radius: 4px;
-    padding: 0 5px;
-    font-family: var(--mono);
-    font-size: 0.72rem;
-  }
-  .kw-hit.neg {
-    background: rgba(255,60,90,.12);
-    color: var(--red);
-  }
+  .info strong { color: #fff; }
+  .info a { color: var(--blue); text-decoration: none; }
+  .info a:hover { text-decoration: underline; }
+  .info code { background: rgba(255,255,255,.07); padding: 1px 5px; border-radius: 3px; font-family: var(--mono); font-size: 0.72rem; }
 
   @media (max-width: 500px) {
-    .sources-grid { grid-template-columns: 1fr; }
+    .grid { grid-template-columns: 1fr; }
     header { flex-direction: column; }
   }
 </style>
@@ -280,350 +150,366 @@
 <div class="wrapper">
 
   <header>
-    <div class="title-block">
-      <h1>🔍 Monitor de Citas — Consulado España / La Habana</h1>
-      <p>TEST DE FUENTES PÚBLICAS · Opción B · v1.0</p>
+    <div>
+      <h1>🔍 Monitor de Citas — Consulado España · La Habana</h1>
+      <p>TEST FUENTES PÚBLICAS · v2.0 · Parser corregido · +Telegram</p>
     </div>
-    <div class="status-pill" id="globalPill">
-      <div class="pulse" id="globalDot"></div>
-      <span id="globalStatus">Listo para escanear</span>
+    <div class="pill">
+      <div class="dot run" id="dot"></div>
+      <span id="statusTxt">Listo</span>
     </div>
   </header>
 
-  <!-- VEREDICTO FINAL -->
-  <div class="veredicto loading" id="veredicto">
-    <div class="veredicto-icon" id="verdIcon">🔎</div>
-    <div class="veredicto-text">
-      <div class="label">Conclusión del análisis</div>
-      <div class="conclusion" id="verdText">Pulsa "Ejecutar Análisis" para comenzar</div>
-      <div class="sub" id="verdSub">El sistema consultará 4 fuentes públicas independientes</div>
+  <!-- VEREDICTO -->
+  <div class="verdict" id="verdict">
+    <div class="verdict-icon" id="vIcon">🔎</div>
+    <div>
+      <div class="verdict-label">Conclusión del análisis</div>
+      <div class="verdict-main" id="vMain">Pulsa "Ejecutar" para analizar las fuentes</div>
+      <div class="verdict-sub"  id="vSub">Se consultarán 5 fuentes públicas, incluyendo canales de Telegram de la comunidad cubana</div>
     </div>
   </div>
 
   <!-- FUENTES -->
-  <div class="sources-grid" id="sourcesGrid">
-
-    <div class="source-card loading" id="card-oficial">
-      <div class="source-header">
-        <span class="source-name">Web Oficial Consulado</span>
-        <span class="badge loading" id="badge-oficial">PENDIENTE</span>
+  <div class="grid" id="grid">
+    <div class="card" id="card-telegram1">
+      <div class="card-head">
+        <span class="card-name">Telegram · @alertacitasconsulado</span>
+        <span class="badge idle" id="badge-telegram1">PENDIENTE</span>
       </div>
-      <div class="source-result empty" id="result-oficial">Esperando ejecución...</div>
+      <div class="card-body empty" id="body-telegram1">Canal colaborativo de alertas de citas</div>
     </div>
-
-    <div class="source-card loading" id="card-twitter">
-      <div class="source-header">
-        <span class="source-name">X / Twitter @ConsEspLaHabana</span>
-        <span class="badge loading" id="badge-twitter">PENDIENTE</span>
+    <div class="card" id="card-telegram2">
+      <div class="card-head">
+        <span class="card-name">Telegram · @cubatramite</span>
+        <span class="badge idle" id="badge-telegram2">PENDIENTE</span>
       </div>
-      <div class="source-result empty" id="result-twitter">Esperando ejecución...</div>
+      <div class="card-body empty" id="body-telegram2">Canal oficial de trámites Cuba-España</div>
     </div>
-
-    <div class="source-card loading" id="card-dimecuba">
-      <div class="source-header">
-        <span class="source-name">DimeCuba — Noticias consulado</span>
-        <span class="badge loading" id="badge-dimecuba">PENDIENTE</span>
+    <div class="card" id="card-dimecuba">
+      <div class="card-head">
+        <span class="card-name">DimeCuba · Noticias Consulado</span>
+        <span class="badge idle" id="badge-dimecuba">PENDIENTE</span>
       </div>
-      <div class="source-result empty" id="result-dimecuba">Esperando ejecución...</div>
+      <div class="card-body empty" id="body-dimecuba">Noticias y comentarios de la comunidad</div>
     </div>
-
-    <div class="source-card loading" id="card-directorio">
-      <div class="source-header">
-        <span class="source-name">DirectorioCubano — Foros</span>
-        <span class="badge loading" id="badge-directorio">PENDIENTE</span>
+    <div class="card" id="card-directorio">
+      <div class="card-head">
+        <span class="card-name">DirectorioCubano · Foro citas</span>
+        <span class="badge idle" id="badge-directorio">PENDIENTE</span>
       </div>
-      <div class="source-result empty" id="result-directorio">Esperando ejecución...</div>
+      <div class="card-body empty" id="body-directorio">Foro con experiencias de usuarios</div>
     </div>
-
+    <div class="card" id="card-oficial">
+      <div class="card-head">
+        <span class="card-name">Exteriores.gob.es · Oficial</span>
+        <span class="badge idle" id="badge-oficial">PENDIENTE</span>
+      </div>
+      <div class="card-body empty" id="body-oficial">Web oficial del consulado en La Habana</div>
+    </div>
   </div>
 
   <!-- LOG -->
   <div class="log-wrap">
-    <div class="log-header">
-      <span>REGISTRO DE EJECUCIÓN</span>
+    <div class="log-top">
+      <span>REGISTRO EN VIVO</span>
       <span id="logCount">0 entradas</span>
     </div>
     <div class="log-body" id="logBody">
-      <div class="log-line">
-        <span class="log-time">--:--:--</span>
-        <span class="log-msg d">Sistema iniciado. Pulsa ejecutar para comenzar el análisis.</span>
-      </div>
+      <div class="ll"><span class="lt">--:--:--</span><span class="lm d">Sistema listo. Pulsa ejecutar.</span></div>
     </div>
   </div>
 
-  <button class="run-btn" id="runBtn" onclick="runAnalysis()">
-    ▶ Ejecutar Análisis Ahora
-  </button>
+  <button class="run-btn" id="runBtn" onclick="run()">▶ Ejecutar Análisis</button>
 
-  <div class="info-box">
-    <strong>¿Qué hace este test?</strong><br>
-    Consulta 4 fuentes públicas via proxy CORS y busca palabras clave relacionadas con disponibilidad de citas ("citas disponibles", "nueva fecha", "abierto", etc.).
-    La plataforma de citas oficial (<code>sede.maec.gob.es</code>) requiere login personal, por lo que <strong>no se puede verificar disponibilidad directamente sin credenciales</strong>.
-    Este análisis detecta señales indirectas: anuncios del consulado, comentarios de la comunidad y noticias recientes.<br><br>
-    <strong>Para pedir cita:</strong> regístrate enviando correo a
+  <div class="info">
+    <strong>Fuentes monitorizadas:</strong> Los canales de Telegram <code>@alertacitasconsulado</code> y <code>@cubatramite</code>
+    son públicos y tienen vista web (<code>t.me/s/canal</code>), lo que permite leerlos sin autenticación.
+    Son las fuentes más fiables para detectar disponibilidad real ya que la comunidad reporta en tiempo real.<br><br>
+    <strong>Limitación principal:</strong> La plataforma de citas <code>sede.maec.gob.es</code> requiere login personal —
+    no se puede verificar disponibilidad sin credenciales propias. Este monitor detecta <em>señales indirectas</em>.<br><br>
+    <strong>Para registrarte:</strong> envía correo a
     <a href="mailto:cog.lahabana.cleg@maec.es">cog.lahabana.cleg@maec.es</a>
-    con asunto <strong>CITA LEGA</strong> adjuntando foto con tu carné.
-    Recibirás usuario y contraseña para acceder al sistema.
+    con asunto <code>CITA LEGA</code> + foto con tu carné de identidad.
   </div>
 
 </div>
-
 <script>
-// ─────────────────────────────────────────────
-// CONFIG
-// ─────────────────────────────────────────────
-const PROXIES = [
-  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-  url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-];
-
-// Palabras clave positivas (hay citas)
-const KW_YES = [
-  "citas disponibles","cita disponible","nueva fecha","fechas disponibles",
-  "abierto.*citas","citas abiertas","se abren citas","hay citas",
-  "pueden sacar cita","nuevas citas","slots disponibles",
-  "ya hay cita","vuelven las citas"
-];
-
-// Palabras clave negativas (no hay citas)
-const KW_NO = [
-  "no hay citas","sin citas","no están disponibles","no existen citas",
-  "no hay horas disponibles","página bloqueada","citas agotadas",
-  "no.*cita disponible","lista de espera","demora","saturado",
-  "no se aceptan","paraliz","no hay fechas"
-];
-
+// ──────────────────────────────────────────────
+// FUENTES
+// ──────────────────────────────────────────────
 const SOURCES = [
   {
-    id: "oficial",
-    name: "Web oficial exteriores.gob.es",
-    url: "https://www.exteriores.gob.es/Consulados/lahabana/es/ServiciosConsulares/Paginas/index.aspx?scca=Legalizaci%C3%B3n+o+Apostilla.+Compulsa+y+Registro&scco=Cuba&scd=166&scs=Legalizaci%C3%B3n+y+apostilla+de+la+Haya",
+    id: 'telegram1',
+    url: 'https://t.me/s/alertacitasconsulado',
+    // fallback: vista alternativa del mismo canal
+    fallback: 'https://t.me/s/alertacitasconsulado?before=9999',
   },
   {
-    id: "twitter",
-    name: "Nitter (X/Twitter) @ConsEspLaHabana",
-    url: "https://nitter.poast.org/ConsEspLaHabana",
-    fallback: "https://nitter.privacydev.net/ConsEspLaHabana"
+    id: 'telegram2',
+    url: 'https://t.me/s/cubatramite',
+    fallback: null,
   },
   {
-    id: "dimecuba",
-    name: "DimeCuba",
-    url: "https://www.dimecuba.com/revista/nacionalidad-espanola/consulado-espana-en-cuba/",
+    id: 'dimecuba',
+    url: 'https://www.dimecuba.com/revista/nacionalidad-espanola/consulado-espana-en-cuba/',
+    fallback: null,
   },
   {
-    id: "directorio",
-    name: "DirectorioCubano",
-    url: "https://www.directoriocubano.info/panorama/nuevo-sistema-de-citas-para-legalizaciones-en-el-consulado-de-espana-en-la-habana/",
-  }
+    id: 'directorio',
+    url: 'https://www.directoriocubano.info/panorama/nuevo-sistema-de-citas-para-legalizaciones-en-el-consulado-de-espana-en-la-habana/',
+    fallback: null,
+  },
+  {
+    id: 'oficial',
+    url: 'https://www.exteriores.gob.es/Consulados/lahabana/es/Paginas/index.aspx',
+    fallback: null,
+  },
 ];
 
-// ─────────────────────────────────────────────
+// ──────────────────────────────────────────────
+// KEYWORDS
+// ──────────────────────────────────────────────
+const KW_YES = [
+  'citas disponibles','cita disponible','nueva fecha','fechas disponibles',
+  'hay citas','citas abiertas','se abren citas','nuevas citas',
+  'ya hay cita','vuelven las citas','pueden sacar cita',
+  'slots disponibles','abre.*cita','cita.*abierta','disponible.*cita',
+  'encontr.*cita','sac.*cita','cita.*libre','libre.*cita',
+  'pud.*sacar','pud.*cita','logr.*cita','consegui.*cita',
+  'hay fecha','fecha libre','acaban de abrir','abrieron citas',
+  'mañana hay','hoy hay cita','esta semana','¡hay!'
+];
+const KW_NO = [
+  'no hay citas','sin citas','no hay fechas','no hay horas disponibles',
+  'no.*cita disponible','citas agotadas','lista de espera',
+  'saturado','no se aceptan','no.*aceptan','sistema.*caído',
+  'no hay nada','meses de espera','imposible.*cita','cita.*imposible',
+  'bloqueado','página.*error','no.*fechas'
+];
+
+// ──────────────────────────────────────────────
+// PROXIES
+// ──────────────────────────────────────────────
+const PROXY_FNS = [
+  u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,       // devuelve JSON {contents}
+  u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,       // devuelve raw
+  u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,  // devuelve raw
+];
+
+// ──────────────────────────────────────────────
 // LOG
-// ─────────────────────────────────────────────
-let logLines = 0;
-function log(msg, type = 'd') {
+// ──────────────────────────────────────────────
+let logN = 0;
+function log(msg, t = 'd') {
   const body = document.getElementById('logBody');
-  const now = new Date().toLocaleTimeString('es-ES');
-  const line = document.createElement('div');
-  line.className = 'log-line';
-  line.innerHTML = `<span class="log-time">${now}</span><span class="log-msg ${type}">${msg}</span>`;
-  body.appendChild(line);
+  const now  = new Date().toLocaleTimeString('es-ES');
+  const el   = document.createElement('div');
+  el.className = 'll';
+  el.innerHTML = `<span class="lt">${now}</span><span class="lm ${t}">${msg}</span>`;
+  body.appendChild(el);
   body.scrollTop = body.scrollHeight;
-  logLines++;
-  document.getElementById('logCount').textContent = `${logLines} entradas`;
+  document.getElementById('logCount').textContent = `${++logN} entradas`;
 }
 
-// ─────────────────────────────────────────────
-// FETCH VIA PROXY
-// ─────────────────────────────────────────────
-async function fetchViaProxy(url, fallback = null) {
-  const urls = [url, ...(fallback ? [fallback] : [])];
-  for (const target of urls) {
-    for (const makeProxy of PROXIES) {
-      const proxy = makeProxy(target);
+// ──────────────────────────────────────────────
+// FETCH — gestiona JSON wrapper y raw
+// ──────────────────────────────────────────────
+async function fetchSource(url, fallback) {
+  const targets = [url, ...(fallback ? [fallback] : [])];
+
+  for (const target of targets) {
+    for (const mkProxy of PROXY_FNS) {
+      const proxy = mkProxy(target);
       try {
-        log(`Intentando proxy: ${proxy.slice(0,60)}...`, 'd');
+        log(`Probando → ${proxy.slice(0,65)}…`, 'd');
         const res = await Promise.race([
           fetch(proxy),
-          new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000))
+          new Promise((_, r) => setTimeout(() => r(new Error('timeout 13s')), 13000))
         ]);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const text = await res.text();
-        if (text.length < 200) throw new Error('Respuesta demasiado corta');
-        log(`✓ Obtenido (${(text.length/1024).toFixed(1)} KB)`, 'g');
-        return text;
-      } catch(e) {
-        log(`✗ Falló: ${e.message}`, 'r');
+
+        // ─── PARSER CORREGIDO ───────────────────────
+        // allorigins /get devuelve: {"contents":"<html>…","status":{…}}
+        // allorigins /raw y codetabs devuelven el HTML/texto directamente
+        const raw = await res.text();
+        let html = raw;
+
+        // Detectar si es JSON wrapper de allorigins
+        if (raw.trimStart().startsWith('{') && raw.includes('"contents"')) {
+          try {
+            const parsed = JSON.parse(raw);
+            html = parsed.contents || parsed.content || raw;
+          } catch { /* no es JSON válido, usar raw */ }
+        }
+
+        if (html.length < 300) throw new Error(`Contenido demasiado corto (${html.length} chars)`);
+        log(`✓ Obtenido: ${(html.length/1024).toFixed(1)} KB de texto real`, 'g');
+        return html;
+
+      } catch (e) {
+        log(`✗ ${e.message}`, 'r');
       }
     }
   }
   return null;
 }
 
-// ─────────────────────────────────────────────
+// ──────────────────────────────────────────────
 // ANÁLISIS DE TEXTO
-// ─────────────────────────────────────────────
-function analyzeText(html) {
-  // Limpiar HTML a texto plano
+// ──────────────────────────────────────────────
+function analyze(html) {
+  // 1. Extraer texto limpio
   const tmp = document.createElement('div');
-  tmp.innerHTML = html.replace(/<script[\s\S]*?<\/script>/gi,'').replace(/<style[\s\S]*?<\/style>/gi,'');
-  const text = (tmp.innerText || tmp.textContent || '').toLowerCase();
+  tmp.innerHTML = html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '');
+  const text = (tmp.innerText || tmp.textContent || '').toLowerCase().trim();
 
-  const hitsYes = KW_YES.filter(kw => new RegExp(kw,'i').test(text));
-  const hitsNo  = KW_NO.filter(kw  => new RegExp(kw,'i').test(text));
+  const hitsYes = KW_YES.filter(kw => new RegExp(kw, 'i').test(text));
+  const hitsNo  = KW_NO.filter(kw  => new RegExp(kw, 'i').test(text));
 
-  // Buscar fechas recientes mencionadas (últimos 7 días)
-  const today  = new Date();
-  const dayNames = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
-  const monthNames = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-
-  // Extraer fragmentos de contexto para keywords
+  // Extraer hasta 2 snippets de contexto
   const snippets = [];
-  [...hitsYes, ...hitsNo].slice(0,3).forEach(kw => {
+  const allHits  = [...hitsYes.slice(0,2), ...hitsNo.slice(0,1)];
+  for (const kw of allHits) {
     const idx = text.search(new RegExp(kw, 'i'));
-    if (idx !== -1) {
-      const raw = text.slice(Math.max(0, idx-60), idx+100).replace(/\s+/g,' ').trim();
-      snippets.push(`"…${raw}…"`);
-    }
-  });
+    if (idx === -1) continue;
+    const chunk = text.slice(Math.max(0, idx - 55), idx + 110)
+      .replace(/\s+/g, ' ').trim();
+    snippets.push(`…${chunk}…`);
+    if (snippets.length >= 2) break;
+  }
 
-  return { hitsYes, hitsNo, snippets, textLength: text.length };
+  return { hitsYes, hitsNo, snippets, textLen: text.length };
 }
 
-// ─────────────────────────────────────────────
-// ACTUALIZAR TARJETA DE FUENTE
-// ─────────────────────────────────────────────
-function updateCard(id, status, badgeText, resultHTML) {
-  const card  = document.getElementById(`card-${id}`);
+// ──────────────────────────────────────────────
+// ACTUALIZAR TARJETA
+// ──────────────────────────────────────────────
+function setCard(id, status, badgeText, html) {
+  document.getElementById(`card-${id}`).className = `card ${status}`;
   const badge = document.getElementById(`badge-${id}`);
-  const res   = document.getElementById(`result-${id}`);
-
-  card.className  = `source-card ${status}`;
-  badge.className = `badge ${status}`;
+  badge.className   = `badge ${status === 'ok' ? 'ok' : status === 'warn' ? 'warn' : status === 'err' ? 'err' : 'idle'}`;
   badge.textContent = badgeText;
-  res.className   = `source-result`;
-  res.innerHTML   = resultHTML;
+  document.getElementById(`body-${id}`).className = 'card-body';
+  document.getElementById(`body-${id}`).innerHTML = html;
 }
 
-// ─────────────────────────────────────────────
+// ──────────────────────────────────────────────
+// VEREDICTO
+// ──────────────────────────────────────────────
+function setVerdict(cls, icon, main, sub) {
+  const v = document.getElementById('verdict');
+  v.className = `verdict ${cls}`;
+  document.getElementById('vIcon').textContent = icon;
+  document.getElementById('vMain').textContent = main;
+  document.getElementById('vSub').textContent  = sub;
+}
+
+// ──────────────────────────────────────────────
 // MAIN
-// ─────────────────────────────────────────────
-async function runAnalysis() {
+// ──────────────────────────────────────────────
+async function run() {
   const btn = document.getElementById('runBtn');
   btn.disabled = true;
+  logN = 0;
+  document.getElementById('logBody').innerHTML = '';
 
-  // Reset UI
-  SOURCES.forEach(s => updateCard(s.id, 'loading', 'CONSULTANDO...', 'Descargando contenido...'));
-  setVeredicto('loading', '🔄', 'Analizando fuentes...', 'Por favor espera');
-  setGlobalStatus('Analizando...', false);
+  // Reset tarjetas
+  SOURCES.forEach(s => setCard(s.id, '', 'CONSULTANDO…', '<span style="color:var(--dim);font-family:var(--mono);font-size:.7rem">Descargando…</span>'));
+  setVerdict('', '⏳', 'Analizando fuentes…', 'Por favor espera, esto puede tardar hasta 1 minuto');
+  document.getElementById('dot').className    = 'dot run';
+  document.getElementById('statusTxt').textContent = 'Analizando…';
 
-  log('═══ INICIO DE ANÁLISIS ═══', 'b');
+  log('══════ INICIO ══════', 'b');
 
   const results = [];
 
-  for (const source of SOURCES) {
-    log(`► Consultando: ${source.name}`, 'b');
-    const html = await fetchViaProxy(source.url, source.fallback || null);
+  for (const src of SOURCES) {
+    log(`► ${src.id.toUpperCase()} → ${src.url}`, 'b');
+    const html = await fetchSource(src.url, src.fallback);
 
     if (!html) {
-      log(`  ✗ Fuente inaccesible`, 'r');
-      updateCard(source.id, 'err', 'ERROR', '⚠️ No se pudo obtener el contenido (proxy bloqueado o fuente caída).');
-      results.push({ id: source.id, ok: false, hitsYes: [], hitsNo: [], snippets: [] });
+      log(`  ✗ Sin contenido utilizable`, 'r');
+      setCard(src.id, 'err', 'SIN ACCESO',
+        '⚠️ Proxy bloqueado o fuente caída. Prueba de nuevo en unos minutos.');
+      results.push({ id: src.id, ok: false, hitsYes: [], hitsNo: [], snippets: [] });
       continue;
     }
 
-    const analysis = analyzeText(html);
-    log(`  Texto obtenido: ${analysis.textLength} chars`, 'd');
-    log(`  Keywords positivas: ${analysis.hitsYes.length > 0 ? analysis.hitsYes.join(', ') : 'ninguna'}`, analysis.hitsYes.length > 0 ? 'g' : 'd');
-    log(`  Keywords negativas: ${analysis.hitsNo.length > 0 ? analysis.hitsNo.join(', ') : 'ninguna'}`, analysis.hitsNo.length > 0 ? 'r' : 'd');
+    const a = analyze(html);
+    log(`  Texto real: ${a.textLen.toLocaleString()} chars`, 'd');
+    log(`  ✓ Pos: ${a.hitsYes.length ? a.hitsYes.join(', ') : '—'}`, a.hitsYes.length ? 'g' : 'd');
+    log(`  ✗ Neg: ${a.hitsNo.length  ? a.hitsNo.join(', ')  : '—'}`, a.hitsNo.length  ? 'r' : 'd');
 
-    const hasPositive = analysis.hitsYes.length > 0;
-    const hasNegative = analysis.hitsNo.length > 0;
-    const cardStatus  = hasPositive ? 'ok' : hasNegative ? 'warn' : 'loading';
-    const badgeText   = hasPositive ? '✓ SEÑALES POSITIVAS' : hasNegative ? '✗ SEÑALES NEGATIVAS' : 'SIN SEÑALES';
+    const hasPos = a.hitsYes.length > 0;
+    const hasNeg = a.hitsNo.length  > 0;
+    const cStatus = hasPos ? 'ok' : hasNeg ? 'warn' : '';
+    const cBadge  = hasPos ? '✓ POSITIVO' : hasNeg ? '✗ NEGATIVO' : 'SIN SEÑAL';
 
-    let resultHTML = '';
-    if (analysis.hitsYes.length) {
-      resultHTML += `<div style="margin-bottom:6px">🟢 Encontrado: ${analysis.hitsYes.map(k => `<span class="kw-hit">${k}</span>`).join(' ')}</div>`;
-    }
-    if (analysis.hitsNo.length) {
-      resultHTML += `<div style="margin-bottom:6px">🔴 Encontrado: ${analysis.hitsNo.map(k => `<span class="kw-hit neg">${k}</span>`).join(' ')}</div>`;
-    }
-    if (analysis.snippets.length) {
-      resultHTML += `<div style="font-size:0.7rem;color:#888;font-family:monospace;margin-top:4px">${analysis.snippets[0]}</div>`;
-    }
-    if (!resultHTML) {
-      resultHTML = `<span style="color:#555;font-family:monospace;font-size:0.72rem">Sin menciones relevantes en el texto (${(analysis.textLength/1024).toFixed(1)} KB leídos)</span>`;
-    }
+    let bodyHTML = '';
+    if (hasPos) bodyHTML += `<div style="margin-bottom:7px">🟢 ${a.hitsYes.map(k=>`<span class="kw pos">${k}</span>`).join(' ')}</div>`;
+    if (hasNeg) bodyHTML += `<div style="margin-bottom:7px">🔴 ${a.hitsNo.map(k=>`<span class="kw neg">${k}</span>`).join(' ')}</div>`;
+    if (a.snippets.length) bodyHTML += `<div class="snippet">${a.snippets[0]}</div>`;
+    if (!bodyHTML) bodyHTML = `<span style="color:var(--dim);font-family:var(--mono);font-size:.7rem">Sin menciones relevantes · ${(a.textLen/1024).toFixed(1)} KB leídos</span>`;
 
-    updateCard(source.id, cardStatus, badgeText, resultHTML);
-    results.push({ ...analysis, id: source.id, ok: true });
+    setCard(src.id, cStatus, cBadge, bodyHTML);
+    results.push({ ...a, id: src.id, ok: true });
   }
 
-  // ─── VEREDICTO FINAL ───
-  log('═══ CALCULANDO VEREDICTO FINAL ═══', 'b');
+  // ── VEREDICTO FINAL ──────────────────────────
+  log('══════ VEREDICTO ══════', 'b');
 
-  const totalYes      = results.reduce((a, r) => a + r.hitsYes.length, 0);
-  const totalNo       = results.reduce((a, r) => a + r.hitsNo.length, 0);
-  const accessible    = results.filter(r => r.ok).length;
-  const noSignalCount = results.filter(r => r.ok && r.hitsYes.length === 0 && r.hitsNo.length === 0).length;
+  const totalYes    = results.reduce((s, r) => s + r.hitsYes.length, 0);
+  const totalNo     = results.reduce((s, r) => s + r.hitsNo.length,  0);
+  const accessible  = results.filter(r => r.ok).length;
+  const noSignal    = results.filter(r => r.ok && !r.hitsYes.length && !r.hitsNo.length).length;
+  const telegramOk  = results.filter(r => r.ok && r.id.startsWith('telegram'));
 
   log(`Fuentes accesibles: ${accessible}/${SOURCES.length}`, accessible > 0 ? 'g' : 'r');
-  log(`Total señales positivas: ${totalYes}`, totalYes > 0 ? 'g' : 'd');
-  log(`Total señales negativas: ${totalNo}`, totalNo > 0 ? 'r' : 'd');
+  log(`Señales positivas: ${totalYes}  ·  negativas: ${totalNo}`, 'd');
 
-  let verdClass, verdIcon, verdText, verdSub;
+  let vCls, vIcon, vMain, vSub;
 
   if (accessible === 0) {
-    verdClass = 'no';
-    verdIcon  = '🚫';
-    verdText  = 'No se pudo consultar ninguna fuente';
-    verdSub   = 'Todos los proxies fallaron. Esto puede ocurrir por bloqueo de red o Cuba. Intenta de nuevo en unos minutos.';
-  } else if (totalYes > totalNo && totalYes > 0) {
-    verdClass = 'ok';
-    verdIcon  = '🟢';
-    verdText  = `Señales positivas detectadas (${totalYes} indicios)`;
-    verdSub   = 'Se encontraron menciones de citas disponibles en fuentes públicas. Esto no garantiza que haya slots hoy — entra en sede.maec.gob.es con tus credenciales para confirmar.';
-    log('CONCLUSIÓN: SEÑALES POSITIVAS detectadas', 'g');
-  } else if (totalNo > totalYes && totalNo > 0) {
-    verdClass = 'no';
-    verdIcon  = '🔴';
-    verdText  = `Señales negativas — probable falta de citas (${totalNo} indicios)`;
-    verdSub   = 'Las fuentes consultadas mencionan dificultad para obtener citas o sistema saturado. La situación puede cambiar en cualquier momento.';
-    log('CONCLUSIÓN: SEÑALES NEGATIVAS predominan', 'r');
-  } else if (noSignalCount === accessible) {
-    verdClass = 'maybe';
-    verdIcon  = '🟡';
-    verdText  = 'Sin señales claras en ninguna fuente';
-    verdSub   = `Se leyeron ${accessible} fuente(s) pero ninguna menciona explícitamente disponibilidad ni bloqueo. La información más reciente puede estar en grupos de WhatsApp o Telegram de la comunidad.`;
-    log('CONCLUSIÓN: SIN SEÑALES CLARAS', 'y');
+    vCls  = 'no';
+    vIcon = '🚫';
+    vMain = 'No se pudo contactar ninguna fuente';
+    vSub  = 'Todos los proxies fallaron. Posible bloqueo de red desde Cuba o fallo temporal. Reintenta en 5 min.';
+  } else if (totalYes > 0 && totalYes >= totalNo) {
+    vCls  = 'ok';
+    vIcon = '🟢';
+    vMain = `Señales POSITIVAS detectadas — posiblemente hay citas (${totalYes} indicio${totalYes>1?'s':''})`;
+    vSub  = 'Se encontraron menciones de disponibilidad en fuentes públicas. ¡Entra YA a sede.maec.gob.es con tus credenciales para confirmar y reservar antes de que se agoten!';
+    log('CONCLUSIÓN: SEÑALES POSITIVAS', 'g');
+  } else if (totalNo > 0 && totalNo > totalYes) {
+    vCls  = 'no';
+    vIcon = '🔴';
+    vMain = `Señales NEGATIVAS — probable falta de citas (${totalNo} indicio${totalNo>1?'s':''})`;
+    vSub  = 'Las fuentes consultadas sugieren dificultad para obtener citas en este momento. Vuelve a intentarlo más tarde o sigue los canales de Telegram para ser avisado.';
+    log('CONCLUSIÓN: SEÑALES NEGATIVAS', 'r');
+  } else if (telegramOk.length === 0 && accessible > 0) {
+    vCls  = 'maybe';
+    vIcon = '⚠️';
+    vMain = 'Telegram inaccesible — fuente clave bloqueada';
+    vSub  = `Se leyeron ${accessible} fuente(s) pero los canales de Telegram (los más fiables) no respondieron. Resultado inconcluso. Prueba de nuevo o accede manualmente a t.me/alertacitasconsulado`;
+    log('CONCLUSIÓN: TELEGRAM BLOQUEADO', 'y');
   } else {
-    verdClass = 'maybe';
-    verdIcon  = '⚠️';
-    verdText  = 'Señales mixtas — situación ambigua';
-    verdSub   = `${totalYes} indicios positivos vs ${totalNo} negativos. Recomendamos verificar directamente en la plataforma de citas.`;
-    log('CONCLUSIÓN: SEÑALES MIXTAS', 'y');
+    vCls  = 'maybe';
+    vIcon = '🟡';
+    vMain = 'Sin señales claras en este momento';
+    vSub  = `Se leyeron ${accessible} fuente(s) con ${(results.reduce((s,r)=>s+r.textLen,0)/1024).toFixed(0)} KB de texto total, sin menciones explícitas de disponibilidad. Esto suele indicar que no hay citas ahora mismo, pero la situación cambia rápido.`;
+    log('CONCLUSIÓN: SIN SEÑALES', 'y');
   }
 
-  setVeredicto(verdClass, verdIcon, verdText, verdSub);
-  setGlobalStatus('Análisis completado', true);
+  setVerdict(vCls, vIcon, vMain, vSub);
+  document.getElementById('dot').className     = `dot ${vCls === 'ok' ? 'ok' : vCls === 'no' ? 'err' : 'done'}`;
+  document.getElementById('statusTxt').textContent = 'Completado';
+  log('══════ FIN ══════', 'b');
   btn.disabled = false;
-  log('═══ FIN DE ANÁLISIS ═══', 'b');
-}
-
-function setVeredicto(cls, icon, text, sub) {
-  const v = document.getElementById('veredicto');
-  v.className = `veredicto ${cls}`;
-  document.getElementById('verdIcon').textContent = icon;
-  document.getElementById('verdText').textContent = text;
-  document.getElementById('verdSub').textContent  = sub;
-}
-
-function setGlobalStatus(text, done) {
-  document.getElementById('globalStatus').textContent = text;
-  const dot = document.getElementById('globalDot');
-  dot.className = done ? 'pulse done' : 'pulse';
 }
 </script>
 </body>
 </html>
+
