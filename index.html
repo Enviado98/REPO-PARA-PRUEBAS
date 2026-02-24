@@ -1,538 +1,246 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<!-- Corrección viewport para teclados virtuales móviles -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
-<title>INK ACADEMY — Acceso</title>
-<link href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500;600;700&family=Amiri:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
-<style>
-/* RESET & BASE */
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morro & Imperium - Caribbean Conquest</title>
+    <style>
+        :root {
+            --parchment: #f4e4bc;
+            --wood: #5d4037;
+            --stone: #78909c;
+            --gold: #ffc107;
+            --ocean: #263238;
+        }
 
-:root {
-  --white: #FFFFFF;
-  --ivory: #FAFAF8;
-  --ivory2: #F5F3EE;
-  --gold: #C6922A;
-  --gold2: #E4B84A;
-  --gold3: #F5D57A;
-  --cyan: #00C8D4;
-  --cyan2: #00E5F0;
-  --text-dark: #1A1200;
-  --text-mid: #6B5A2A;
-  --text-light: #B8A06A;
-}
+        body {
+            background-color: var(--ocean);
+            color: var(--wood);
+            font-family: 'Georgia', serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-html, body {
-  height: 100%;
-  width: 100%;
-  background: var(--white);
-  font-family: 'Montserrat', sans-serif;
-  color: var(--text-dark);
-  /* Arreglo scroll móvil */
-  overflow-x: hidden;
-  -webkit-tap-highlight-color: transparent;
-}
+        /* Barra de Recursos Superior */
+        header {
+            background: linear-gradient(to bottom, #3e2723, #1b0000);
+            color: var(--parchment);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-around;
+            border-bottom: 3px solid var(--gold);
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
 
-/* CANVAS BACKGROUND */
-#dust-canvas {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
+        .resource {
+            text-align: center;
+        }
 
-.bg-radial {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  background:
-    radial-gradient(ellipse 80% 70% at 30% 50%, rgba(0,200,212,0.04) 0%, transparent 70%),
-    radial-gradient(ellipse 60% 80% at 80% 30%, rgba(198,146,42,0.05) 0%, transparent 60%),
-    #FFFFFF;
-  pointer-events: none;
-}
+        .resource span {
+            display: block;
+            font-size: 0.8em;
+            color: var(--gold);
+        }
 
-/* SCENE LAYOUT - Uso de dvh para móviles */
-.scene {
-  position: relative;
-  z-index: 2;
-  min-height: 100dvh; /* Dynamic Viewport Height */
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 500px;
-  align-items: center;
-  overflow-y: auto; /* Permitir scroll si la pantalla es muy pequeña */
-}
+        /* Contenedor Principal */
+        .main-container {
+            display: flex;
+            flex: 1;
+        }
 
-/* LEFT PANEL (Desktop) */
-.left-panel {
-  padding: 60px 60px 60px 8vw;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  height: 100%;
-  opacity: 0;
-  animation: enterLeft 1.2s cubic-bezier(.16,1,.3,1) 0.2s forwards;
-  position: relative;
-}
+        /* Menú Lateral Izquierdo */
+        nav {
+            width: 200px;
+            background: var(--wood);
+            padding: 20px 0;
+            border-right: 2px solid var(--gold);
+        }
 
-.eyebrow {
-  font-weight: 300;
-  font-size: 10px;
-  letter-spacing: 6px;
-  text-transform: uppercase;
-  color: var(--cyan);
-  margin-bottom: 20px;
-}
+        nav ul {
+            list-style: none;
+            padding: 0;
+        }
 
-.brand-name {
-  font-family: 'Scheherazade New', serif;
-  font-size: clamp(60px, 8vw, 110px);
-  font-weight: 700;
-  line-height: 0.9;
-  background: linear-gradient(160deg, var(--gold), var(--gold2), var(--gold3), var(--gold2));
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: goldShimmer 6s linear infinite;
-  /* Optimización: drop-shadow reducido */
-  filter: drop-shadow(0 4px 10px rgba(198,146,42,0.15));
-}
+        nav li {
+            padding: 15px 20px;
+            color: var(--parchment);
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            transition: 0.3s;
+        }
 
-.brand-sub {
-  font-family: 'Amiri', serif;
-  font-style: italic;
-  font-size: clamp(16px, 2vw, 20px);
-  letter-spacing: 4px;
-  color: var(--cyan);
-  margin-top: 10px;
-  opacity: 0.9;
-}
+        nav li:hover {
+            background: #795548;
+            padding-left: 30px;
+        }
 
-.sep {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin: 30px 0;
-}
-.sep-line { height: 1px; width: 60px; background: linear-gradient(90deg, var(--gold2), transparent); }
-.sep-diamond { width: 6px; height: 6px; border: 1px solid var(--gold2); transform: rotate(45deg); }
+        nav li.active {
+            border-left: 5px solid var(--gold);
+            background: #4e342e;
+        }
 
-.tagline {
-  font-family: 'Amiri', serif;
-  font-size: clamp(18px, 1.5vw, 22px);
-  font-style: italic;
-  color: var(--text-mid);
-  line-height: 1.6;
-  max-width: 400px;
-}
+        /* Área de Juego Central */
+        main {
+            flex: 1;
+            background: url('https://www.transparenttextures.com/patterns/papyrus-dark.png'), var(--parchment);
+            padding: 30px;
+            overflow-y: auto;
+            position: relative;
+        }
 
-.stats { display: flex; gap: 40px; margin-top: 40px; }
-.stat-num {
-  font-family: 'Scheherazade New', serif;
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--gold);
-  line-height: 1;
-}
-.stat-lbl { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-light); }
+        .view-title {
+            border-bottom: 2px solid var(--wood);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
 
-.divider-v {
-  width: 1px;
-  height: 80%;
-  position: absolute;
-  right: 0;
-  top: 10%;
-  background: linear-gradient(180deg, transparent, rgba(0,200,212,0.3), transparent);
-}
+        /* Grilla de Construcciones */
+        .buildings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
 
-/* LOGIN PANEL */
-.login-panel {
-  min-height: 100%;
-  width: 100%;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
+        .card {
+            background: rgba(255,255,255,0.5);
+            border: 2px solid var(--wood);
+            padding: 15px;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+        }
 
-.login-card {
-  width: 100%;
-  max-width: 360px;
-  opacity: 0;
-  animation: enterUp 1.2s cubic-bezier(.16,1,.3,1) 0.5s forwards;
-  position: relative;
-  margin: auto 0; /* Centrado vertical flex */
-}
+        .card h3 {
+            margin: 0 0 10px 0;
+            color: #2e1a16;
+        }
 
-/* Optimización: Box shadow simplificado */
-.card-inner {
-  background: var(--white);
-  border-radius: 24px;
-  padding: 40px 32px 32px;
-  position: relative;
-  box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
-  border: 1px solid rgba(198,146,42,0.1);
-}
+        .card p {
+            font-size: 0.9em;
+            flex: 1;
+        }
 
-/* Borde animado optimizado */
-.card-inner::before {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  border-radius: 26px;
-  background: linear-gradient(135deg, var(--cyan2), transparent 40%, transparent 60%, var(--gold2));
-  z-index: -1;
-  opacity: 0.5;
-}
+        .cost {
+            font-size: 0.85em;
+            background: rgba(0,0,0,0.1);
+            padding: 5px;
+            margin-bottom: 10px;
+        }
 
-.corner {
-  position: absolute;
-  width: 15px; height: 15px;
-  border-color: var(--gold2);
-  border-style: solid;
-  opacity: 0.5;
-  pointer-events: none;
-}
-.corner-tl { top: 10px; left: 10px; border-width: 1px 0 0 1px; }
-.corner-tr { top: 10px; right: 10px; border-width: 1px 1px 0 0; }
-.corner-bl { bottom: 10px; left: 10px; border-width: 0 0 1px 1px; }
-.corner-br { bottom: 10px; right: 10px; border-width: 0 1px 1px 0; }
+        button {
+            background: var(--wood);
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
 
-.card-icon { text-align: center; margin-bottom: 20px; }
-.card-icon svg { width: 48px; height: 48px; }
+        button:hover {
+            background: #2e1a16;
+        }
 
-.login-title {
-  font-family: 'Scheherazade New', serif;
-  font-size: 28px;
-  font-weight: 700;
-  text-align: center;
-  color: var(--gold);
-  margin-bottom: 4px;
-}
-
-.login-sub {
-  font-family: 'Amiri', serif;
-  font-style: italic;
-  font-size: 14px;
-  text-align: center;
-  color: var(--text-light);
-  margin-bottom: 30px;
-}
-
-label {
-  display: block;
-  font-size: 10px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--cyan);
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-.input-wrap { position: relative; margin-bottom: 20px; }
-
-.input-wrap svg.i-icon {
-  position: absolute;
-  left: 14px;
-  top: 38px; /* Ajustado */
-  width: 16px;
-  height: 16px;
-  color: #C6B080;
-  pointer-events: none;
-}
-
-input {
-  width: 100%;
-  padding: 14px 14px 14px 40px;
-  background: var(--ivory2);
-  border: 1px solid rgba(0,0,0,0.05);
-  border-radius: 10px;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 14px;
-  color: var(--text-dark);
-  outline: none;
-  transition: all 0.3s;
-}
-
-/* Hack para quitar el fondo amarillo del autocompletado */
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-input:-webkit-autofill:active {
-    -webkit-box-shadow: 0 0 0 30px var(--ivory2) inset !important;
-    -webkit-text-fill-color: var(--text-dark) !important;
-}
-
-input:focus {
-  background: #fff;
-  border-color: var(--cyan);
-  box-shadow: 0 4px 12px rgba(0,200,212,0.08);
-}
-
-.err-box {
-  display: none;
-  background: #fff0f0;
-  border: 1px solid #ffcccc;
-  border-radius: 8px;
-  padding: 10px;
-  font-size: 12px;
-  color: #d32f2f;
-  text-align: center;
-  margin-bottom: 15px;
-}
-.err-box.show { display: block; animation: shake 0.4s ease; }
-
-.btn {
-  width: 100%;
-  padding: 15px;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  font-family: 'Scheherazade New', serif;
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 3px;
-  color: var(--white);
-  background: linear-gradient(135deg, var(--cyan), #00B0BC);
-  transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 4px 15px rgba(0,200,212,0.25);
-  margin-top: 10px;
-  /* Optimización para tap móvil */
-  touch-action: manipulation; 
-}
-
-.btn:active { transform: scale(0.98); }
-
-.btn.loading { opacity: 0.8; pointer-events: none; }
-.btn.loading .btn-txt { display: none; }
-.btn.loading::after {
-  content: '';
-  display: block;
-  width: 20px; height: 20px;
-  margin: 0 auto;
-  border: 2px solid rgba(255,255,255,0.4);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-.card-foot {
-  text-align: center;
-  margin-top: 25px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(0,0,0,0.05);
-}
-.card-foot p { font-size: 10px; letter-spacing: 1px; color: var(--text-light); }
-
-/* SUCCESS SCREEN */
-.success-screen {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  background: var(--white);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.5s;
-}
-.success-screen.show { opacity: 1; pointer-events: all; }
-
-.s-check { width: 50px; height: 50px; margin-bottom: 20px; }
-.s-check path { stroke-dasharray: 55; stroke-dashoffset: 55; }
-.success-screen.show .s-check path { animation: drawCheck 0.6s ease 0.2s forwards; }
-
-.s-title { font-family: 'Scheherazade New', serif; font-size: 32px; color: var(--gold); }
-
-/* ANIMATIONS */
-@keyframes enterLeft { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
-@keyframes enterUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes goldShimmer { 0% { background-position: 0% center; } 100% { background-position: 200% center; } }
-@keyframes spin { to { transform: rotate(360deg); } }
-@keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
-@keyframes drawCheck { to { stroke-dashoffset: 0; } }
-
-/* RESPONSIVE */
-@media (max-width: 900px) {
-  .scene { grid-template-columns: 1fr; }
-  .left-panel { display: none; } /* Ocultamos panel izq en tablet/móvil para foco */
-  .divider-v { display: none; }
-  .login-panel { background: radial-gradient(circle at top, rgba(0,200,212,0.05), transparent 40%); }
-}
-
-@media (max-height: 700px) {
-  .login-panel { padding-top: 40px; padding-bottom: 40px; }
-}
-</style>
+        /* Footer / Status */
+        footer {
+            background: #10181d;
+            color: #888;
+            font-size: 0.8em;
+            padding: 5px 20px;
+            text-align: right;
+        }
+    </style>
 </head>
 <body>
 
-<canvas id="dust-canvas"></canvas>
-<div class="bg-radial"></div>
-
-<div class="scene">
-  <!-- Left Panel (Solo PC) -->
-  <div class="left-panel">
-    <p class="eyebrow">Premium Tattoo Education</p>
-    <h1 class="brand-name">INK<br>ACADEMY</h1>
-    <p class="brand-sub">فن · إتقان · إرث</p>
-    <div class="sep"><div class="sep-line"></div><div class="sep-diamond"></div></div>
-    <p class="tagline">Domina el arte del tatuaje de la mano de los mejores artistas del mundo.</p>
-    <div class="stats">
-      <div><div class="stat-num">240+</div><div class="stat-lbl">Cursos</div></div>
-      <div><div class="stat-num">18K</div><div class="stat-lbl">Alumnos</div></div>
+<header>
+    <div class="resource">
+        <span>Piedra</span> 14.500
     </div>
-    <div class="divider-v"></div>
-  </div>
+    <div class="resource">
+        <span>Madera</span> 8.200
+    </div>
+    <div class="resource">
+        <span>Oro</span> 1.250
+    </div>
+    <div class="resource">
+        <span>Población</span> 450 / 1.000
+    </div>
+    <div class="resource">
+        <span>Energía (Agua)</span> 95%
+    </div>
+</header>
 
-  <!-- Login Panel -->
-  <div class="login-panel">
-    <div class="login-card">
-      <div class="card-inner">
-        <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
-        <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+<div class="main-container">
+    <nav>
+        <ul>
+            <li class="active">Infraestructura</li>
+            <li>Astillero Real</li>
+            <li>Investigación</li>
+            <li>Flota</li>
+            <li>Mapa del Caribe</li>
+            <li>Defensas</li>
+        </ul>
+    </nav>
 
-        <div class="card-icon">
-          <!-- Logo simplificado SVG -->
-          <svg viewBox="0 0 52 52" fill="none">
-            <circle cx="26" cy="26" r="23" stroke="#C6922A" stroke-width="1.5"/>
-            <path d="M26 10V42 M18 18H34" stroke="#00C8D4" stroke-width="2" stroke-linecap="round"/>
-          </svg>
+    <main>
+        <div class="view-title">
+            <h2>Asentamiento: San Cristóbal de la Habana</h2>
+            <p>Coordenadas: [4:120:8]</p>
         </div>
 
-        <h2 class="login-title">Kathy's Academy</h2>
-        <p class="login-sub">Acceso a Estudiantes</p>
+        <div class="buildings-grid">
+            <div class="card">
+                <h3>Cantera de Piedra Caliza</h3>
+                <p>Nivel 12</p>
+                <p>Extrae roca de los fosos para las murallas de la ciudad.</p>
+                <div class="cost">
+                    Costo: 4.200 Piedra | 1.100 Madera
+                </div>
+                <button>Mejorar al Nivel 13</button>
+            </div>
 
-        <div class="err-box" id="err">Credenciales incorrectas</div>
+            <div class="card">
+                <h3>Aserradero de Caoba</h3>
+                <p>Nivel 10</p>
+                <p>Procesa maderas preciosas para la construcción de Galeones.</p>
+                <div class="cost">
+                    Costo: 2.500 Piedra | 800 Madera
+                </div>
+                <button>Mejorar al Nivel 11</button>
+            </div>
 
-        <form id="frm" onsubmit="doLogin(event)">
-          <div class="input-wrap">
-            <label for="u">Usuario</label>
-            <input type="text" id="u" placeholder="Usuario" inputmode="text">
-            <svg class="i-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          </div>
+            <div class="card">
+                <h3>Castillo del Morro</h3>
+                <p>Nivel 5</p>
+                <p>Aumenta la capacidad defensiva y el almacenamiento de munición.</p>
+                <div class="cost">
+                    Costo: 12.000 Piedra | 4.000 Madera | 500 Oro
+                </div>
+                <button>Mejorar al Nivel 6</button>
+            </div>
 
-          <div class="input-wrap">
-            <label for="p">Contraseña</label>
-            <input type="password" id="p" placeholder="••••••••" inputmode="text">
-            <svg class="i-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          </div>
-
-          <button type="submit" class="btn" id="btn">
-            <span class="btn-txt">ENTRAR</span>
-          </button>
-        </form>
-
-        <div class="card-foot">
-          <p>© 2026 Academy</p>
+            <div class="card">
+                <h3>Casa de Contratación</h3>
+                <p>Nivel 8</p>
+                <p>Gestiona el comercio con España y aumenta la producción de Oro.</p>
+                <div class="cost">
+                    Costo: 3.000 Piedra | 2.500 Madera
+                </div>
+                <button>Mejorar al Nivel 9</button>
+            </div>
         </div>
-      </div>
-    </div>
-  </div>
+    </main>
 </div>
 
-<!-- Success Overlay -->
-<div class="success-screen" id="success">
-  <svg class="s-check" viewBox="0 0 36 36" fill="none">
-    <path d="M6 18 L15 27 L30 10" stroke="#C6922A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>
-  <p class="s-title">Bienvenido</p>
-  <p style="color:#888; font-size:14px; margin-top:5px;">Redirigiendo al panel...</p>
-</div>
+<footer>
+    Servidor: Antemural de las Indias | Jugadores en línea: 142 | Fecha: 24 de Agosto, 1762
+</footer>
 
-<script>
-/* OPTIMIZACIÓN CANVAS: Menos partículas, sin shadowBlur */
-const canvas = document.getElementById('dust-canvas');
-const ctx = canvas.getContext('2d');
-let W, H;
-
-function resize() {
-  W = canvas.width = window.innerWidth;
-  H = canvas.height = window.innerHeight;
-}
-resize();
-window.addEventListener('resize', resize);
-
-// Detectar móvil para reducir carga
-const isMobile = window.innerWidth < 768;
-const particleCount = isMobile ? 40 : 90; // Reducido drásticamente en móvil
-
-const particles = [];
-for (let i = 0; i < particleCount; i++) {
-  particles.push({
-    x: Math.random() * W,
-    y: Math.random() * H,
-    r: Math.random() * 1.5 + 0.5,
-    speed: Math.random() * 0.2 + 0.05,
-    gold: Math.random() > 0.5
-  });
-}
-
-function drawDust() {
-  ctx.clearRect(0, 0, W, H);
-  
-  // Optimizacion: beginPath fuera del loop si todos comparten estilo, 
-  // pero aquí cambian de color, así que lo mantenemos simple pero sin efectos pesados.
-  
-  particles.forEach(p => {
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    // Usamos colores planos con alpha en lugar de sombras para rendimiento
-    ctx.fillStyle = p.gold ? "rgba(198, 146, 42, 0.4)" : "rgba(0, 200, 212, 0.3)";
-    ctx.fill();
-
-    // Movimiento simple hacia arriba
-    p.y -= p.speed;
-    if (p.y < -5) {
-      p.y = H + 5;
-      p.x = Math.random() * W;
-    }
-  });
-  
-  requestAnimationFrame(drawDust);
-}
-// Iniciar animación
-requestAnimationFrame(drawDust);
-
-/* LOGIN LOGIC */
-function doLogin(e) {
-  e.preventDefault();
-  const u = document.getElementById('u');
-  const p = document.getElementById('p');
-  const btn = document.getElementById('btn');
-  const err = document.getElementById('err');
-
-  // Simple validación
-  if(!u.value || !p.value) {
-    err.innerText = "Por favor completa los campos";
-    err.classList.add('show');
-    return;
-  }
-
-  err.classList.remove('show');
-  btn.classList.add('loading');
-
-  // Simulación backend
-  setTimeout(() => {
-    btn.classList.remove('loading');
-    if (u.value.toLowerCase() === 'admin' && p.value === 'admin') {
-      document.getElementById('success').classList.add('show');
-      window.location.href = 'dashboard.html';
-    } else {
-      err.innerText = "Usuario o contraseña incorrectos";
-      err.classList.add('show');
-      p.value = '';
-      p.focus();
-    }
-  }, 1000);
-}
-</script>
 </body>
 </html>
