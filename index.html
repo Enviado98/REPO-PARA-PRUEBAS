@@ -1,296 +1,576 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🔬 El Toque Scraper v5 — trmiExchange</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@800&display=swap');
-  :root { --bg:#0a0a0f; --s:#12121a; --b:#1e1e2e; --a:#00ffb3; --w:#ffb300; --e:#ff4d6d; --t:#e0e0f0; --m:#555577; }
-  * { box-sizing:border-box; margin:0; padding:0; }
-  body { background:var(--bg); color:var(--t); font-family:'JetBrains Mono',monospace; padding:1.5rem; }
-  h1 { font-family:'Syne',sans-serif; font-size:1.4rem; color:var(--a); margin-bottom:.2rem; }
-  .sub { color:var(--m); font-size:.72rem; margin-bottom:1.5rem; }
-  .rates { display:grid; grid-template-columns:repeat(3,1fr); gap:.8rem; margin-bottom:1.5rem; }
-  .rc { background:var(--s); border:1px solid var(--b); border-radius:10px; padding:1rem; text-align:center; transition:border-color .3s; }
-  .rc.ok { border-color:var(--a); } .rc.err { border-color:var(--e); }
-  .rl { font-size:.65rem; color:var(--m); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
-  .rv { font-size:2rem; font-weight:700; font-family:'Syne',sans-serif; color:var(--a); }
-  .rv.p { color:var(--m); font-size:1.2rem; } .rv.f { color:var(--e); font-size:1rem; }
-  .ru { font-size:.6rem; color:var(--m); }
-  .log { background:#080810; border:1px solid var(--b); border-radius:8px; padding:.8rem; height:440px; overflow-y:auto; font-size:.68rem; line-height:1.9; margin-bottom:1rem; }
-  .ll { display:flex; gap:.5rem; }
-  .lt { color:var(--m); min-width:5rem; }
-  .lm { flex:1; word-break:break-all; }
-  .lok .lm { color:var(--a); } .lwarn .lm { color:var(--w); } .lerr .lm { color:var(--e); } .linfo .lm { color:#7788ff; }
-  .btns { display:flex; gap:.6rem; flex-wrap:wrap; margin-bottom:.8rem; }
-  button { background:var(--s); border:1px solid var(--b); color:var(--t); font-family:'JetBrains Mono',monospace; font-size:.72rem; padding:.5rem 1rem; border-radius:7px; cursor:pointer; transition:all .2s; }
-  button:hover { border-color:var(--a); color:var(--a); }
-  button.p { background:var(--a); border-color:var(--a); color:#000; font-weight:700; }
-  button:disabled { opacity:.4; cursor:not-allowed; }
-  pre { background:#080810; border:1px solid var(--b); border-radius:8px; padding:.8rem; margin-top:.8rem; font-size:.62rem; max-height:250px; overflow:auto; color:#aabbcc; white-space:pre-wrap; word-break:break-all; display:none; }
-  .winner { background:#001a10; border:1px solid var(--a); border-radius:8px; padding:1rem; margin-bottom:1rem; display:none; }
-  .winner h3 { color:var(--a); font-size:.8rem; margin-bottom:.5rem; }
-  .winner code { background:#0a0a0f; padding:.3rem .6rem; border-radius:4px; font-size:.7rem; display:block; margin-top:.4rem; line-height:1.8; }
-</style>
-</head>
-<body>
-<h1>🔬 El Toque Scraper v5</h1>
-<p class="sub">Objetivo: extraer tasas de <strong style="color:var(--a)">trmiExchange</strong> en pageProps</p>
+// ----------------------------------------------------
+// 🚨 CONFIGURACIÓN DE SUPABASE (BAAS) 🚨
+// ----------------------------------------------------
+const SUPABASE_URL = "https://mkvpjsvqjqeuniabjjwr.supabase.co"; 
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rdnBqc3ZxanFldW5pYWJqandyIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NTI0MzU0OCwiZXhwIjoyMDgwODE5NTQ4fQ.No4ZOo0sawF6KYJnIrSD2CVQd1lHzNlLSplQgfuHBcg"; 
 
-<div class="rates">
-  <div class="rc" id="card-usd"><div class="rl">💵 USD/CUP</div><div class="rv p" id="val-usd">···</div><div class="ru">pesos cubanos</div></div>
-  <div class="rc" id="card-eur"><div class="rl">💶 EUR/CUP</div><div class="rv p" id="val-eur">···</div><div class="ru">pesos cubanos</div></div>
-  <div class="rc" id="card-mlc"><div class="rl">💳 MLC/CUP</div><div class="rv p" id="val-mlc">···</div><div class="ru">pesos cubanos</div></div>
-</div>
+// ----------------------------------------------------
+// 💰 CONFIGURACIÓN TASAS (Yadio + El Toque HTML)
+// ----------------------------------------------------
+// Fuente primaria: Yadio.io (API abierta, sin token)
+// Fuente secundaria: El Toque HTML (para MLC)
+const CACHE_DURATION = 6 * 60 * 60 * 1000; // 6 horas
 
-<div class="winner" id="winnerBox">
-  <h3>🎉 ¡Código listo para script.js!</h3>
-  <code id="winnerCode"></code>
-</div>
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-<div class="btns">
-  <button class="p" id="btnRun" onclick="runAll()">▶ Iniciar</button>
-  <button onclick="clearLog()">🗑 Limpiar</button>
-  <button onclick="toggleRaw()">👁 Ver trmiExchange</button>
-  <button onclick="copyRaw()">📋 Copiar trmiExchange</button>
-</div>
+// ----------------------------------------------------
+// 🎨 PALETA DE COLORES NEÓN (PREMIUM)
+// ----------------------------------------------------
+const NEON_PALETTE = [
+    '#00ffff', '#ff00ff', '#00ff00', '#ffff00', '#ff0099', 
+    '#9D00FF', '#FF4D00', '#00E5FF', '#76ff03', '#ff1744'
+];
 
-<div class="log" id="logBox"></div>
-<pre id="rawBox"></pre>
-
-<script>
-const PROXY = url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-const VALID = { usd:{min:200,max:700}, eur:{min:200,max:800}, mlc:{min:150,max:700} };
-let rawTrmi = null, running = false;
-
-function log(msg, type="") {
-  const box = document.getElementById("logBox");
-  const t = new Date().toLocaleTimeString("es",{hour12:false});
-  const d = document.createElement("div");
-  d.className = `ll l${type}`;
-  d.innerHTML = `<span class="lt">[${t}]</span><span class="lm">${esc(msg)}</span>`;
-  box.appendChild(d); box.scrollTop = box.scrollHeight;
-}
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function clearLog() { document.getElementById("logBox").innerHTML = ""; }
-function toggleRaw() {
-  const b = document.getElementById("rawBox");
-  if (!rawTrmi) { log("Sin datos aún.", "warn"); return; }
-  b.style.display = b.style.display==="block" ? "none" : "block";
-  b.textContent = JSON.stringify(rawTrmi, null, 2).slice(0, 20000);
-}
-function copyRaw() {
-  if (!rawTrmi) { log("Sin datos aún.", "warn"); return; }
-  navigator.clipboard.writeText(JSON.stringify(rawTrmi, null, 2))
-    .then(() => log("📋 trmiExchange copiado", "ok"))
-    .catch(() => log("Usa 👁 y copia manualmente.", "warn"));
-}
-function setRate(c, v) {
-  const el = document.getElementById("val-"+c);
-  const card = document.getElementById("card-"+c);
-  const n = parseInt(v);
-  const {min,max} = VALID[c];
-  if (!isNaN(n) && n>=min && n<=max) {
-    el.textContent = n; el.className = "rv"; card.className = "rc ok"; return true;
-  }
-  el.textContent = "N/D"; el.className = "rv f"; card.className = "rc err"; return false;
+function getCardColor(id) {
+    let hash = 0;
+    const str = String(id);
+    for (let i = 0; i < str.length; i++) { hash = str.charCodeAt(i) + ((hash << 5) - hash); }
+    const index = Math.abs(hash) % NEON_PALETTE.length;
+    return NEON_PALETTE[index];
 }
 
-async function noSignalFetch(url) {
-  const r = await Promise.race([
-    fetch(url),
-    new Promise((_,rej) => setTimeout(() => rej(new Error("Timeout 15s")), 15000))
-  ]);
-  if (!r.ok) throw new Error(`HTTP ${r.status}`);
-  return r;
+// Variables Globales
+let admin = false; 
+const ONE_HOUR = 3600000;
+const ONE_DAY = 24 * ONE_HOUR;
+const RECENT_THRESHOLD_MS = ONE_DAY; 
+const OLD_THRESHOLD_MS = 7 * ONE_DAY;
+const NEWS_SCROLL_SPEED_PX_PER_SEC = 50; 
+const TIME_PANEL_AUTOHIDE_MS = 3000; 
+
+let currentData = [];
+let currentNews = []; 
+let currentStatus = {
+    deficit_mw: 'Cargando...', dollar_cup: '...', euro_cup: '...', mlc_cup: '...',
+    deficit_edited_at: null, divisa_edited_at: null
+}; 
+
+let userWebId = localStorage.getItem('userWebId');
+if (!userWebId) {
+    userWebId = crypto.randomUUID(); 
+    localStorage.setItem('userWebId', userWebId);
 }
 
-// ── Extraer tasa de un objeto de moneda ────────────────────────
-// trmiExchange probablemente tiene estructura como:
-// { USD: { tasa: 505, ... }, EUR: { tasa: 565 }, MLC: { tasa: 405 } }
-// O puede ser un array: [{ moneda: "USD", tasa: 505 }, ...]
-function extractFromTrmi(trmi) {
-  log("   📊 Tipo: " + (Array.isArray(trmi) ? "Array" : typeof trmi), "");
-  
-  if (Array.isArray(trmi)) {
-    log(`   📊 Array con ${trmi.length} elementos`, "");
-    log(`   📊 Primer elemento: ${JSON.stringify(trmi[0]).slice(0, 300)}`, "");
-    
-    const result = {};
-    for (const item of trmi) {
-      // Buscar el código de moneda
-      const code = (item.moneda || item.code || item.currency || item.short || 
-                    item.short_show || item.ticker || "").toString().toUpperCase();
-      // Buscar el valor
-      const val = item.tasa ?? item.value ?? item.rate ?? item.precio ?? 
-                  item.cup ?? item.last ?? item.promedio ?? item.avg;
-      
-      if (code && val !== undefined && val !== null) {
-        const n = Math.round(parseFloat(val));
-        log(`   → ${code}: ${val} → ${n} CUP`, "");
-        if (code==='USD' && n>=VALID.usd.min && n<=VALID.usd.max) result.usd = String(n);
-        if ((code==='EUR'||code==='ECU') && n>=VALID.eur.min && n<=VALID.eur.max) result.eur = String(n);
-        if (code==='MLC' && n>=VALID.mlc.min && n<=VALID.mlc.max) result.mlc = String(n);
-      } else if (code) {
-        // Mostrar todas las keys numéricas para diagnóstico
-        const nums = Object.entries(item)
-          .filter(([,v]) => typeof v === 'number' && v > 50)
-          .map(([k,v]) => `${k}=${v}`).join(", ");
-        log(`   → ${code}: keys numéricas > 50: [${nums||'ninguna'}]`, "warn");
-        log(`     keys totales: ${Object.keys(item).join(", ")}`, "");
-      }
+// Elementos del DOM
+const DOMElements = {
+    body: document.body,
+    contenedor: document.getElementById('contenedor'),
+    newsTicker: document.getElementById('newsTicker'),
+    newsTickerContent: document.getElementById('newsTickerContent'),
+    commentsContainer: document.getElementById('commentsContainer'),
+    commenterName: document.getElementById('commenterName'),
+    commentText: document.getElementById('commentText'),
+    publishCommentBtn: document.getElementById('publishCommentBtn'),
+    adminControlsPanel: document.getElementById('adminControlsPanel'),
+    statusMessage: document.getElementById('statusMessage'),
+    toggleAdminBtn: document.getElementById('toggleAdminBtn'), 
+    saveBtn: document.getElementById('saveBtn'),
+    addNewsBtn: document.getElementById('addNewsBtn'),
+    deleteNewsBtn: document.getElementById('deleteNewsBtn'),
+    dynamicTickerStyles: document.getElementById('dynamicTickerStyles'),
+    statusPanel: document.getElementById('statusPanel'),
+    statusDataContainer: document.getElementById('statusDataContainer')
+};
+
+function timeAgo(timestamp) {
+    if (!timestamp) return { text: 'Sin fecha de edición.', diff: -1, date: null };
+    const then = new Date(timestamp).getTime();
+    const now = Date.now();
+    const diff = now - then;
+    if (diff < 0) return { text: 'Ahora mismo', diff: 0, date: new Date(timestamp) }; 
+    const SECONDS = Math.floor(diff / 1000);
+    const MINUTES = Math.floor(SECONDS / 60);
+    const HOURS = Math.floor(MINUTES / 60);
+    const DAYS = Math.floor(HOURS / 24);
+    let text;
+    if (DAYS >= 30) { text = `hace ${Math.floor(DAYS / 30)} meses`; } 
+    else if (DAYS >= 7) { const weeks = Math.floor(DAYS / 7); text = `hace ${weeks} sem.`; } 
+    else if (DAYS >= 2) { text = `hace ${DAYS} días`; } 
+    else if (DAYS === 1) { text = 'hace 1 día'; } 
+    else if (HOURS >= 2) { text = `hace ${HOURS} h.`; } 
+    else if (HOURS === 1) { text = 'hace 1 hora'; } 
+    else if (MINUTES >= 1) { text = `hace ${MINUTES} min.`; } 
+    else { text = 'hace unos momentos'; }
+    return { text, diff, date: new Date(timestamp) };
+}
+
+// ----------------------------------------------------
+// 💰 LÓGICA DE TASAS — Yadio (primaria) + El Toque HTML (MLC)
+// ----------------------------------------------------
+
+// Validación: rangos razonables para el mercado informal cubano
+const RATE_VALID = { usd:{min:200,max:700}, eur:{min:200,max:800}, mlc:{min:150,max:700} };
+function isValidRate(currency, value) {
+    const n = parseInt(value);
+    if (isNaN(n)) return false;
+    const { min, max } = RATE_VALID[currency] || { min:200, max:800 };
+    return n >= min && n <= max;
+}
+
+// Fetch con timeout sin AbortSignal (máxima compatibilidad)
+async function fetchWithTimeout(url, opts = {}, ms = 10000) {
+    return Promise.race([
+        fetch(url, opts),
+        new Promise((_, rej) => setTimeout(() => rej(new Error("Timeout")), ms))
+    ]);
+}
+
+// Fuente 1: Yadio.io — API abierta, devuelve USD y EUR exactos
+async function fetchFromYadio() {
+    try {
+        const res = await fetchWithTimeout("https://api.yadio.io/exrates/CUP", {}, 8000);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        // Yadio da cuántos CUP = 1 unidad de moneda extranjera
+        const usd = json.CUP?.USD ? String(Math.round(1 / json.CUP.USD)) : null;
+        const eur = json.CUP?.EUR ? String(Math.round(1 / json.CUP.EUR)) : null;
+        if (usd && isValidRate('usd', usd)) {
+            console.log(`✅ Yadio: USD=${usd} EUR=${eur||'N/D'}`);
+            return { usd, eur };
+        }
+        return null;
+    } catch (e) {
+        console.warn("⚠️ Yadio falló:", e.message);
+        return null;
     }
-    return result;
-    
-  } else if (typeof trmi === 'object' && trmi !== null) {
-    log(`   📊 Object con keys: ${Object.keys(trmi).join(", ")}`, "");
-    
-    // Puede ser { USD: {...}, EUR: {...}, MLC: {...} }
-    const result = {};
-    for (const [code, data] of Object.entries(trmi)) {
-      const KEY = code.toUpperCase();
-      if (!['USD','EUR','ECU','MLC','ZELLE','CAD','GBP','CHF','BRL','MXN'].includes(KEY)) continue;
-      
-      let val = null;
-      if (typeof data === 'number') {
-        val = data;
-      } else if (typeof data === 'object') {
-        val = data.tasa ?? data.value ?? data.rate ?? data.precio ?? data.last ?? 
-              data.promedio ?? data.avg ?? data.cup ?? data.informal;
-        log(`   → ${KEY}: ${JSON.stringify(data).slice(0,150)}`, "");
-      }
-      
-      if (val !== null) {
-        const n = Math.round(parseFloat(val));
-        log(`   → ${KEY}: valor=${val} → ${n} CUP`, "");
-        if (KEY==='USD' && n>=VALID.usd.min && n<=VALID.usd.max) result.usd = String(n);
-        if ((KEY==='EUR'||KEY==='ECU') && n>=VALID.eur.min && n<=VALID.eur.max) result.eur = String(n);
-        if (KEY==='MLC' && n>=VALID.mlc.min && n<=VALID.mlc.max) result.mlc = String(n);
-      }
+}
+
+// Fuente 2: El Toque HTML — para MLC (que Yadio no tiene)
+// Extrae del __NEXT_DATA__ que viene embebido en el HTML estático
+async function fetchMlcFromElToque() {
+    try {
+        const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent("https://eltoque.com/tasas-de-cambio-cuba")}`;
+        const res = await fetchWithTimeout(proxy, {}, 12000);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const html = await res.text();
+
+        // Extraer todos los números en rango válido cerca de "MLC"
+        const mlcMatches = [...html.matchAll(/MLC[^<\d]{0,60}(\d{3,4})/gi)];
+        const candidates = mlcMatches
+            .map(m => parseInt(m[1]))
+            .filter(n => isValidRate('mlc', n));
+
+        if (candidates.length > 0) {
+            // Tomar la mediana para evitar outliers
+            const sorted = [...new Set(candidates)].sort((a, b) => a - b);
+            const median = sorted[Math.floor(sorted.length / 2)];
+            console.log(`✅ El Toque MLC: candidatos=${sorted.join(',')} → mediana=${median}`);
+            return String(median);
+        }
+        return null;
+    } catch (e) {
+        console.warn("⚠️ El Toque MLC falló:", e.message);
+        return null;
     }
-    return result;
-  }
-  
-  return {};
 }
 
-// ── Inspeccionar banksXRates también ──────────────────────────
-function extractFromBanks(banksXRates) {
-  if (!banksXRates) return {};
-  log(`   📊 banksXRates tipo: ${Array.isArray(banksXRates)?'Array':typeof banksXRates}`, "");
-  if (Array.isArray(banksXRates) && banksXRates.length > 0) {
-    log(`   📊 Primer elemento: ${JSON.stringify(banksXRates[0]).slice(0,300)}`, "");
-  } else if (typeof banksXRates === 'object') {
-    log(`   📊 Keys: ${Object.keys(banksXRates).slice(0,10).join(", ")}`, "");
-  }
-  return {};
+async function fetchElToqueRates() {
+    try {
+        // Verificar caché: no actualizar si los datos son recientes
+        const lastUpdate = new Date(currentStatus.divisa_edited_at || 0).getTime();
+        if ((Date.now() - lastUpdate) < CACHE_DURATION) {
+            console.log("💾 Tasas en caché, sin actualizar.");
+            return;
+        }
+
+        console.log("🔄 Actualizando tasas de cambio...");
+
+        // Lanzar ambas fuentes en paralelo
+        const [yadio, mlc] = await Promise.all([
+            fetchFromYadio(),
+            fetchMlcFromElToque()
+        ]);
+
+        const usdPrice = yadio?.usd || currentStatus.dollar_cup || '---';
+        const eurPrice = yadio?.eur || currentStatus.euro_cup || '---';
+        const mlcPrice = mlc || currentStatus.mlc_cup || '---';
+
+        // Solo guardar si al menos tenemos USD válido
+        if (!isValidRate('usd', usdPrice)) {
+            console.warn("⚠️ USD inválido, no se actualiza Supabase.");
+            return;
+        }
+
+        const newTime = new Date().toISOString();
+        currentStatus.dollar_cup = usdPrice;
+        currentStatus.euro_cup = eurPrice;
+        currentStatus.mlc_cup = mlcPrice;
+        currentStatus.divisa_edited_at = newTime;
+        renderStatusPanel(currentStatus, admin);
+
+        await supabase.from('status_data').update({
+            dollar_cup: usdPrice,
+            euro_cup: eurPrice,
+            mlc_cup: mlcPrice,
+            divisa_edited_at: newTime
+        }).eq('id', 1);
+
+        console.log(`✅ Tasas guardadas: USD=${usdPrice} EUR=${eurPrice} MLC=${mlcPrice}`);
+    } catch (error) {
+        console.error("⚠️ Error actualizando tasas:", error.message);
+    }
 }
 
-async function runAll() {
-  if (running) return;
-  running = true;
-  document.getElementById("btnRun").disabled = true;
-  document.getElementById("winnerBox").style.display = "none";
-  ["usd","eur","mlc"].forEach(c => {
-    document.getElementById("val-"+c).textContent = "···";
-    document.getElementById("val-"+c).className = "rv p";
-    document.getElementById("card-"+c).className = "rc";
-  });
-
-  log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "");
-  log("🚀 Fetching HTML de /tasas-de-cambio-cuba...", "info");
-
-  try {
-    const r = await noSignalFetch(PROXY("https://eltoque.com/tasas-de-cambio-cuba"));
-    const html = await r.text();
-    log(`✅ HTML recibido: ${html.length.toLocaleString()} chars`, "ok");
-
-    const m = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
-    if (!m) throw new Error("__NEXT_DATA__ no encontrado en el HTML");
-    
-    const fullJson = JSON.parse(m[1]);
-    const pp = fullJson?.props?.pageProps;
-    if (!pp) throw new Error("pageProps no encontrado");
-
-    log(`✅ pageProps keys: ${Object.keys(pp).join(", ")}`, "ok");
-    log("", "");
-
-    // ── trmiExchange ──────────────────────────────────────────
-    log("🔍 Inspeccionando trmiExchange...", "info");
-    if (pp.trmiExchange !== undefined) {
-      rawTrmi = pp.trmiExchange;
-      const rates = extractFromTrmi(pp.trmiExchange);
-      log("", "");
-      log(`   Resultado trmiExchange: USD=${rates.usd||'N/D'} EUR=${rates.eur||'N/D'} MLC=${rates.mlc||'N/D'}`, rates.usd?"ok":"warn");
-      const ok = setRate("usd",rates.usd) | setRate("eur",rates.eur) | setRate("mlc",rates.mlc);
-      
-      if (ok) {
-        showWinnerCode("trmiExchange", rates);
-      }
+// ----------------------------------------------------
+// UI & ADMIN
+// ----------------------------------------------------
+function updateAdminUI(isAdmin) {
+    admin = isAdmin;
+    if (isAdmin) {
+        DOMElements.body.classList.add('admin-mode');
+        DOMElements.adminControlsPanel.style.display = "flex";
+        DOMElements.statusMessage.textContent = "¡🔴 EDITA CON RESPONSABILIDAD!";
+        DOMElements.statusMessage.style.color = "#ef233c"; 
+        DOMElements.toggleAdminBtn.textContent = "🛑 SALIR MODO EDICIÓN"; 
+        DOMElements.toggleAdminBtn.classList.remove('btn-primary');
+        DOMElements.toggleAdminBtn.classList.add('btn-danger');
+        enableEditing(); 
     } else {
-      log("   ⚠️ trmiExchange no existe o es undefined", "warn");
+        DOMElements.body.classList.remove('admin-mode');
+        DOMElements.adminControlsPanel.style.display = "none";
+        DOMElements.statusMessage.textContent = "Activa modo edición y actualiza la información"; 
+        DOMElements.statusMessage.style.color = "var(--color-texto-principal)"; 
+        DOMElements.toggleAdminBtn.textContent = "🛡️ ACTIVAR EL MODO EDICIÓN"; 
+        DOMElements.toggleAdminBtn.classList.remove('btn-danger');
+        DOMElements.toggleAdminBtn.classList.add('btn-primary');
+        disableEditing(); 
     }
+    DOMElements.statusPanel.classList.toggle('admin-mode', isAdmin);
+    renderStatusPanel(currentStatus, isAdmin); 
+}
 
-    // ── banksXRates ───────────────────────────────────────────
-    log("", "");
-    log("🔍 Inspeccionando banksXRates...", "info");
-    extractFromBanks(pp.banksXRates);
-
-    // ── Dump de todos los valores numéricos en pageProps ──────
-    log("", "");
-    log("🔍 Buscando TODOS los valores numéricos 200-800 en pageProps...", "info");
-    const allNums = [];
-    function hunt(obj, path="", depth=0) {
-      if (depth>8||!obj||typeof obj!=='object') return;
-      for (const [k,v] of Object.entries(obj)) {
-        const p = path ? `${path}.${k}` : k;
-        if (typeof v==='number') {
-          const n = Math.round(v);
-          if (n>=200 && n<=800) allNums.push(`${p}=${n}`);
-        } else if (typeof v==='object') hunt(v, p, depth+1);
-      }
-    }
-    hunt(pp);
-    if (allNums.length > 0) {
-      log(`   Valores 200-800 encontrados:`, "warn");
-      // Mostrar en grupos de 4
-      for (let i=0; i<Math.min(allNums.length,40); i+=4) {
-        log(`   ${allNums.slice(i,i+4).join("  |  ")}`, "warn");
-      }
+function toggleAdminMode() {
+    if (!admin) {
+        updateAdminUI(true); alert("¡🔴 EDITA CON RESPONSABILIDAD!");
     } else {
-      log("   ⚠️ No hay ningún número entre 200-800 en pageProps", "err");
-      log("   → Las tasas se cargan dinámicamente (fetch del cliente)", "err");
+        if (!confirm("✅️ ¿Terminar la edición?")) return;
+        updateAdminUI(false); loadData(); loadStatusData(); 
     }
-
-  } catch(e) {
-    log(`✗ Error: ${e.message}`, "err");
-  }
-
-  log("", "");
-  log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "");
-  log("💡 Si no hay valores 200-800, copia el log completo y pégalo.", "warn");
-  
-  running = false;
-  document.getElementById("btnRun").disabled = false;
 }
 
-function showWinnerCode(key, rates) {
-  const box = document.getElementById("winnerBox");
-  const code = document.getElementById("winnerCode");
-  box.style.display = "block";
-  code.textContent = 
-`// En script.js — extracción desde pageProps.${key}
-const pp = json.props.pageProps;
-const trmi = pp.${key};
+function enableEditing() { toggleEditing(true); }
+function disableEditing() { toggleEditing(false); }
 
-// trmi es: ${Array.isArray(rawTrmi)?'Array['+rawTrmi.length+']':'Object con keys: '+Object.keys(rawTrmi||{}).join(', ')}
-// USD=${rates.usd||'?'} EUR=${rates.eur||'?'} MLC=${rates.mlc||'?'}`;
+function createCardHTML(item, index) {
+    let cardClass = '', labelHTML = '', labelText = 'Sin fecha', timeText = 'Sin editar';
+    if (item.last_edited_timestamp) {
+        const { text, diff } = timeAgo(item.last_edited_timestamp);
+        timeText = text;
+        if (diff >= 0 && diff < RECENT_THRESHOLD_MS) {
+            cardClass = 'card-recent'; labelHTML = '<div class="card-label">!RECIENTE!</div>'; labelText = 'Reciente';        
+        } else { labelText = 'Actualizado'; }
+    }
+    const neonColor = getCardColor(item.id);
+    return `
+    <div class="card ${cardClass}" data-index="${index}" data-id="${item.id}"> 
+        ${labelHTML} <span class="emoji">${item.emoji}</span>
+        <h3 style="--card-neon: ${neonColor}">${item.titulo}</h3>
+        <div class="card-content"><p>${item.contenido}</p></div>
+        <div class="card-time-panel" data-id="${item.id}"><strong>${labelText}</strong> (${timeText})</div>
+    </div>`;
 }
 
-log("👋 Listo. Pulsa ▶ para iniciar.", "info");
-log("🎯 Esta versión se enfoca en 'trmiExchange' y 'banksXRates'", "");
-log("   + dump de TODOS los valores 200-800 en el pageProps completo", "");
-</script>
-</body>
-</html>
+function toggleEditing(enable) {
+    document.querySelectorAll(".card").forEach(card => {
+        const item = currentData[card.getAttribute('data-index')];
+        const contentDiv = card.querySelector('.card-content');
+        if (enable) {
+            card.classList.add('editing-active'); card.removeEventListener('click', toggleTimePanel); 
+            card.querySelector('.card-time-panel').style.display = 'none';
+            if (card.querySelector('.card-label')) card.querySelector('.card-label').style.display = 'none';
+            card.querySelector('.emoji').remove(); card.querySelector('h3').remove(); contentDiv.querySelector('p').remove();
+            
+            const editableEmoji = document.createElement('input'); editableEmoji.className = 'editable-emoji'; editableEmoji.value = item.emoji; editableEmoji.maxLength = 2;
+            const editableTitle = document.createElement('input'); editableTitle.className = 'editable-title'; editableTitle.value = item.titulo;
+            const editableContent = document.createElement('textarea'); editableContent.className = 'editable-content'; editableContent.value = item.contenido;
+            
+            card.insertBefore(editableTitle, card.firstChild); card.insertBefore(editableEmoji, card.firstChild); contentDiv.appendChild(editableContent);
+        } else {
+            card.classList.remove('editing-active');
+            if (card.querySelector('.editable-emoji')) {
+                card.querySelector('.editable-emoji').remove(); card.querySelector('.editable-title').remove(); card.querySelector('.editable-content').remove();
+                const newEmoji = document.createElement('span'); newEmoji.className = 'emoji'; newEmoji.textContent = item.emoji;
+                const newTitle = document.createElement('h3'); newTitle.textContent = item.titulo; newTitle.style.setProperty('--card-neon', getCardColor(item.id));
+                const newP = document.createElement('p'); newP.textContent = item.contenido;
+                
+                card.insertBefore(newTitle, card.firstChild); card.insertBefore(newEmoji, card.firstChild); contentDiv.appendChild(newP);
+                card.querySelector('.card-time-panel').style.display = '';
+                if (card.querySelector('.card-label')) card.querySelector('.card-label').style.display = '';
+                card.addEventListener('click', toggleTimePanel);
+            }
+        }
+    });
+}
+
+function toggleTimePanel(event) {
+    if (admin) return;
+    const clicked = event.currentTarget;
+    document.querySelectorAll('.card').forEach(c => { if (c !== clicked) c.classList.remove('show-time-panel'); });
+    if (clicked.classList.toggle('show-time-panel')) setTimeout(() => clicked.classList.remove('show-time-panel'), TIME_PANEL_AUTOHIDE_MS);
+}
+
+function linkify(text) {
+    return text.replace(/(\b(https?:\/\/|www\.)[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig, (url) => {
+        let fullUrl = url.startsWith('http') ? url : 'http://' + url;
+        return `<a href="${fullUrl}" target="_blank">${url}</a>`;
+    });
+}
+
+async function loadNews() {
+    const { data: newsData, error } = await supabase.from('noticias').select('id, text, timestamp').order('timestamp', { ascending: false });
+    if (error) return;
+    const validNews = []; const cutoff = Date.now() - RECENT_THRESHOLD_MS;
+    newsData.forEach(n => { if (new Date(n.timestamp).getTime() > cutoff) validNews.push(n); else supabase.from('noticias').delete().eq('id', n.id); });
+    currentNews = validNews;
+    if (validNews.length > 0) {
+        const html = validNews.map(n => `<span class="news-item">${linkify(n.text)} <small>(${timeAgo(n.timestamp).text})</small></span>`).join('<span class="news-item"> | </span>');
+        DOMElements.newsTickerContent.innerHTML = `${html}<span class="news-item"> | </span>${html}`;
+        DOMElements.newsTicker.style.display = 'flex';
+        const width = DOMElements.newsTickerContent.scrollWidth / 2; const dur = width / NEWS_SCROLL_SPEED_PX_PER_SEC;
+        DOMElements.dynamicTickerStyles.innerHTML = `@keyframes ticker-move-dynamic { 0% { transform: translateX(0); } 100% { transform: translateX(-${width}px); } }`;
+        DOMElements.newsTickerContent.style.animation = `ticker-move-dynamic ${dur}s linear infinite`;
+    } else {
+        DOMElements.newsTicker.style.display = 'flex';
+        DOMElements.newsTickerContent.innerHTML = `<span class="news-item">Sin Noticias recientes... || 🛡 Activa el modo edición para publicar</span>`.repeat(2);
+        DOMElements.newsTickerContent.style.animation = `ticker-move-static 15s linear infinite`;
+    }
+}
+
+async function addQuickNews() {
+    if (!admin) return;
+    const text = prompt("✍️ Escribe tu noticia:");
+    if (text && confirm("¿Publicar?")) { await supabase.from('noticias').insert([{ text: text.trim() }]); loadNews(); }
+}
+async function deleteNews() {
+    if (!admin || currentNews.length === 0) return alert("No hay noticias.");
+    const list = currentNews.map((n, i) => `${i + 1}. ${n.text}`).join('\n');
+    const idx = parseInt(prompt(`Eliminar número:\n${list}`)) - 1;
+    if (currentNews[idx] && confirm("¿Eliminar?")) { await supabase.from('noticias').delete().eq('id', currentNews[idx].id); loadNews(); }
+}
+
+// ----------------------------------------------------
+// LÓGICA DE COMENTARIOS (CORREGIDA: Layout Bloque)
+// ----------------------------------------------------
+function generateColorByName(str) {
+    let hash = 0; for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    return `hsl(${Math.abs(hash) % 360}, 75%, 55%)`; 
+}
+function formatCommentDate(timestamp) {
+    const date = new Date(timestamp), now = new Date();
+    if (date.toDateString() === now.toDateString()) return 'Hoy, ' + date.toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'});
+    return date.toLocaleDateString('es-ES', {day:'2-digit', month:'short'}) + ' ' + date.toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'});
+}
+
+function createCommentHTML(comment, isLiked) {
+    const color = generateColorByName(comment.name.toLowerCase());
+    const likeClass = isLiked ? 'liked' : '';
+    const itemClass = comment.parent_id ? 'comment-item reply-style' : 'comment-item';
+    const initial = comment.name ? comment.name.charAt(0).toUpperCase() : '?';
+
+    // ESTRUCTURA CORREGIDA: Row Visual + Contenedor Hijos
+    return `
+        <div class="${itemClass}" data-comment-id="${comment.id}">
+            <div class="comment-main-row">
+                <div class="comment-avatar" style="background-color: ${color};" title="${comment.name}">
+                    ${initial}
+                </div>
+
+                <div class="comment-bubble">
+                    <div class="comment-header">
+                        <span class="comment-name">${comment.name}</span>
+                        <span class="comment-date">${formatCommentDate(comment.timestamp)}</span>
+                    </div>
+                    
+                    <div class="comment-content">${comment.text}</div>
+                    
+                    <div class="comment-actions">
+                        <button class="like-button ${likeClass}" data-id="${comment.id}" title="Me gusta">
+                            <span class="heart">♥</span>
+                            <span class="like-count" data-counter-id="${comment.id}">${comment.likes_count || 0}</span>
+                        </button>
+                        ${!comment.parent_id ? `<span class="reply-form-toggle" data-id="${comment.id}">Responder</span>` : ''}
+                    </div>
+                </div>
+            </div>
+
+            ${!comment.parent_id ? `
+                <div class="reply-form" data-reply-to="${comment.id}">
+                    <input type="text" class="reply-name" placeholder="Tu Nombre" required maxlength="30">
+                    <textarea class="reply-text" placeholder="Responder..." required maxlength="250"></textarea>
+                    <div style="text-align: right;">
+                        <button class="btn btn-sm btn-success publish-reply-btn" data-parent-id="${comment.id}">Enviar</button>
+                    </div>
+                </div>
+                <div class="replies-container" data-parent-of="${comment.id}"></div>
+            ` : ''}
+        </div>`;
+}
+
+function drawReplies(container, replies, userLikesMap) {
+    container.innerHTML = ''; 
+    replies.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)); 
+    replies.forEach((reply) => {
+        const isLiked = userLikesMap.get(reply.id) || false;
+        container.insertAdjacentHTML('beforeend', createCommentHTML(reply, isLiked));
+    });
+}
+
+async function loadComments() {
+    const [commentsResponse, likesResponse] = await Promise.all([
+        supabase.from('comentarios').select('*').order('timestamp', { ascending: false }),
+        supabase.from('likes').select('comment_id').eq('user_web_id', userWebId)
+    ]);
+
+    if (commentsResponse.error) return DOMElements.commentsContainer.innerHTML = `<p style="text-align: center; color: #d90429;">❌ Error al cargar comentarios.</p>`;
+    
+    const allComments = commentsResponse.data;
+    const userLikesMap = new Map();
+    if (likesResponse.data) likesResponse.data.forEach(like => userLikesMap.set(like.comment_id, true));
+    
+    const principalComments = allComments.filter(c => c.parent_id === null);
+    const repliesMap = allComments.reduce((map, comment) => {
+        if (comment.parent_id !== null) { 
+            if (!map.has(comment.parent_id)) map.set(comment.parent_id, []); 
+            map.get(comment.parent_id).push(comment); 
+        }
+        return map;
+    }, new Map());
+    
+    if (principalComments.length === 0) return DOMElements.commentsContainer.innerHTML = `<p style="text-align: center; color: #fff; opacity: 0.8;">Sé el primero en comentar 👇</p>`;
+    
+    DOMElements.commentsContainer.innerHTML = principalComments.map(c => createCommentHTML(c, userLikesMap.get(c.id))).join('');
+
+    principalComments.forEach(comment => {
+        const replies = repliesMap.get(comment.id);
+        if (replies) { 
+            // Ahora buscamos dentro del nuevo layout
+            const cardElement = document.querySelector(`.comment-item[data-comment-id="${comment.id}"]`);
+            if (cardElement) {
+                const container = cardElement.querySelector(`.replies-container`);
+                if (container) drawReplies(container, replies, userLikesMap); 
+            }
+        }
+    });
+
+    document.querySelectorAll('.reply-form-toggle').forEach(btn => btn.addEventListener('click', toggleReplyForm));
+    document.querySelectorAll('.publish-reply-btn').forEach(btn => btn.addEventListener('click', handlePublishReply));
+    document.querySelectorAll('.like-button').forEach(btn => btn.addEventListener('click', handleLikeToggle));
+}
+
+function toggleReplyForm(event) {
+    const commentId = event.target.getAttribute('data-id');
+    const item = document.querySelector(`.comment-item[data-comment-id="${commentId}"]`);
+    const form = item.querySelector(`.reply-form`);
+    if (form) {
+        document.querySelectorAll('.reply-form').forEach(f => { if (f !== form) f.style.display = 'none'; });
+        form.style.display = form.style.display === 'block' ? 'none' : 'block';
+        if (form.style.display === 'block') form.querySelector('.reply-name').focus();
+    }
+}
+
+async function publishComment() {
+    const name = DOMElements.commenterName.value.trim(); const text = DOMElements.commentText.value.trim();
+    if (name.length < 2 || text.length < 2) return alert("Datos insuficientes.");
+    DOMElements.publishCommentBtn.disabled = true;
+    const { error } = await supabase.from('comentarios').insert([{ name, text, likes_count: 0 }]);
+    if (!error) { DOMElements.commenterName.value = ''; DOMElements.commentText.value = ''; await loadComments(); } else { alert("❌ Error."); }
+    DOMElements.publishCommentBtn.disabled = false;
+}
+
+async function handlePublishReply(event) {
+    const parentId = event.target.getAttribute('data-parent-id'); const form = event.target.closest('.reply-form');
+    const name = form.querySelector('.reply-name').value.trim(); const text = form.querySelector('.reply-text').value.trim();
+    if (name.length < 2 || text.length < 2) return alert("Datos insuficientes.");
+    event.target.disabled = true;
+    const { error } = await supabase.from('comentarios').insert([{ name, text, parent_id: parentId, likes_count: 0 }]);
+    if (!error) { form.style.display = 'none'; await loadComments(); } else { alert("❌ Error."); }
+    event.target.disabled = false;
+}
+
+async function handleLikeToggle(event) {
+    const btn = event.currentTarget; const id = btn.getAttribute('data-id'); const isLiked = btn.classList.contains('liked'); const counter = btn.querySelector('.like-count');
+    btn.disabled = true;
+    try {
+        if (isLiked) {
+            await supabase.from('likes').delete().eq('comment_id', id).eq('user_web_id', userWebId); await supabase.rpc('decrement_likes', { row_id: id });
+            btn.classList.remove('liked'); counter.textContent = Math.max(0, parseInt(counter.textContent) - 1);
+        } else {
+            const { error } = await supabase.from('likes').insert([{ comment_id: id, user_web_id: userWebId }]);
+            if (!error || error.code === '23505') { if (!error) await supabase.rpc('increment_likes', { row_id: id }); btn.classList.add('liked'); counter.textContent = parseInt(counter.textContent) + 1; }
+        }
+    } catch (e) { console.error(e); }
+    btn.disabled = false;
+}
+
+// ----------------------------------------------------
+// VISTAS & ESTADO
+// ----------------------------------------------------
+const VISIT_KEY = 'lastPageView';
+async function registerPageView() {
+    const last = localStorage.getItem(VISIT_KEY);
+    if (last && (Date.now() - parseInt(last)) < 24 * 60 * 60 * 1000) return;
+    const { error } = await supabase.from('page_views').insert({});
+    if (!error) localStorage.setItem(VISIT_KEY, Date.now());
+}
+async function getAndDisplayViewCount() {
+    const el = document.getElementById('viewCounter'); if (!el) return;
+    const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+    const { count } = await supabase.from('page_views').select('*', { count: 'exact', head: true }).gt('created_at', yesterday.toISOString());
+    el.textContent = `👀 ${count ? count.toLocaleString('es-ES') : '0'} `;
+}
+function renderStatusPanel(status, isAdminMode) {
+    if (isAdminMode) {
+        DOMElements.statusDataContainer.innerHTML = `
+            <div class="status-item"><span class="label">Deficit (MW):</span><input type="text" id="editDeficit" value="${status.deficit_mw || ''}"></div>
+            <div class="status-item"><span class="label">USD (Auto):</span><input type="text" value="${status.dollar_cup}" disabled></div>
+            <div class="status-item"><span class="label">EUR (Auto):</span><input type="text" value="${status.euro_cup}" disabled></div>
+            <div class="status-item"><span class="label">MLC (Auto):</span><input type="text" value="${status.mlc_cup}" disabled></div>`;
+    } else {
+        DOMElements.statusDataContainer.innerHTML = `
+            <div class="status-item deficit"><span class="label">🔌 Déficit:</span><span class="value">${status.deficit_mw || '---'}</span></div>
+            <div class="status-item divisa"><span class="label">💵 USD:</span><span class="value">${status.dollar_cup || '---'}</span></div>
+            <div class="status-item divisa"><span class="label">💶 EUR:</span><span class="value">${status.euro_cup || '---'}</span></div>
+            <div class="status-item divisa"><span class="label">💳 MLC:</span><span class="value">${status.mlc_cup || '---'}</span></div>`;
+    }
+}
+async function loadStatusData() {
+    const { data } = await supabase.from('status_data').select('*').eq('id', 1).single();
+    if (data) currentStatus = { ...currentStatus, ...data };
+    renderStatusPanel(currentStatus, admin); fetchElToqueRates(); 
+}
+async function saveChanges() {
+    if (!admin) return;
+    const editDeficit = document.getElementById('editDeficit');
+    const newDeficit = editDeficit ? editDeficit.value : currentStatus.deficit_mw;
+    const updates = [];
+    document.querySelectorAll(".card").forEach(card => {
+        const emoji = card.querySelector('.editable-emoji').value;
+        const titulo = card.querySelector('.editable-title').value;
+        const contenido = card.querySelector('.editable-content').value;
+        const id = card.dataset.id; const idx = card.dataset.index;
+        if (contenido !== currentData[idx].contenido || titulo !== currentData[idx].titulo || emoji !== currentData[idx].emoji) {
+             updates.push(supabase.from('items').update({ emoji, titulo, contenido, last_edited_timestamp: new Date().toISOString() }).eq('id', id));
+        }
+    });
+    if (newDeficit !== currentStatus.deficit_mw) {
+        updates.push(supabase.from('status_data').update({ deficit_mw: newDeficit, deficit_edited_at: new Date().toISOString() }).eq('id', 1));
+    }
+    if (updates.length > 0) { await Promise.all(updates); alert("✅ Guardado."); location.reload(); } else { alert("No hay cambios."); }
+}
+document.addEventListener('DOMContentLoaded', () => {
+    DOMElements.toggleAdminBtn.addEventListener('click', toggleAdminMode);
+    DOMElements.saveBtn.addEventListener('click', saveChanges);
+    DOMElements.addNewsBtn.addEventListener('click', addQuickNews);
+    DOMElements.deleteNewsBtn.addEventListener('click', deleteNews);
+    DOMElements.publishCommentBtn.addEventListener('click', publishComment);
+    document.getElementById('fecha-actualizacion').textContent = new Date().toLocaleDateString();
+    registerPageView(); getAndDisplayViewCount(); loadData(); loadNews(); loadComments(); loadStatusData(); 
+});
+async function loadData() {
+    const { data } = await supabase.from('items').select('*').order('id');
+    if (data) {
+        currentData = data; DOMElements.contenedor.innerHTML = data.map((item, i) => createCardHTML(item, i)).join('');
+        document.querySelectorAll('.card').forEach(c => c.addEventListener('click', toggleTimePanel));
+    }
+        }
