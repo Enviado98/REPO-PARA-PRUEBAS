@@ -1,928 +1,580 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OCASO — El Mar No Perdona</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔬 Diagnóstico — El Toque Scraper</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap');
 
-    :root {
-      --ink:       #0d0a06;
-      --parchment: #f5e9c8;
-      --gold:      #c9922a;
-      --gold-lt:   #e8bf6a;
-      --rust:      #7a2318;
-      --ocean-dk:  #081825;
-      --ocean-md:  #0d2d45;
-      --ocean-lt:  #1a4a6b;
-      --foam:      #a8d4e6;
-      --shadow:    rgba(0,0,0,0.7);
-    }
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --border: #1e1e2e;
+    --accent: #00ffb3;
+    --warn: #ffb300;
+    --error: #ff4d6d;
+    --text: #e0e0f0;
+    --muted: #555577;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
 
-    html, body {
-      width: 100%; height: 100%;
-      overflow: hidden;
-      background: var(--ocean-dk);
-      font-family: 'IM Fell English', serif;
-      color: var(--parchment);
-    }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── CANVAS DE FONDO ── */
-    #bg-canvas {
-      position: fixed; inset: 0;
-      z-index: 0;
-    }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    min-height: 100vh;
+    padding: 2rem;
+  }
 
-    /* ── CAPA DE NIEBLA ── */
-    .fog {
-      position: fixed; inset: 0; z-index: 1;
-      background: radial-gradient(ellipse 80% 60% at 50% 100%,
-        transparent 20%, rgba(8,24,37,0.55) 60%, rgba(8,24,37,0.92) 100%);
-      pointer-events: none;
-    }
+  h1 {
+    font-family: var(--sans);
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 0.25rem;
+    letter-spacing: -0.02em;
+  }
 
-    /* ── GRANO DE PELÍCULA ── */
-    .grain {
-      position: fixed; inset: 0; z-index: 2;
-      opacity: 0.06;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-      background-size: 256px;
-      pointer-events: none;
-    }
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.78rem;
+    margin-bottom: 2rem;
+  }
 
-    /* ── CONTENEDOR PRINCIPAL ── */
-    .scene {
-      position: relative; z-index: 3;
-      width: 100%; height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0;
-    }
+  /* ── Rates display ── */
+  .rates-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
 
-    /* ── ENCABEZADO / MARCA ── */
-    .brand {
-      text-align: center;
-      animation: fadeDown 1.4s cubic-bezier(.16,1,.3,1) both;
-    }
+  .rate-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem;
+    text-align: center;
+    transition: border-color 0.3s;
+  }
 
-    .brand-eyebrow {
-      font-family: 'Cinzel', serif;
-      font-size: clamp(0.55rem, 1.2vw, 0.75rem);
-      letter-spacing: 0.45em;
-      color: var(--gold);
-      text-transform: uppercase;
-      margin-bottom: 0.6rem;
-      opacity: 0.85;
-    }
+  .rate-card.success { border-color: var(--accent); }
+  .rate-card.error   { border-color: var(--error); }
 
-    .brand-title {
-      font-family: 'Cinzel Decorative', cursive;
-      font-size: clamp(4.5rem, 14vw, 9rem);
-      font-weight: 900;
-      line-height: 0.88;
-      color: var(--parchment);
-      text-shadow:
-        0 0 60px rgba(201,146,42,0.45),
-        0 0 120px rgba(201,146,42,0.2),
-        4px 6px 0 rgba(0,0,0,0.6);
-      letter-spacing: 0.05em;
-      position: relative;
-    }
+  .rate-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
 
-    /* Borde dorado decorativo bajo el título */
-    .brand-title::after {
-      content: '';
-      display: block;
-      margin: 0.5rem auto 0;
-      width: 60%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      box-shadow: 0 0 12px var(--gold);
-    }
+  .rate-value {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: var(--sans);
+  }
 
-    .brand-subtitle {
-      font-family: 'IM Fell English', serif;
-      font-style: italic;
-      font-size: clamp(0.85rem, 2vw, 1.05rem);
-      color: var(--foam);
-      margin-top: 1.1rem;
-      letter-spacing: 0.08em;
-      opacity: 0.75;
-    }
+  .rate-value.pending { color: var(--muted); font-size: 1.4rem; }
+  .rate-value.failed  { color: var(--error); font-size: 1.2rem; }
 
-    /* ── SEPARADOR ORNAMENTAL ── */
-    .ornament {
-      margin: 2rem 0 1.8rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      animation: fadeIn 2s 0.5s both;
-    }
-    .ornament-line {
-      width: 80px; height: 1px;
-      background: linear-gradient(90deg, transparent, var(--gold-lt));
-    }
-    .ornament-line.right { background: linear-gradient(90deg, var(--gold-lt), transparent); }
-    .ornament-symbol {
-      font-size: 1.2rem;
-      color: var(--gold);
-      text-shadow: 0 0 10px var(--gold);
-    }
+  .rate-unit {
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin-top: 0.2rem;
+  }
 
-    /* ── PANEL DE LOGIN ── */
-    .panel {
-      background: linear-gradient(160deg,
-        rgba(13,26,37,0.88) 0%,
-        rgba(8,18,26,0.95) 100%);
-      border: 1px solid rgba(201,146,42,0.3);
-      border-radius: 2px;
-      padding: clamp(2rem, 5vw, 3rem) clamp(2rem, 6vw, 4rem);
-      width: min(420px, 92vw);
-      box-shadow:
-        0 0 0 1px rgba(201,146,42,0.08),
-        0 30px 80px rgba(0,0,0,0.7),
-        inset 0 1px 0 rgba(255,255,255,0.04);
-      animation: fadeUp 1.2s 0.3s cubic-bezier(.16,1,.3,1) both;
-      position: relative;
-      overflow: hidden;
-    }
+  /* ── Methods grid ── */
+  .methods-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
 
-    /* Esquinas doradas decorativas */
-    .panel::before, .panel::after {
-      content: '';
-      position: absolute;
-      width: 20px; height: 20px;
-      border-color: var(--gold);
-      border-style: solid;
-      opacity: 0.5;
-    }
-    .panel::before { top: 8px; left: 8px; border-width: 1px 0 0 1px; }
-    .panel::after  { bottom: 8px; right: 8px; border-width: 0 1px 1px 0; }
+  .method-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
 
-    .panel-tabs {
-      display: flex;
-      gap: 0;
-      margin-bottom: 2rem;
-      border-bottom: 1px solid rgba(201,146,42,0.2);
-    }
+  .method-icon {
+    font-size: 1.4rem;
+    min-width: 2rem;
+    text-align: center;
+  }
 
-    .tab-btn {
-      flex: 1;
-      background: none;
-      border: none;
-      font-family: 'Cinzel', serif;
-      font-size: 0.7rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--foam);
-      opacity: 0.45;
-      padding: 0.75rem 0;
-      cursor: pointer;
-      transition: opacity 0.3s, color 0.3s;
-      position: relative;
-    }
-    .tab-btn.active {
-      color: var(--gold-lt);
-      opacity: 1;
-    }
-    .tab-btn.active::after {
-      content: '';
-      position: absolute;
-      bottom: -1px; left: 15%; right: 15%; height: 1px;
-      background: var(--gold);
-      box-shadow: 0 0 8px var(--gold);
-    }
+  .method-info { flex: 1; min-width: 0; }
 
-    .form-group {
-      margin-bottom: 1.2rem;
-    }
+  .method-name {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
-    label {
-      display: block;
-      font-family: 'Cinzel', serif;
-      font-size: 0.6rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 0.5rem;
-      opacity: 0.8;
-    }
+  .method-status {
+    font-size: 0.65rem;
+    color: var(--muted);
+  }
 
-    input {
-      width: 100%;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(201,146,42,0.25);
-      border-radius: 1px;
-      color: var(--parchment);
-      font-family: 'IM Fell English', serif;
-      font-size: 0.95rem;
-      padding: 0.7rem 1rem;
-      outline: none;
-      transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
-    }
-    input:focus {
-      border-color: var(--gold);
-      background: rgba(201,146,42,0.06);
-      box-shadow: 0 0 0 3px rgba(201,146,42,0.12), 0 0 20px rgba(201,146,42,0.1);
-    }
-    input::placeholder { color: rgba(245,233,200,0.25); font-style: italic; }
+  .method-badge {
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
 
-    /* ── BOTÓN PRINCIPAL ── */
-    .btn-primary {
-      width: 100%;
-      margin-top: 1.6rem;
-      padding: 0.9rem;
-      background: linear-gradient(135deg, #b8801f 0%, #e8bf6a 50%, #b8801f 100%);
-      background-size: 200% 200%;
-      border: none;
-      border-radius: 1px;
-      color: var(--ink);
-      font-family: 'Cinzel', serif;
-      font-size: 0.72rem;
-      font-weight: 600;
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: background-position 0.5s, box-shadow 0.3s, transform 0.15s;
-      box-shadow: 0 4px 20px rgba(201,146,42,0.3);
-    }
-    .btn-primary:hover {
-      background-position: right center;
-      box-shadow: 0 6px 30px rgba(201,146,42,0.5);
-      transform: translateY(-1px);
-    }
-    .btn-primary:active { transform: translateY(0); }
+  .badge-pending { background: #1e1e2e; color: var(--muted); }
+  .badge-running { background: #1a1a00; color: var(--warn); animation: pulse 1s infinite; }
+  .badge-ok      { background: #001a10; color: var(--accent); }
+  .badge-fail    { background: #1a0010; color: var(--error); }
 
-    .panel-footer {
-      margin-top: 1.6rem;
-      text-align: center;
-      font-size: 0.75rem;
-      color: rgba(245,233,200,0.3);
-      font-style: italic;
-    }
+  @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:0.5 } }
 
-    /* ── PANEL DE REGISTRO (oculto por defecto) ── */
-    .form-pane { display: none; }
-    .form-pane.active { display: block; }
+  /* ── Log ── */
+  .log-box {
+    background: #080810;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    height: 300px;
+    overflow-y: auto;
+    font-size: 0.7rem;
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+  }
 
-    /* ── PIE DE ESCENA ── */
-    .scene-footer {
-      position: fixed;
-      bottom: 1.5rem; left: 0; right: 0;
-      text-align: center;
-      font-family: 'Cinzel', serif;
-      font-size: 0.55rem;
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-      color: rgba(168,212,230,0.2);
-      z-index: 3;
-      animation: fadeIn 3s 1.5s both;
-    }
+  .log-line { display: flex; gap: 0.6rem; }
+  .log-time { color: var(--muted); min-width: 5rem; }
+  .log-msg  { color: var(--text); flex: 1; word-break: break-all; }
+  .log-ok   .log-msg { color: var(--accent); }
+  .log-warn .log-msg { color: var(--warn); }
+  .log-err  .log-msg { color: var(--error); }
+  .log-info .log-msg { color: #7788ff; }
 
-    /* ── ANIMACIONES ── */
-    @keyframes fadeDown {
-      from { opacity: 0; transform: translateY(-30px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; } to { opacity: 1; }
-    }
+  /* ── Buttons ── */
+  .btn-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
 
-    /* ── NAVEGACIÓN DEL UNIVERSO (placeholder post-login) ── */
-    .game-ui {
-      display: none;
-      position: fixed; inset: 0; z-index: 10;
-      flex-direction: column;
-    }
+  button {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
 
-    /* TOPBAR */
-    .topbar {
-      background: linear-gradient(90deg, rgba(8,18,26,0.97), rgba(13,30,46,0.97));
-      border-bottom: 1px solid rgba(201,146,42,0.25);
-      padding: 0 2rem;
-      height: 56px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    }
+  button:hover { border-color: var(--accent); color: var(--accent); }
 
-    .topbar-logo {
-      font-family: 'Cinzel Decorative', cursive;
-      font-size: 1.1rem;
-      color: var(--gold);
-      text-shadow: 0 0 15px rgba(201,146,42,0.5);
-      letter-spacing: 0.1em;
-    }
+  button.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+    font-weight: 700;
+  }
 
-    .resources {
-      display: flex;
-      gap: 1.5rem;
-      align-items: center;
-    }
+  button.primary:hover { opacity: 0.85; }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    .res-item {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-family: 'Cinzel', serif;
-      font-size: 0.65rem;
-      letter-spacing: 0.1em;
-    }
-    .res-icon { font-size: 1rem; }
-    .res-label { color: rgba(245,233,200,0.45); text-transform: uppercase; }
-    .res-value { color: var(--gold-lt); font-weight: 600; }
+  /* ── HTML preview ── */
+  .html-preview {
+    display: none;
+    background: #080810;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-top: 1rem;
+    font-size: 0.65rem;
+    height: 200px;
+    overflow: auto;
+    color: #aabbcc;
+    word-break: break-all;
+    white-space: pre-wrap;
+  }
 
-    .player-info {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      font-family: 'Cinzel', serif;
-      font-size: 0.65rem;
-      color: var(--foam);
-      letter-spacing: 0.08em;
-      cursor: pointer;
-    }
-    .player-avatar {
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      border: 1px solid var(--gold);
-      background: linear-gradient(135deg, var(--ocean-lt), var(--ocean-dk));
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1rem;
-    }
-
-    /* MAIN AREA */
-    .game-main {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 200px 1fr;
-      overflow: hidden;
-    }
-
-    /* SIDEBAR */
-    .sidebar {
-      background: rgba(8,18,26,0.95);
-      border-right: 1px solid rgba(201,146,42,0.15);
-      padding: 1.5rem 0;
-      display: flex;
-      flex-direction: column;
-      gap: 0.2rem;
-      overflow-y: auto;
-    }
-
-    .nav-section-title {
-      font-family: 'Cinzel', serif;
-      font-size: 0.5rem;
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-      color: var(--gold);
-      opacity: 0.5;
-      padding: 0.8rem 1.5rem 0.3rem;
-    }
-
-    .nav-link {
-      display: flex;
-      align-items: center;
-      gap: 0.7rem;
-      padding: 0.65rem 1.5rem;
-      font-family: 'IM Fell English', serif;
-      font-size: 0.9rem;
-      color: rgba(245,233,200,0.55);
-      cursor: pointer;
-      transition: all 0.2s;
-      border-left: 2px solid transparent;
-      text-decoration: none;
-    }
-    .nav-link:hover, .nav-link.active {
-      color: var(--parchment);
-      background: rgba(201,146,42,0.07);
-      border-left-color: var(--gold);
-    }
-    .nav-icon { width: 18px; text-align: center; font-size: 1rem; opacity: 0.8; }
-
-    /* CONTENT */
-    .content {
-      background: rgba(8,18,26,0.6);
-      overflow-y: auto;
-      padding: 2rem;
-      position: relative;
-    }
-
-    /* Isla / Puerto placeholder */
-    .harbor-view {
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    .page-title {
-      font-family: 'Cinzel Decorative', cursive;
-      font-size: 1.6rem;
-      color: var(--gold-lt);
-      text-shadow: 0 0 20px rgba(201,146,42,0.3);
-      margin-bottom: 0.3rem;
-    }
-    .page-subtitle {
-      font-style: italic;
-      color: rgba(168,212,230,0.5);
-      font-size: 0.85rem;
-      margin-bottom: 2rem;
-    }
-
-    .buildings-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 1rem;
-    }
-
-    .building-card {
-      background: linear-gradient(160deg, rgba(13,30,46,0.9), rgba(8,18,26,0.95));
-      border: 1px solid rgba(201,146,42,0.2);
-      border-radius: 2px;
-      padding: 1.2rem;
-      cursor: pointer;
-      transition: all 0.25s;
-      position: relative;
-      overflow: hidden;
-    }
-    .building-card::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(201,146,42,0.05), transparent);
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .building-card:hover { border-color: rgba(201,146,42,0.5); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
-    .building-card:hover::before { opacity: 1; }
-
-    .building-icon { font-size: 2rem; margin-bottom: 0.6rem; }
-    .building-name {
-      font-family: 'Cinzel', serif;
-      font-size: 0.7rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--gold-lt);
-      margin-bottom: 0.3rem;
-    }
-    .building-level {
-      font-size: 0.75rem;
-      color: rgba(245,233,200,0.4);
-      font-style: italic;
-    }
-    .building-action {
-      margin-top: 0.8rem;
-      font-family: 'Cinzel', serif;
-      font-size: 0.55rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--gold);
-      opacity: 0.7;
-    }
-
-    .btn-logout {
-      background: none;
-      border: 1px solid rgba(122,35,24,0.4);
-      color: rgba(245,233,200,0.4);
-      font-family: 'Cinzel', serif;
-      font-size: 0.6rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      padding: 0.4rem 0.8rem;
-      cursor: pointer;
-      border-radius: 1px;
-      transition: all 0.2s;
-    }
-    .btn-logout:hover { border-color: var(--rust); color: #e57060; }
-
-    /* MENSAJE DE ERROR */
-    .error-msg {
-      color: #e57060;
-      font-size: 0.78rem;
-      font-style: italic;
-      margin-top: 0.5rem;
-      display: none;
-    }
-  </style>
+  @media (max-width: 600px) {
+    .rates-grid { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+    .methods-grid { grid-template-columns: 1fr; }
+    .rate-value { font-size: 1.6rem; }
+  }
+</style>
 </head>
 <body>
 
-<!-- ── CANVAS ANIMADO ── -->
-<canvas id="bg-canvas"></canvas>
-<div class="fog"></div>
-<div class="grain"></div>
+<h1>🔬 El Toque — Scraper Tester</h1>
+<p class="subtitle">Probando métodos de extracción en tiempo real · eltoque.com</p>
 
-<!-- ══════════════════════════════════════
-     PANTALLA DE INICIO / LOGIN
-════════════════════════════════════════ -->
-<div class="scene" id="login-screen">
-
-  <div class="brand">
-    <p class="brand-eyebrow">Juego de Estrategia Naval · Siglo XVII</p>
-    <h1 class="brand-title">OCASO</h1>
-    <p class="brand-subtitle">El mar no perdona a los impacientes</p>
+<!-- Rates display -->
+<div class="rates-grid">
+  <div class="rate-card" id="card-usd">
+    <div class="rate-label">💵 USD/CUP</div>
+    <div class="rate-value pending" id="val-usd">···</div>
+    <div class="rate-unit">pesos cubanos</div>
   </div>
-
-  <div class="ornament">
-    <div class="ornament-line"></div>
-    <span class="ornament-symbol">⚓</span>
-    <div class="ornament-line right"></div>
+  <div class="rate-card" id="card-eur">
+    <div class="rate-label">💶 EUR/CUP</div>
+    <div class="rate-value pending" id="val-eur">···</div>
+    <div class="rate-unit">pesos cubanos</div>
   </div>
-
-  <div class="panel">
-    <div class="panel-tabs">
-      <button class="tab-btn active" onclick="switchTab('login')">Zarpar</button>
-      <button class="tab-btn" onclick="switchTab('register')">Alistarme</button>
-    </div>
-
-    <!-- LOGIN -->
-    <div class="form-pane active" id="pane-login">
-      <div class="form-group">
-        <label>Capitán</label>
-        <input type="text" id="login-user" placeholder="Tu nombre en los mares…" />
-      </div>
-      <div class="form-group">
-        <label>Contraseña</label>
-        <input type="password" id="login-pass" placeholder="Clave secreta…" />
-      </div>
-      <p class="error-msg" id="login-error">Nombre o clave incorrectos, capitán.</p>
-      <button class="btn-primary" onclick="handleLogin()">⚓ &nbsp;Hacerse a la Mar</button>
-      <p class="panel-footer">Semper Navigare &mdash; Siempre Navegar</p>
-    </div>
-
-    <!-- REGISTRO -->
-    <div class="form-pane" id="pane-register">
-      <div class="form-group">
-        <label>Nombre del Capitán</label>
-        <input type="text" id="reg-user" placeholder="Elige tu nombre legendario…" />
-      </div>
-      <div class="form-group">
-        <label>Correo</label>
-        <input type="email" id="reg-email" placeholder="Para las cartas de corso…" />
-      </div>
-      <div class="form-group">
-        <label>Contraseña</label>
-        <input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres…" />
-      </div>
-      <p class="error-msg" id="reg-error">Completa todos los campos, capitán.</p>
-      <button class="btn-primary" onclick="handleRegister()">🗺️ &nbsp;Fundar mi Puerto</button>
-      <p class="panel-footer">Al registrarte aceptas navegar con honor</p>
-    </div>
-  </div>
-
-  <footer class="scene-footer">Ocaso &copy; 2025 &mdash; Todos los mares reservados</footer>
-</div>
-
-<!-- ══════════════════════════════════════
-     UI DEL JUEGO (post-login)
-════════════════════════════════════════ -->
-<div class="game-ui" id="game-ui">
-
-  <!-- TOPBAR -->
-  <header class="topbar">
-    <div class="topbar-logo">⚓ OCASO</div>
-
-    <div class="resources">
-      <div class="res-item">
-        <span class="res-icon">🪵</span>
-        <span class="res-label">Madera</span>
-        <span class="res-value" id="res-madera">1.200</span>
-      </div>
-      <div class="res-item">
-        <span class="res-icon">🪙</span>
-        <span class="res-label">Oro</span>
-        <span class="res-value" id="res-oro">850</span>
-      </div>
-      <div class="res-item">
-        <span class="res-icon">🍶</span>
-        <span class="res-label">Ron</span>
-        <span class="res-value" id="res-ron">430</span>
-      </div>
-      <div class="res-item">
-        <span class="res-icon">💣</span>
-        <span class="res-label">Pólvora</span>
-        <span class="res-value" id="res-polvora">120</span>
-      </div>
-    </div>
-
-    <div class="player-info">
-      <div class="player-avatar">🏴‍☠️</div>
-      <span id="player-name-display">Capitán</span>
-      <button class="btn-logout" onclick="handleLogout()">Abandonar</button>
-    </div>
-  </header>
-
-  <div class="game-main">
-
-    <!-- SIDEBAR -->
-    <nav class="sidebar">
-      <span class="nav-section-title">Tu Imperio</span>
-      <a class="nav-link active" onclick="setNav(this)">
-        <span class="nav-icon">🏝️</span> Puerto Principal
-      </a>
-      <a class="nav-link" onclick="setNav(this)">
-        <span class="nav-icon">⛵</span> Astillero
-      </a>
-      <a class="nav-link" onclick="setNav(this)">
-        <span class="nav-icon">🗺️</span> Océano
-      </a>
-      <a class="nav-link" onclick="setNav(this)">
-        <span class="nav-icon">⚔️</span> Flotas
-      </a>
-
-      <span class="nav-section-title">Comercio</span>
-      <a class="nav-link" onclick="setNav(this)">
-        <span class="nav-icon">🏪</span> Mercado
-      </a>
-      <a class="nav-link" onclick="setNav(this)">
-        <span class="nav-icon">📜</span> Misiones
-      </a>
-
-      <span class="nav-section-title">Alianzas</span>
-      <a class="nav-link" onclick="setNav(this)">
-        <span class="nav-icon">🤝</span> Cofradía
-      </a>
-      <a class="nav-link" onclick="setNav(this)">
-        <span class="nav-icon">📊</span> Clasificación
-      </a>
-    </nav>
-
-    <!-- CONTENIDO -->
-    <main class="content">
-      <div class="harbor-view">
-        <h2 class="page-title">Puerto del Alba</h2>
-        <p class="page-subtitle">Tu base de operaciones en el Caribe — Nivel 1</p>
-
-        <div class="buildings-grid">
-          <div class="building-card">
-            <div class="building-icon">🏗️</div>
-            <div class="building-name">Aserradero</div>
-            <div class="building-level">Nivel 1 &mdash; +60 madera/h</div>
-            <div class="building-action">▲ Mejorar →</div>
-          </div>
-          <div class="building-card">
-            <div class="building-icon">⛏️</div>
-            <div class="building-name">Mina de Oro</div>
-            <div class="building-level">Nivel 1 &mdash; +40 oro/h</div>
-            <div class="building-action">▲ Mejorar →</div>
-          </div>
-          <div class="building-card">
-            <div class="building-icon">🍺</div>
-            <div class="building-name">Destilería</div>
-            <div class="building-level">Nivel 1 &mdash; +25 ron/h</div>
-            <div class="building-action">▲ Mejorar →</div>
-          </div>
-          <div class="building-card">
-            <div class="building-icon">💣</div>
-            <div class="building-name">Polvorín</div>
-            <div class="building-level">Nivel 0 &mdash; Sin construir</div>
-            <div class="building-action">+ Construir →</div>
-          </div>
-          <div class="building-card">
-            <div class="building-icon">⛵</div>
-            <div class="building-name">Astillero</div>
-            <div class="building-level">Nivel 1 &mdash; 1 barco activo</div>
-            <div class="building-action">▲ Mejorar →</div>
-          </div>
-          <div class="building-card">
-            <div class="building-icon">🏰</div>
-            <div class="building-name">Fuerte</div>
-            <div class="building-level">Nivel 1 &mdash; Defensa básica</div>
-            <div class="building-action">▲ Mejorar →</div>
-          </div>
-          <div class="building-card">
-            <div class="building-icon">📦</div>
-            <div class="building-name">Almacén</div>
-            <div class="building-level">Nivel 1 &mdash; Cap. 2.000</div>
-            <div class="building-action">▲ Mejorar →</div>
-          </div>
-          <div class="building-card">
-            <div class="building-icon">🍺</div>
-            <div class="building-name">Taberna</div>
-            <div class="building-level">Nivel 0 &mdash; Sin construir</div>
-            <div class="building-action">+ Construir →</div>
-          </div>
-        </div>
-      </div>
-    </main>
-
+  <div class="rate-card" id="card-mlc">
+    <div class="rate-label">💳 MLC/CUP</div>
+    <div class="rate-value pending" id="val-mlc">···</div>
+    <div class="rate-unit">pesos cubanos</div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     SCRIPTS
-════════════════════════════════════════ -->
+<!-- Methods -->
+<div class="methods-grid" id="methodsGrid">
+  <!-- populated by JS -->
+</div>
+
+<!-- Buttons -->
+<div class="btn-row" style="margin-bottom:1rem;">
+  <button class="primary" id="btnRun" onclick="runAll()">▶ Iniciar prueba</button>
+  <button onclick="clearLog()">🗑 Limpiar log</button>
+  <button onclick="toggleHtml()">👁 Ver HTML crudo</button>
+</div>
+
+<!-- Log -->
+<div class="log-box" id="logBox"></div>
+
+<!-- HTML preview -->
+<div class="html-preview" id="htmlPreview"></div>
+
 <script>
-/* ── CANVAS: Mar animado ── */
-(function () {
-  const canvas = document.getElementById('bg-canvas');
-  const ctx = canvas.getContext('2d');
-  let W, H, waves = [];
+// ── Config ──────────────────────────────────────────────────────────────────
+const TARGET = "https://eltoque.com/tasas-de-cambio-de-moneda-en-cuba-hoy";
 
-  function resize() {
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-    buildWaves();
-  }
+const METHODS = [
+  {
+    id: "allorigins",
+    name: "allorigins.win (raw)",
+    url: () => `https://api.allorigins.win/raw?url=${encodeURIComponent(TARGET)}`,
+    fetchOpts: {}
+  },
+  {
+    id: "allorigins_get",
+    name: "allorigins.win (get)",
+    url: () => `https://api.allorigins.win/get?url=${encodeURIComponent(TARGET)}`,
+    parseJson: true // returns { contents: "html..." }
+  },
+  {
+    id: "corsproxy",
+    name: "corsproxy.io",
+    url: () => `https://corsproxy.io/?${encodeURIComponent(TARGET)}`,
+    fetchOpts: {}
+  },
+  {
+    id: "codetabs",
+    name: "codetabs.com proxy",
+    url: () => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(TARGET)}`,
+    fetchOpts: {}
+  },
+  {
+    id: "htmldriven",
+    name: "htmldriven cors",
+    url: () => `https://cors-proxy.htmldriven.com/?url=${encodeURIComponent(TARGET)}`,
+    fetchOpts: {}
+  },
+  {
+    id: "thingproxy",
+    name: "thingproxy.freeboard",
+    url: () => `https://thingproxy.freeboard.io/fetch/${TARGET}`,
+    fetchOpts: {}
+  },
+];
 
-  function buildWaves() {
-    waves = [];
-    const count = 6;
-    for (let i = 0; i < count; i++) {
-      waves.push({
-        y: H * (0.35 + i * 0.12),
-        amplitude: 18 + i * 8,
-        speed: 0.0003 + i * 0.00015,
-        offset: Math.random() * Math.PI * 2,
-        alpha: 0.04 + i * 0.025,
-        color: i < 2 ? '#1a4a6b' : '#0d2d45'
-      });
-    }
-  }
+// ── State ────────────────────────────────────────────────────────────────────
+let rawHtml = "";
+let running = false;
+let foundRates = null;
 
-  let t = 0;
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-
-    // Fondo degradado del océano
-    const grad = ctx.createLinearGradient(0, 0, 0, H);
-    grad.addColorStop(0, '#050d14');
-    grad.addColorStop(0.4, '#081825');
-    grad.addColorStop(1, '#0d2d45');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, W, H);
-
-    // Estrellas sutiles en el cielo
-    if (!waves._stars) {
-      waves._stars = Array.from({length: 120}, () => ({
-        x: Math.random() * W,
-        y: Math.random() * H * 0.45,
-        r: Math.random() * 1.2,
-        a: Math.random()
-      }));
-    }
-    waves._stars.forEach(s => {
-      const twinkle = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(t * 0.8 + s.a * 10));
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(200,220,255,${twinkle * 0.6})`;
-      ctx.fill();
-    });
-
-    // Reflejo de luna
-    const moonX = W * 0.72, moonY = H * 0.14;
-    const moonGlow = ctx.createRadialGradient(moonX, moonY, 2, moonX, moonY, 80);
-    moonGlow.addColorStop(0, 'rgba(240,230,200,0.9)');
-    moonGlow.addColorStop(0.1, 'rgba(220,210,170,0.5)');
-    moonGlow.addColorStop(1, 'transparent');
-    ctx.fillStyle = moonGlow;
-    ctx.fillRect(0, 0, W, H);
-
-    ctx.beginPath();
-    ctx.arc(moonX, moonY, 28, 0, Math.PI * 2);
-    ctx.fillStyle = '#f0e6c8';
-    ctx.shadowColor = '#f0e6c8';
-    ctx.shadowBlur = 40;
-    ctx.fill();
-    ctx.shadowBlur = 0;
-
-    // Olas
-    waves.forEach(wave => {
-      ctx.beginPath();
-      ctx.moveTo(0, H);
-      for (let x = 0; x <= W; x += 4) {
-        const y = wave.y +
-          Math.sin(x * 0.006 + t * wave.speed * 1000 + wave.offset) * wave.amplitude +
-          Math.sin(x * 0.012 + t * wave.speed * 700) * (wave.amplitude * 0.4);
-        ctx.lineTo(x, y);
-      }
-      ctx.lineTo(W, H);
-      ctx.closePath();
-      ctx.fillStyle = wave.color;
-      ctx.globalAlpha = wave.alpha * 8;
-      ctx.fill();
-      ctx.globalAlpha = 1;
-    });
-
-    t += 16;
-    requestAnimationFrame(draw);
-  }
-
-  window.addEventListener('resize', resize);
-  resize();
-  draw();
-})();
-
-/* ── TABS ── */
-function switchTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach((b, i) => {
-    b.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register'));
-  });
-  document.getElementById('pane-login').classList.toggle('active', tab === 'login');
-  document.getElementById('pane-register').classList.toggle('active', tab === 'register');
+// ── DOM helpers ──────────────────────────────────────────────────────────────
+function log(msg, type = "") {
+  const box = document.getElementById("logBox");
+  const now = new Date().toLocaleTimeString("es", { hour12: false });
+  const line = document.createElement("div");
+  line.className = `log-line log-${type}`;
+  line.innerHTML = `<span class="log-time">[${now}]</span><span class="log-msg">${msg}</span>`;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
 }
 
-/* ── AUTH SIMULADO (sin backend aún) ── */
-const FAKE_USERS_KEY = 'ocaso_users';
-function getUsers() { return JSON.parse(localStorage.getItem(FAKE_USERS_KEY) || '{}'); }
-function saveUsers(u) { localStorage.setItem(FAKE_USERS_KEY, JSON.stringify(u)); }
-function setSession(name) { localStorage.setItem('ocaso_session', name); }
-function getSession() { return localStorage.getItem('ocaso_session'); }
-function clearSession() { localStorage.removeItem('ocaso_session'); }
+function clearLog() {
+  document.getElementById("logBox").innerHTML = "";
+}
 
-function handleLogin() {
-  const user = document.getElementById('login-user').value.trim();
-  const pass = document.getElementById('login-pass').value;
-  const err  = document.getElementById('login-error');
-  const users = getUsers();
+function toggleHtml() {
+  const el = document.getElementById("htmlPreview");
+  if (!rawHtml) { log("Aún no hay HTML capturado.", "warn"); return; }
+  el.style.display = el.style.display === "none" || !el.style.display ? "block" : "none";
+  el.textContent = rawHtml.slice(0, 8000) + (rawHtml.length > 8000 ? "\n\n[... truncado ...]" : "");
+}
 
-  if (users[user] && users[user].pass === pass) {
-    err.style.display = 'none';
-    setSession(user);
-    enterGame(user);
+function setBadge(id, state, extra = "") {
+  const el = document.getElementById(`badge-${id}`);
+  const status = document.getElementById(`status-${id}`);
+  if (!el) return;
+  el.className = `method-badge badge-${state}`;
+  el.textContent = { pending: "ESPERA", running: "PROBANDO...", ok: "✓ OK", fail: "✗ FALLO" }[state] || state;
+  if (status && extra) status.textContent = extra;
+}
+
+function setRate(currency, value) {
+  const el = document.getElementById(`val-${currency}`);
+  const card = document.getElementById(`card-${currency}`);
+  if (!el) return;
+  if (value && value !== "---") {
+    el.textContent = value;
+    el.className = "rate-value";
+    card.className = "rate-card success";
   } else {
-    err.style.display = 'block';
+    el.textContent = "N/D";
+    el.className = "rate-value failed";
+    card.className = "rate-card error";
   }
 }
 
-function handleRegister() {
-  const user  = document.getElementById('reg-user').value.trim();
-  const email = document.getElementById('reg-email').value.trim();
-  const pass  = document.getElementById('reg-pass').value;
-  const err   = document.getElementById('reg-error');
+// ── Build method cards ────────────────────────────────────────────────────────
+function buildMethodCards() {
+  const grid = document.getElementById("methodsGrid");
+  grid.innerHTML = METHODS.map(m => `
+    <div class="method-card" id="mc-${m.id}">
+      <div class="method-icon">🔌</div>
+      <div class="method-info">
+        <div class="method-name">${m.name}</div>
+        <div class="method-status" id="status-${m.id}">En espera...</div>
+      </div>
+      <div class="method-badge badge-pending" id="badge-${m.id}">ESPERA</div>
+    </div>
+  `).join("");
+}
 
-  if (!user || !email || pass.length < 6) {
-    err.style.display = 'block';
-    err.textContent = 'Completa todos los campos (contraseña mín. 6 caracteres).';
-    return;
+// ── Extraction logic ──────────────────────────────────────────────────────────
+function extractRates(html) {
+  const results = {};
+
+  const currencies = [
+    { key: "usd", codes: ["USD"] },
+    { key: "eur", codes: ["EUR", "ECU"] },
+    { key: "mlc", codes: ["MLC"] },
+  ];
+
+  // Strategy A: JSON-LD / script tags with structured data
+  const scriptMatch = html.match(/<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi);
+  if (scriptMatch) {
+    scriptMatch.forEach(s => {
+      try {
+        const json = JSON.parse(s.replace(/<script[^>]*>|<\/script>/gi, ""));
+        const text = JSON.stringify(json);
+        currencies.forEach(({ key, codes }) => {
+          if (results[key]) return;
+          codes.forEach(code => {
+            const m = text.match(new RegExp(`"${code}"[^\\d]{1,20}(\\d{2,4})`, "i"));
+            if (m && inRange(m[1])) results[key] = m[1];
+          });
+        });
+      } catch {}
+    });
+    if (Object.keys(results).length > 0) log(`✅ Estrategia JSON-LD encontró: ${JSON.stringify(results)}`, "ok");
   }
-  const users = getUsers();
-  if (users[user]) {
-    err.style.display = 'block';
-    err.textContent = 'Ese nombre ya está tomado en los mares.';
-    return;
+
+  // Strategy B: meta tags
+  currencies.forEach(({ key, codes }) => {
+    if (results[key]) return;
+    codes.forEach(code => {
+      const m = html.match(new RegExp(`<meta[^>]*content="[^"]*${code}[^"]*?(\\d{3,4})[^"]*"`, "i"));
+      if (m && inRange(m[1])) results[key] = m[1];
+    });
+  });
+
+  // Strategy C: table cells / td patterns  
+  currencies.forEach(({ key, codes }) => {
+    if (results[key]) return;
+    codes.forEach(code => {
+      // Look for table row with currency code
+      const rowPattern = new RegExp(
+        `${code}[\\s\\S]{1,200}?<td[^>]*>[^<]*(\\d{2,4}(?:[.,]\\d+)?)[^<]*<\\/td>`,
+        "i"
+      );
+      const m = html.match(rowPattern);
+      if (m) {
+        const val = Math.round(parseFloat(m[1].replace(",", ".")));
+        if (inRange(val)) results[key] = String(val);
+      }
+    });
+  });
+
+  // Strategy D: flexible regex — currency code near a number
+  currencies.forEach(({ key, codes }) => {
+    if (results[key]) return;
+    codes.forEach(code => {
+      const patterns = [
+        // "USD</...>...>380"
+        new RegExp(`>${code}<\\/[^>]+>[\\s\\S]{1,100}?>(\\d{2,4}(?:[.,]\\d+)?)<`, "i"),
+        // "USD": 380
+        new RegExp(`"${code}"\\s*:\\s*(\\d{2,4})`, "i"),
+        // USD ... 380 CUP
+        new RegExp(`\\b${code}\\b[^\\d]{0,30}?(\\d{2,4})(?:[.,]\\d+)?\\s*(?:CUP)?`, "i"),
+      ];
+      for (const pat of patterns) {
+        const m = html.match(pat);
+        if (m) {
+          const val = Math.round(parseFloat(m[1].replace(",", ".")));
+          if (inRange(val)) { results[key] = String(val); break; }
+        }
+      }
+    });
+  });
+
+  return results;
+}
+
+function inRange(v) {
+  const n = parseInt(v, 10);
+  return n >= 100 && n <= 9999;
+}
+
+// ── Fetch a single method ─────────────────────────────────────────────────────
+async function tryMethod(method) {
+  setBadge(method.id, "running");
+  log(`🔌 Intentando: ${method.name}...`, "info");
+
+  try {
+    const url = method.url();
+    const fetchPromise = fetch(url, { ...(method.fetchOpts || {}) });
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Timeout 12s")), 12000)
+    );
+    const res = await Promise.race([fetchPromise, timeoutPromise]);
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    let html;
+    if (method.parseJson) {
+      const json = await res.json();
+      html = json.contents || "";
+    } else {
+      html = await res.text();
+    }
+
+    if (!html || html.length < 500) throw new Error("Respuesta vacía o muy corta");
+
+    log(`📄 HTML recibido: ${html.length.toLocaleString()} caracteres`, "");
+    rawHtml = html;
+
+    const rates = extractRates(html);
+    log(`🔍 Extracción: ${JSON.stringify(rates)}`, Object.keys(rates).length > 0 ? "ok" : "warn");
+
+    const found = rates.usd || rates.eur || rates.mlc;
+
+    if (found) {
+      setBadge(method.id, "ok", `${html.length.toLocaleString()} chars`);
+      return rates;
+    } else {
+      setBadge(method.id, "fail", "Sin tasas en el HTML");
+      log(`⚠️ ${method.name}: HTML ok pero no se encontraron tasas`, "warn");
+      return null;
+    }
+
+  } catch (err) {
+    setBadge(method.id, "fail", err.message);
+    log(`✗ ${method.name}: ${err.message}`, "err");
+    return null;
   }
-  users[user] = { pass, email };
-  saveUsers(users);
-  err.style.display = 'none';
-  setSession(user);
-  enterGame(user);
 }
 
-function enterGame(name) {
-  document.getElementById('login-screen').style.display = 'none';
-  const ui = document.getElementById('game-ui');
-  ui.style.display = 'flex';
-  document.getElementById('player-name-display').textContent = name;
-  startResourceTick();
-}
+// ── Run all ───────────────────────────────────────────────────────────────────
+async function runAll() {
+  if (running) return;
+  running = true;
+  foundRates = null;
 
-function handleLogout() {
-  clearSession();
-  document.getElementById('game-ui').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
-}
+  document.getElementById("btnRun").disabled = true;
 
-/* ── PRODUCCIÓN DE RECURSOS (simulada) ── */
-const resources = { madera: 1200, oro: 850, ron: 430, polvora: 120 };
-const production = { madera: 60, oro: 40, ron: 25, polvora: 0 }; // por hora
+  // Reset UI
+  ["usd", "eur", "mlc"].forEach(c => {
+    document.getElementById(`val-${c}`).textContent = "···";
+    document.getElementById(`val-${c}`).className = "rate-value pending";
+    document.getElementById(`card-${c}`).className = "rate-card";
+  });
+  METHODS.forEach(m => setBadge(m.id, "pending", "En espera..."));
 
-function startResourceTick() {
-  setInterval(() => {
-    const tickFraction = 1 / 3600; // cada segundo = 1/3600 de hora
-    resources.madera  += production.madera  * tickFraction;
-    resources.oro     += production.oro     * tickFraction;
-    resources.ron     += production.ron     * tickFraction;
-    resources.polvora += production.polvora * tickFraction;
+  log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "");
+  log(`🚀 Iniciando prueba con ${METHODS.length} métodos...`, "info");
+  log(`🎯 Target: ${TARGET}`, "info");
+  log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "");
 
-    document.getElementById('res-madera').textContent  = Math.floor(resources.madera);
-    document.getElementById('res-oro').textContent     = Math.floor(resources.oro);
-    document.getElementById('res-ron').textContent     = Math.floor(resources.ron);
-    document.getElementById('res-polvora').textContent = Math.floor(resources.polvora);
-  }, 1000);
-}
+  for (const method of METHODS) {
+    if (foundRates) {
+      setBadge(method.id, "pending", "Saltado (ya encontrado)");
+      log(`⏭ Saltando ${method.name} — ya tenemos tasas`, "");
+      continue;
+    }
 
-/* ── NAVEGACIÓN ── */
-function setNav(el) {
-  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-  el.classList.add('active');
-}
+    const rates = await tryMethod(method);
 
-/* ── AUTO-LOGIN si hay sesión ── */
-window.addEventListener('load', () => {
-  const session = getSession();
-  if (session && getUsers()[session]) {
-    enterGame(session);
+    if (rates && (rates.usd || rates.eur || rates.mlc)) {
+      foundRates = rates;
+      log(`🎉 ¡ÉXITO CON: ${method.name}!`, "ok");
+
+      setRate("usd", rates.usd);
+      setRate("eur", rates.eur);
+      setRate("mlc", rates.mlc);
+
+      log(`💵 USD = ${rates.usd || "N/D"} CUP`, "ok");
+      log(`💶 EUR = ${rates.eur || "N/D"} CUP`, "ok");
+      log(`💳 MLC = ${rates.mlc || "N/D"} CUP`, "ok");
+      log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "");
+      log(`✅ Proxy ganador: ${method.name}`, "ok");
+      log(`📋 Copia el ID para usar en tu script: "${method.id}"`, "ok");
+    }
+
+    // Small pause between methods
+    await new Promise(r => setTimeout(r, 400));
   }
-});
+
+  if (!foundRates) {
+    log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "");
+    log("❌ TODOS LOS MÉTODOS FALLARON", "err");
+    log("💡 Sugerencias:", "warn");
+    log("   1. El Toque puede estar bloqueando scrapers", "warn");
+    log("   2. Prueba abrir el HTML crudo (botón 'Ver HTML crudo')", "warn");
+    log("   3. Considera una alternativa: yadio.io, cambio.today", "warn");
+    ["usd", "eur", "mlc"].forEach(c => {
+      document.getElementById(`val-${c}`).textContent = "Error";
+      document.getElementById(`val-${c}`).className = "rate-value failed";
+      document.getElementById(`card-${c}`).className = "rate-card error";
+    });
+  }
+
+  running = false;
+  document.getElementById("btnRun").disabled = false;
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+buildMethodCards();
+log("👋 Listo. Pulsa ▶ Iniciar prueba para comenzar.", "info");
+log("🌐 Se probarán 6 proxies CORS distintos en orden.", "");
+log("⏱ Cada proxy tiene 12 segundos de timeout.", "");
 </script>
 </body>
 </html>
+
