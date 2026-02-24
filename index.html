@@ -3,79 +3,266 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🔬 Cubadebate — Déficit Test</title>
+<title>🔬 Test — Tasas + Déficit</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@800&display=swap');
-  :root { --bg:#0a0a0f; --s:#12121a; --b:#1e1e2e; --a:#00ffb3; --w:#ffb300; --e:#ff4d6d; --t:#e0e0f0; --m:#555577; }
-  * { box-sizing:border-box; margin:0; padding:0; }
-  body { background:var(--bg); color:var(--t); font-family:'JetBrains Mono',monospace; padding:1.5rem; }
-  h1 { font-family:'Syne',sans-serif; font-size:1.4rem; color:var(--a); margin-bottom:.2rem; }
-  .sub { color:var(--m); font-size:.72rem; margin-bottom:1.5rem; }
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&display=swap');
 
-  .result-card { background:var(--s); border:1px solid var(--b); border-radius:12px; padding:1.5rem; text-align:center; margin-bottom:1.5rem; transition:border-color .3s; }
-  .result-card.ok { border-color:var(--a); }
-  .result-card.err { border-color:var(--e); }
-  .rc-label { font-size:.65rem; color:var(--m); text-transform:uppercase; letter-spacing:.1em; margin-bottom:.5rem; }
-  .rc-value { font-family:'Syne',sans-serif; font-size:3rem; font-weight:800; color:var(--a); line-height:1; }
-  .rc-value.pending { color:var(--m); font-size:1.5rem; }
-  .rc-value.fail { color:var(--e); font-size:1.2rem; }
-  .rc-source { font-size:.6rem; color:var(--m); margin-top:.5rem; }
+  :root {
+    --bg: #0c0c0c;
+    --panel: #141414;
+    --border: #262626;
+    --a: #e8ff00;    /* amarillo neón */
+    --b: #00e5ff;    /* cian */
+    --e: #ff2d55;
+    --m: #555;
+    --t: #ddd;
+  }
 
-  .log { background:#080810; border:1px solid var(--b); border-radius:8px; padding:.8rem; height:380px; overflow-y:auto; font-size:.68rem; line-height:1.9; margin-bottom:1rem; }
-  .ll { display:flex; gap:.5rem; }
-  .lt { color:var(--m); min-width:5rem; }
-  .lm { flex:1; word-break:break-all; }
-  .lok .lm { color:var(--a); } .lwarn .lm { color:var(--w); } .lerr .lm { color:var(--e); } .linfo .lm { color:#7788ff; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  .titles-box { background:#080810; border:1px solid var(--b); border-radius:8px; padding:.8rem; margin-bottom:1rem; display:none; }
-  .titles-box h3 { font-size:.7rem; color:var(--m); text-transform:uppercase; letter-spacing:.1em; margin-bottom:.6rem; }
-  .title-item { padding:.4rem .6rem; border-left:3px solid var(--b); margin-bottom:.4rem; font-size:.65rem; line-height:1.5; }
-  .title-item.match { border-color:var(--a); color:var(--a); }
-  .title-item.nomatch { border-color:var(--b); color:var(--m); }
+  body {
+    background: var(--bg);
+    color: var(--t);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+    padding: 1.5rem;
+  }
 
-  .btns { display:flex; gap:.6rem; flex-wrap:wrap; margin-bottom:.8rem; }
-  button { background:var(--s); border:1px solid var(--b); color:var(--t); font-family:'JetBrains Mono',monospace; font-size:.72rem; padding:.5rem 1rem; border-radius:7px; cursor:pointer; transition:all .2s; }
-  button:hover { border-color:var(--a); color:var(--a); }
-  button.p { background:var(--a); border-color:var(--a); color:#000; font-weight:700; }
-  button:disabled { opacity:.4; cursor:not-allowed; }
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1rem;
+  }
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    letter-spacing: .08em;
+    color: var(--a);
+    line-height: 1;
+  }
+  header p { font-size: .65rem; color: var(--m); }
+
+  /* ── GRID ── */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+
+  /* ── PANELS ── */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.2rem;
+  }
+  .panel-title {
+    font-size: .6rem;
+    color: var(--m);
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+  }
+  .panel-title .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--a);
+    animation: blink 1.4s infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1}50%{opacity:.2} }
+
+  /* ── RATES ── */
+  .rates { display: flex; flex-direction: column; gap: .6rem; }
+  .rate-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .5rem .6rem;
+    background: #1a1a1a;
+    border-radius: 3px;
+    border-left: 3px solid var(--border);
+    transition: border-color .3s;
+  }
+  .rate-row.ok { border-color: var(--a); }
+  .rate-row.fail { border-color: var(--e); }
+  .rate-label { font-size: .65rem; color: var(--m); }
+  .rate-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    color: var(--a);
+    letter-spacing: .04em;
+  }
+  .rate-val.pending { color: var(--m); font-size: 1rem; }
+  .rate-val.fail { color: var(--e); font-size: .9rem; }
+  .rate-unit { font-size: .55rem; color: var(--m); margin-left: .2rem; }
+
+  /* ── DEFICIT ── */
+  .deficit-big {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 4rem;
+    color: var(--b);
+    letter-spacing: .04em;
+    line-height: 1;
+    margin-bottom: .3rem;
+  }
+  .deficit-big.pending { color: var(--m); font-size: 1.5rem; }
+  .deficit-big.fail { color: var(--e); font-size: 1.2rem; }
+  .deficit-source { font-size: .58rem; color: var(--m); line-height: 1.5; }
+
+  /* ── STATUS BADGES ── */
+  .status-row {
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+  .badge {
+    font-size: .58rem;
+    font-weight: 700;
+    padding: .2rem .5rem;
+    border-radius: 2px;
+    border: 1px solid;
+  }
+  .badge.pending  { border-color: var(--m);  color: var(--m); }
+  .badge.running  { border-color: var(--a);  color: var(--a); animation: blink .7s infinite; }
+  .badge.ok       { border-color: var(--a);  color: var(--a); background: #1a1f00; }
+  .badge.fail     { border-color: var(--e);  color: var(--e); background: #1f0008; }
+
+  /* ── BUTTONS ── */
+  .btns { display: flex; gap: .6rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  button {
+    font-family: 'Space Mono', monospace;
+    font-size: .7rem;
+    padding: .5rem 1rem;
+    border-radius: 3px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--t);
+    transition: all .15s;
+  }
+  button:hover { border-color: var(--a); color: var(--a); }
+  button.primary { background: var(--a); color: #000; border-color: var(--a); font-weight: 700; }
+  button.primary:hover { opacity: .85; }
+  button:disabled { opacity: .35; cursor: not-allowed; }
+
+  /* ── LOG ── */
+  .log {
+    background: #080808;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: .8rem;
+    height: 320px;
+    overflow-y: auto;
+    font-size: .65rem;
+    line-height: 1.85;
+  }
+  .ll { display: flex; gap: .5rem; }
+  .lt { color: var(--m); min-width: 5.5rem; flex-shrink: 0; }
+  .lm { flex: 1; word-break: break-all; }
+  .lok  .lm { color: var(--a); }
+  .lwarn .lm { color: #ffaa00; }
+  .lerr  .lm { color: var(--e); }
+  .linfo .lm { color: var(--b); }
+
+  /* ── TITLES LIST ── */
+  .titles-section { margin-top: 1rem; display: none; }
+  .titles-section h3 { font-size: .6rem; color: var(--m); text-transform: uppercase; letter-spacing: .1em; margin-bottom: .6rem; }
+  .title-item {
+    font-size: .62rem;
+    padding: .35rem .6rem;
+    border-left: 2px solid var(--border);
+    margin-bottom: .3rem;
+    color: var(--m);
+    line-height: 1.5;
+    transition: border-color .2s;
+  }
+  .title-item.hit { border-color: var(--b); color: var(--t); }
+  .title-item .mw-tag { color: var(--b); font-weight: 700; }
 </style>
 </head>
 <body>
 
-<h1>⚡ Cubadebate — Déficit Energético</h1>
-<p class="sub">Extracción desde RSS · cubadebate.cu/feed/</p>
+<header>
+  <h1>DATA TEST</h1>
+  <p>El Toque (tasas) + Cubadebate (déficit) · extracción en tiempo real</p>
+</header>
 
-<div class="result-card" id="resultCard">
-  <div class="rc-label">🔌 Déficit pronosticado</div>
-  <div class="rc-value pending" id="resultValue">···</div>
-  <div class="rc-source" id="resultSource">Esperando...</div>
+<div class="grid">
+
+  <!-- TASAS -->
+  <div class="panel">
+    <div class="panel-title"><div class="dot"></div> Tasas de cambio — El Toque</div>
+    <div class="status-row">
+      <span class="badge pending" id="badge-eltoque">ESPERA</span>
+    </div>
+    <div class="rates">
+      <div class="rate-row" id="row-usd">
+        <span class="rate-label">💵 USD</span>
+        <span><span class="rate-val pending" id="val-usd">···</span><span class="rate-unit">CUP</span></span>
+      </div>
+      <div class="rate-row" id="row-eur">
+        <span class="rate-label">💶 EUR</span>
+        <span><span class="rate-val pending" id="val-eur">···</span><span class="rate-unit">CUP</span></span>
+      </div>
+      <div class="rate-row" id="row-mlc">
+        <span class="rate-label">💳 MLC</span>
+        <span><span class="rate-val pending" id="val-mlc">···</span><span class="rate-unit">CUP</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DÉFICIT -->
+  <div class="panel">
+    <div class="panel-title"><div class="dot" style="background:var(--b)"></div> Déficit energético — Cubadebate RSS</div>
+    <div class="status-row">
+      <span class="badge pending" id="badge-deficit">ESPERA</span>
+    </div>
+    <div class="deficit-big pending" id="deficit-val">···</div>
+    <div class="deficit-source" id="deficit-source">Esperando...</div>
+  </div>
+
 </div>
 
+<!-- CONTROLES -->
 <div class="btns">
-  <button class="p" id="btnRun" onclick="runTest()">▶ Extraer déficit</button>
-  <button onclick="clearLog()">🗑 Limpiar</button>
-  <button onclick="toggleTitles()">📰 Ver todos los títulos RSS</button>
+  <button class="primary" id="btnRun" onclick="runAll()">▶ EXTRAER TODO</button>
+  <button onclick="clearLog()">🗑 Limpiar log</button>
+  <button onclick="toggleTitles()">📰 Títulos RSS</button>
 </div>
 
 <div class="log" id="logBox"></div>
-<div class="titles-box" id="titlesBox">
-  <h3>📰 Todos los títulos del RSS (primeros 20)</h3>
+<div class="titles-section" id="titlesSection">
+  <h3>📰 Títulos del RSS de Cubadebate</h3>
   <div id="titlesList"></div>
 </div>
 
 <script>
-const PROXIES = [
-  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-  url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-];
+// ─────────────────────────────────────────────────────────────
+// CONFIG
+// ─────────────────────────────────────────────────────────────
+const ELTOQUE_URL  = "https://eltoque.com/tasas-de-cambio-cuba";
+const CUBADEBATE_RSS = "http://www.cubadebate.cu/feed/";
+const PROXY_1 = url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+const PROXY_2 = url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`;
+const VALID = { usd:{min:200,max:700}, eur:{min:200,max:800}, mlc:{min:150,max:700} };
 
-const RSS_URL = "http://www.cubadebate.cu/feed/";
-
-// Patrones de título que publica la UNE en Cubadebate
-const UNE_KEYWORDS = ["déficit", "deficit", "afectación", "afectacion", "unión eléctrica", "union electrica", "une ", "pronóstico", "pronostico"];
-
-let allTitles = [];
+let allRssTitles = [];
 let running = false;
+
+// ─────────────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────────────
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function log(msg, type="") {
   const box = document.getElementById("logBox");
@@ -85,155 +272,219 @@ function log(msg, type="") {
   d.innerHTML = `<span class="lt">[${t}]</span><span class="lm">${esc(msg)}</span>`;
   box.appendChild(d); box.scrollTop = box.scrollHeight;
 }
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function clearLog() { document.getElementById("logBox").innerHTML = ""; allTitles = []; document.getElementById("titlesBox").style.display="none"; }
-
+function clearLog() {
+  document.getElementById("logBox").innerHTML = "";
+  allRssTitles = [];
+  document.getElementById("titlesSection").style.display = "none";
+}
 function toggleTitles() {
-  const box = document.getElementById("titlesBox");
-  if (!allTitles.length) { log("Sin títulos aún, ejecuta primero.", "warn"); return; }
-  box.style.display = box.style.display === "block" ? "none" : "block";
+  const s = document.getElementById("titlesSection");
+  if (!allRssTitles.length) { log("Sin títulos aún.", "warn"); return; }
+  s.style.display = s.style.display === "block" ? "none" : "block";
 }
 
-function setResult(value, source, state) {
-  const card = document.getElementById("resultCard");
-  const val = document.getElementById("resultValue");
-  const src = document.getElementById("resultSource");
-  val.textContent = value;
-  src.textContent = source;
-  val.className = "rc-value " + state;
-  card.className = "result-card " + (state === "" ? "ok" : state === "fail" ? "err" : "");
+function setBadge(id, state, label) {
+  const el = document.getElementById(id);
+  el.className = "badge " + state;
+  el.textContent = label || { pending:"ESPERA", running:"CARGANDO...", ok:"✓ OK", fail:"✗ ERROR" }[state] || state;
 }
 
-// Extraer número de MW de un título
+function setRate(currency, value) {
+  const val = document.getElementById(`val-${currency}`);
+  const row = document.getElementById(`row-${currency}`);
+  const n = parseInt(value);
+  const { min, max } = VALID[currency];
+  if (!isNaN(n) && n >= min && n <= max) {
+    val.textContent = n; val.className = "rate-val"; row.className = "rate-row ok";
+  } else {
+    val.textContent = value || "N/D"; val.className = "rate-val fail"; row.className = "rate-row fail";
+  }
+}
+
+async function tryFetch(url, timeoutMs = 13000) {
+  const res = await Promise.race([
+    fetch(url),
+    new Promise((_,rej) => setTimeout(() => rej(new Error("Timeout")), timeoutMs))
+  ]);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res;
+}
+
+async function fetchViaProxies(targetUrl, label) {
+  for (const [i, proxyFn] of [[1, PROXY_1],[2, PROXY_2]]) {
+    log(`  📡 ${label} proxy ${i}...`, "");
+    try {
+      const res = await tryFetch(proxyFn(targetUrl));
+      const text = await res.text();
+      if (text.length < 500) throw new Error(`Respuesta corta (${text.length} chars)`);
+      log(`  ✅ Proxy ${i} OK — ${text.length.toLocaleString()} chars`, "ok");
+      return text;
+    } catch(e) {
+      log(`  ✗ Proxy ${i}: ${e.message}`, "err");
+    }
+  }
+  throw new Error("Todos los proxies fallaron");
+}
+
+// ─────────────────────────────────────────────────────────────
+// EL TOQUE — extrae de trmiExchange.data.api.statistics
+// ─────────────────────────────────────────────────────────────
+function extractElToqueRates(html) {
+  const match = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
+  if (!match) throw new Error("__NEXT_DATA__ no encontrado");
+  const json = JSON.parse(match[1]);
+  const stats = json?.props?.pageProps?.trmiExchange?.data?.api?.statistics;
+  if (!stats) throw new Error("trmiExchange.data.api.statistics no encontrado");
+  return {
+    usd: stats.USD?.median  ? String(Math.round(stats.USD.median))  : null,
+    eur: stats.ECU?.avg     ? String(Math.round(stats.ECU.avg))     : null,
+    mlc: stats.MLC?.median  ? String(Math.round(stats.MLC.median))  : null,
+  };
+}
+
+async function runElToque() {
+  setBadge("badge-eltoque", "running");
+  log("━━ EL TOQUE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "info");
+  try {
+    const html = await fetchViaProxies(ELTOQUE_URL, "El Toque");
+    const rates = extractElToqueRates(html);
+    log(`  USD median  = ${rates.usd}`, "");
+    log(`  ECU avg     = ${rates.eur}`, "");
+    log(`  MLC median  = ${rates.mlc}`, "");
+    setRate("usd", rates.usd);
+    setRate("eur", rates.eur);
+    setRate("mlc", rates.mlc);
+    const ok = rates.usd && parseInt(rates.usd) >= VALID.usd.min;
+    setBadge("badge-eltoque", ok ? "ok" : "fail");
+    log(ok ? `  🎉 Tasas extraídas correctamente` : `  ⚠️ Valores fuera de rango`, ok ? "ok" : "warn");
+  } catch(e) {
+    setBadge("badge-eltoque", "fail");
+    log(`  ✗ ${e.message}`, "err");
+    setRate("usd", null); setRate("eur", null); setRate("mlc", null);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// CUBADEBATE — extrae déficit del RSS
+// ─────────────────────────────────────────────────────────────
+const UNE_KEYWORDS = ["déficit","deficit","afectación","afectacion","unión eléctrica","union electrica","une pronostica","une prevé","une prev"];
+
+function isUNETitle(t) {
+  const tl = t.toLowerCase();
+  return UNE_KEYWORDS.some(k => tl.includes(k));
+}
+
 function extractMW(title) {
   const t = title.toLowerCase();
-  // Patrones: "1 680 MW", "1680 MW", "1.680 MW"
-  const patterns = [
+  const pats = [
     /(\d[\d\s\.]{1,6}\d)\s*mw/i,
     /(\d{3,4})\s*megawatt/i,
   ];
-  for (const pat of patterns) {
-    const m = t.match(pat);
+  for (const p of pats) {
+    const m = t.match(p);
     if (m) {
-      const n = parseInt(m[1].replace(/[\s\.]/g, ""));
+      const n = parseInt(m[1].replace(/[\s\.]/g,""));
       if (n >= 100 && n <= 5000) return n;
     }
   }
   return null;
 }
 
-// ¿Este título es de la UNE sobre déficit?
-function isUNETitle(title) {
-  const t = title.toLowerCase();
-  return UNE_KEYWORDS.some(k => t.includes(k));
+function parseTitlesFromXml(xml) {
+  return [...xml.matchAll(/<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/gi)]
+    .map(m => m[1].trim())
+    .filter(t => t.length > 5)
+    .slice(1, 25);
 }
 
-async function runTest() {
+async function runCubadebate() {
+  setBadge("badge-deficit", "running");
+  log("━━ CUBADEBATE RSS ━━━━━━━━━━━━━━━━━━━━━━", "info");
+
+  const defVal = document.getElementById("deficit-val");
+  const defSrc = document.getElementById("deficit-source");
+
+  try {
+    const xml = await fetchViaProxies(CUBADEBATE_RSS, "Cubadebate");
+
+    const titles = parseTitlesFromXml(xml);
+    allRssTitles = titles;
+    log(`  📰 ${titles.length} títulos en el RSS`, "");
+
+    // Render títulos
+    document.getElementById("titlesList").innerHTML = titles.map(t => {
+      const une = isUNETitle(t);
+      const mw = extractMW(t);
+      return `<div class="title-item ${une?'hit':''}">
+        ${une?'⚡':'·'} ${esc(t)} ${mw?`<span class="mw-tag">[${mw} MW]</span>`:''}
+      </div>`;
+    }).join("");
+
+    // Buscar déficit
+    let found = null, foundTitle = "";
+    for (const title of titles) {
+      if (!isUNETitle(title)) continue;
+      log(`  🔍 Candidato UNE: "${title.slice(0,60)}"`, "warn");
+      const mw = extractMW(title);
+      if (mw) {
+        found = mw; foundTitle = title;
+        log(`  ✅ MW encontrado: ${mw}`, "ok");
+        break;
+      }
+    }
+
+    if (found) {
+      defVal.textContent = `${found} MW`;
+      defVal.className = "deficit-big";
+      defSrc.textContent = `"${foundTitle.slice(0,80)}${foundTitle.length>80?'…':''}"`;
+      setBadge("badge-deficit", "ok");
+      log(`  🎉 Déficit: ${found} MW`, "ok");
+    } else {
+      defVal.textContent = "N/D";
+      defVal.className = "deficit-big fail";
+      defSrc.textContent = `RSS obtenido (${titles.length} artículos) pero sin artículo de la UNE hoy. Son las ${new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})} — el pronóstico se publica por la mañana.`;
+      setBadge("badge-deficit", "fail", "SIN DATOS HOY");
+      log(`  ⚠️ No hay artículo de la UNE en el RSS actual`, "warn");
+      log(`  → Pulsa '📰 Títulos RSS' para ver qué hay publicado`, "warn");
+    }
+
+  } catch(e) {
+    setBadge("badge-deficit", "fail");
+    defVal.textContent = "Error"; defVal.className = "deficit-big fail";
+    defSrc.textContent = e.message;
+    log(`  ✗ ${e.message}`, "err");
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// MAIN
+// ─────────────────────────────────────────────────────────────
+async function runAll() {
   if (running) return;
   running = true;
   document.getElementById("btnRun").disabled = true;
-  setResult("···", "Buscando...", "pending");
-  allTitles = [];
 
-  log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "");
-  log(`🚀 Fetching RSS: ${RSS_URL}`, "info");
+  // Reset UI
+  ["usd","eur","mlc"].forEach(c => {
+    document.getElementById(`val-${c}`).textContent = "···";
+    document.getElementById(`val-${c}`).className = "rate-val pending";
+    document.getElementById(`row-${c}`).className = "rate-row";
+  });
+  document.getElementById("deficit-val").textContent = "···";
+  document.getElementById("deficit-val").className = "deficit-big pending";
 
-  let xml = null;
-
-  // Intentar proxies en orden
-  for (let i = 0; i < PROXIES.length; i++) {
-    const proxyUrl = PROXIES[i](RSS_URL);
-    log(`📡 Proxy ${i+1}: ${proxyUrl.slice(0, 60)}...`, "");
-    try {
-      const res = await Promise.race([
-        fetch(proxyUrl),
-        new Promise((_,rej) => setTimeout(() => rej(new Error("Timeout 12s")), 12000))
-      ]);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const text = await res.text();
-      if (text.length < 500) throw new Error(`Respuesta muy corta (${text.length} chars)`);
-      xml = text;
-      log(`✅ Proxy ${i+1} OK — ${text.length.toLocaleString()} chars`, "ok");
-      break;
-    } catch(e) {
-      log(`✗ Proxy ${i+1}: ${e.message}`, "err");
-    }
-  }
-
-  if (!xml) {
-    setResult("Error", "Todos los proxies fallaron", "fail");
-    log("❌ No se pudo obtener el RSS.", "err");
-    running = false; document.getElementById("btnRun").disabled = false;
-    return;
-  }
-
-  // Parsear títulos del XML
-  log("", "");
-  log("🔍 Analizando títulos del RSS...", "info");
-
-  // Extraer todos los <title> (saltando el primero que es el del sitio)
-  const rawTitles = [...xml.matchAll(/<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/gi)]
-    .map(m => m[1].trim())
-    .filter(t => t.length > 5)
-    .slice(1, 25); // saltar el primero (nombre del sitio), tomar hasta 25
-
-  log(`📰 ${rawTitles.length} títulos encontrados`, "");
-  allTitles = rawTitles;
-
-  // Render en el panel de títulos
-  const listEl = document.getElementById("titlesList");
-  listEl.innerHTML = rawTitles.map(t => {
-    const isUne = isUNETitle(t);
-    const mw = extractMW(t);
-    return `<div class="title-item ${isUne ? 'match' : 'nomatch'}">
-      ${isUne ? '⚡' : '·'} ${esc(t)} ${mw ? `<strong>[${mw} MW]</strong>` : ''}
-    </div>`;
-  }).join("");
-
-  // Buscar el primer título que coincida y tenga número
-  let found = null;
-  let foundTitle = "";
-
-  for (const title of rawTitles) {
-    if (!isUNETitle(title)) continue;
-    const mw = extractMW(title);
-    if (mw) {
-      found = mw;
-      foundTitle = title;
-      log(`✅ MATCH: "${title}"`, "ok");
-      log(`   → ${mw} MW`, "ok");
-      break;
-    } else {
-      log(`⚠️ Título UNE sin número MW: "${title}"`, "warn");
-    }
-  }
+  // Lanzar ambas en paralelo
+  await Promise.all([runElToque(), runCubadebate()]);
 
   log("", "");
-
-  if (found) {
-    setResult(`${found} MW`, `Fuente: "${foundTitle.slice(0, 60)}..."`, "");
-    log(`🎉 RESULTADO: ${found} MW de déficit`, "ok");
-    log(`📰 Título: "${foundTitle}"`, "ok");
-    log("", "");
-    log("✅ El método funciona. Este es el código para script.js:", "ok");
-    log(`   stats = json.trmiExchange... ← tasas`, "");
-    log(`   deficitMW = extractMW(rssTitle) ← déficit`, "");
-  } else {
-    setResult("N/D", "No encontrado en RSS de hoy", "fail");
-    log("⚠️ No se encontró artículo de déficit en el RSS actual.", "warn");
-    log("   Posibles causas:", "warn");
-    log("   1. La UNE no publicó hoy aún (se publica por la mañana)", "warn");
-    log("   2. El título usa palabras distintas a las esperadas", "warn");
-    log("   3. Abre '📰 Ver todos los títulos RSS' para inspeccionar", "warn");
-  }
-
-  log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "");
+  log("✅ Prueba completada.", "ok");
   running = false;
   document.getElementById("btnRun").disabled = false;
 }
 
-log("👋 Listo. Pulsa ▶ para extraer el déficit desde Cubadebate.", "info");
-log("📡 Fuente: cubadebate.cu/feed/ (RSS público, sin autenticación)", "");
+log("👋 Listo. Pulsa ▶ EXTRAER TODO para probar ambas fuentes en paralelo.", "info");
+log("   El Toque  → trmiExchange.data.api.statistics (USD/EUR/MLC)", "");
+log("   Cubadebate → RSS feed (déficit MW de la UNE)", "");
 </script>
 </body>
 </html>
