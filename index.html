@@ -3,587 +3,393 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🔬 Diagnóstico — El Toque Scraper</title>
+<title>🔬 El Toque Scraper v2</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap');
-
-  :root {
-    --bg: #0a0a0f;
-    --surface: #12121a;
-    --border: #1e1e2e;
-    --accent: #00ffb3;
-    --warn: #ffb300;
-    --error: #ff4d6d;
-    --text: #e0e0f0;
-    --muted: #555577;
-    --mono: 'JetBrains Mono', monospace;
-    --sans: 'Syne', sans-serif;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--mono);
-    min-height: 100vh;
-    padding: 2rem;
-  }
-
-  h1 {
-    font-family: var(--sans);
-    font-size: 1.6rem;
-    font-weight: 800;
-    color: var(--accent);
-    margin-bottom: 0.25rem;
-    letter-spacing: -0.02em;
-  }
-
-  .subtitle {
-    color: var(--muted);
-    font-size: 0.78rem;
-    margin-bottom: 2rem;
-  }
-
-  /* ── Rates display ── */
-  .rates-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    margin-bottom: 2rem;
-  }
-
-  .rate-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.2rem;
-    text-align: center;
-    transition: border-color 0.3s;
-  }
-
-  .rate-card.success { border-color: var(--accent); }
-  .rate-card.error   { border-color: var(--error); }
-
-  .rate-label {
-    font-size: 0.7rem;
-    color: var(--muted);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-bottom: 0.5rem;
-  }
-
-  .rate-value {
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: var(--accent);
-    font-family: var(--sans);
-  }
-
-  .rate-value.pending { color: var(--muted); font-size: 1.4rem; }
-  .rate-value.failed  { color: var(--error); font-size: 1.2rem; }
-
-  .rate-unit {
-    font-size: 0.65rem;
-    color: var(--muted);
-    margin-top: 0.2rem;
-  }
-
-  /* ── Methods grid ── */
-  .methods-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 2rem;
-  }
-
-  .method-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1rem 1.2rem;
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-  }
-
-  .method-icon {
-    font-size: 1.4rem;
-    min-width: 2rem;
-    text-align: center;
-  }
-
-  .method-info { flex: 1; min-width: 0; }
-
-  .method-name {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--text);
-    margin-bottom: 0.2rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .method-status {
-    font-size: 0.65rem;
-    color: var(--muted);
-  }
-
-  .method-badge {
-    font-size: 0.6rem;
-    font-weight: 700;
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
-    white-space: nowrap;
-  }
-
-  .badge-pending { background: #1e1e2e; color: var(--muted); }
-  .badge-running { background: #1a1a00; color: var(--warn); animation: pulse 1s infinite; }
-  .badge-ok      { background: #001a10; color: var(--accent); }
-  .badge-fail    { background: #1a0010; color: var(--error); }
-
-  @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:0.5 } }
-
-  /* ── Log ── */
-  .log-box {
-    background: #080810;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1rem;
-    height: 300px;
-    overflow-y: auto;
-    font-size: 0.7rem;
-    line-height: 1.8;
-    margin-bottom: 1.5rem;
-  }
-
-  .log-line { display: flex; gap: 0.6rem; }
-  .log-time { color: var(--muted); min-width: 5rem; }
-  .log-msg  { color: var(--text); flex: 1; word-break: break-all; }
-  .log-ok   .log-msg { color: var(--accent); }
-  .log-warn .log-msg { color: var(--warn); }
-  .log-err  .log-msg { color: var(--error); }
-  .log-info .log-msg { color: #7788ff; }
-
-  /* ── Buttons ── */
-  .btn-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
-
-  button {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    padding: 0.6rem 1.2rem;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  button:hover { border-color: var(--accent); color: var(--accent); }
-
-  button.primary {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #000;
-    font-weight: 700;
-  }
-
-  button.primary:hover { opacity: 0.85; }
-  button:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  /* ── HTML preview ── */
-  .html-preview {
-    display: none;
-    background: #080810;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1rem;
-    margin-top: 1rem;
-    font-size: 0.65rem;
-    height: 200px;
-    overflow: auto;
-    color: #aabbcc;
-    word-break: break-all;
-    white-space: pre-wrap;
-  }
-
-  @media (max-width: 600px) {
-    .rates-grid { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
-    .methods-grid { grid-template-columns: 1fr; }
-    .rate-value { font-size: 1.6rem; }
-  }
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@800&display=swap');
+  :root { --bg:#0a0a0f; --s:#12121a; --b:#1e1e2e; --a:#00ffb3; --w:#ffb300; --e:#ff4d6d; --t:#e0e0f0; --m:#555577; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--t); font-family:'JetBrains Mono',monospace; padding:1.5rem; }
+  h1 { font-family:'Syne',sans-serif; font-size:1.4rem; color:var(--a); margin-bottom:.2rem; }
+  .sub { color:var(--m); font-size:.72rem; margin-bottom:1.5rem; }
+  .rates { display:grid; grid-template-columns:repeat(3,1fr); gap:.8rem; margin-bottom:1.5rem; }
+  .rc { background:var(--s); border:1px solid var(--b); border-radius:10px; padding:1rem; text-align:center; transition:border-color .3s; }
+  .rc.ok { border-color:var(--a); } .rc.err { border-color:var(--e); }
+  .rl { font-size:.65rem; color:var(--m); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .rv { font-size:2rem; font-weight:700; font-family:'Syne',sans-serif; color:var(--a); }
+  .rv.p { color:var(--m); font-size:1.2rem; } .rv.f { color:var(--e); font-size:1rem; }
+  .ru { font-size:.6rem; color:var(--m); }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; margin-bottom:1.2rem; }
+  .mc { background:var(--s); border:1px solid var(--b); border-radius:8px; padding:.7rem 1rem; display:flex; align-items:center; gap:.6rem; }
+  .mi { min-width:1.4rem; text-align:center; }
+  .mn { flex:1; min-width:0; }
+  .mname { font-size:.7rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mst { font-size:.6rem; color:var(--m); }
+  .badge { font-size:.58rem; font-weight:700; padding:.18rem .45rem; border-radius:3px; white-space:nowrap; }
+  .bp { background:#1e1e2e; color:var(--m); }
+  .br { background:#1a1a00; color:var(--w); animation:pulse 1s infinite; }
+  .bo { background:#001a10; color:var(--a); }
+  .bf { background:#1a0010; color:var(--e); }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
+  .log { background:#080810; border:1px solid var(--b); border-radius:8px; padding:.8rem; height:280px; overflow-y:auto; font-size:.68rem; line-height:1.9; margin-bottom:1rem; }
+  .ll { display:flex; gap:.5rem; }
+  .lt { color:var(--m); min-width:5rem; }
+  .lm { flex:1; word-break:break-all; }
+  .lok .lm { color:var(--a); } .lwarn .lm { color:var(--w); } .lerr .lm { color:var(--e); } .linfo .lm { color:#7788ff; }
+  .btns { display:flex; gap:.6rem; flex-wrap:wrap; margin-bottom:.8rem; }
+  button { background:var(--s); border:1px solid var(--b); color:var(--t); font-family:'JetBrains Mono',monospace; font-size:.72rem; padding:.5rem 1rem; border-radius:7px; cursor:pointer; transition:all .2s; }
+  button:hover { border-color:var(--a); color:var(--a); }
+  button.p { background:var(--a); border-color:var(--a); color:#000; font-weight:700; }
+  button.p:hover { opacity:.85; }
+  button:disabled { opacity:.4; cursor:not-allowed; }
+  .html-box { display:none; background:#080810; border:1px solid var(--b); border-radius:8px; padding:.8rem; margin-top:.8rem; font-size:.62rem; height:180px; overflow:auto; color:#aabbcc; white-space:pre-wrap; word-break:break-all; }
+  .section-title { font-size:.65rem; color:var(--m); text-transform:uppercase; letter-spacing:.12em; margin-bottom:.5rem; margin-top:1rem; }
 </style>
 </head>
 <body>
+<h1>🔬 El Toque — Scraper v2</h1>
+<p class="sub">Probando fuentes alternativas · eltoque.online + API directa + proxies</p>
 
-<h1>🔬 El Toque — Scraper Tester</h1>
-<p class="subtitle">Probando métodos de extracción en tiempo real · eltoque.com</p>
-
-<!-- Rates display -->
-<div class="rates-grid">
-  <div class="rate-card" id="card-usd">
-    <div class="rate-label">💵 USD/CUP</div>
-    <div class="rate-value pending" id="val-usd">···</div>
-    <div class="rate-unit">pesos cubanos</div>
-  </div>
-  <div class="rate-card" id="card-eur">
-    <div class="rate-label">💶 EUR/CUP</div>
-    <div class="rate-value pending" id="val-eur">···</div>
-    <div class="rate-unit">pesos cubanos</div>
-  </div>
-  <div class="rate-card" id="card-mlc">
-    <div class="rate-label">💳 MLC/CUP</div>
-    <div class="rate-value pending" id="val-mlc">···</div>
-    <div class="rate-unit">pesos cubanos</div>
-  </div>
+<div class="rates">
+  <div class="rc" id="card-usd"><div class="rl">💵 USD/CUP</div><div class="rv p" id="val-usd">···</div><div class="ru">pesos cubanos</div></div>
+  <div class="rc" id="card-eur"><div class="rl">💶 EUR/CUP</div><div class="rv p" id="val-eur">···</div><div class="ru">pesos cubanos</div></div>
+  <div class="rc" id="card-mlc"><div class="rl">💳 MLC/CUP</div><div class="rv p" id="val-mlc">···</div><div class="ru">pesos cubanos</div></div>
 </div>
 
-<!-- Methods -->
-<div class="methods-grid" id="methodsGrid">
-  <!-- populated by JS -->
-</div>
+<p class="section-title">📡 Métodos a probar</p>
+<div class="grid" id="methodsGrid"></div>
 
-<!-- Buttons -->
-<div class="btn-row" style="margin-bottom:1rem;">
-  <button class="primary" id="btnRun" onclick="runAll()">▶ Iniciar prueba</button>
-  <button onclick="clearLog()">🗑 Limpiar log</button>
-  <button onclick="toggleHtml()">👁 Ver HTML crudo</button>
+<div class="btns">
+  <button class="p" id="btnRun" onclick="runAll()">▶ Iniciar prueba</button>
+  <button onclick="clearLog()">🗑 Limpiar</button>
+  <button onclick="toggleHtml()">👁 HTML crudo</button>
   <button onclick="copyHtml()">📋 Copiar HTML</button>
 </div>
 
-<!-- Log -->
-<div class="log-box" id="logBox"></div>
-
-<!-- HTML preview -->
-<div class="html-preview" id="htmlPreview"></div>
+<div class="log" id="logBox"></div>
+<div class="html-box" id="htmlBox"></div>
 
 <script>
-// ── Config ──────────────────────────────────────────────────────────────────
-const TARGET = "https://eltoque.com/tasas-de-cambio-de-moneda-en-cuba-hoy";
+// ─────────────────────────────────────────────────────────────────
+// MÉTODOS A PROBAR
+// ─────────────────────────────────────────────────────────────────
+// El token del usuario ya expiró, pero lo incluimos para diagnóstico
+const OLD_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc2MzU4NDg4MCwianRpIjoiZmVhZTc2Y2YtODc4Yy00MjdmLTg5MGUtMmQ4MzRmOGE1MzAyIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjY5MWUyNWI3ZTkyYmU3N2VhM2RlMjE0ZSIsIm5iZiI6MTc2MzU4NDg4MCwiZXhwIjoxNzk1MTIwODgwfQ.qpxiSsg8ptDTYsXZPnnxC694lUoWmT1qyAvzLUfl1-8";
+
+const today = new Date().toISOString().split('T')[0];
 
 const METHODS = [
+  // ── Grupo 1: API oficial directa (con token viejo, para ver el error exacto)
   {
-    id: "allorigins",
-    name: "allorigins.win (raw)",
-    url: () => `https://api.allorigins.win/raw?url=${encodeURIComponent(TARGET)}`,
-    fetchOpts: {}
+    id: "api_direct",
+    icon: "🔑",
+    name: "API oficial (token viejo)",
+    desc: "tasas.eltoque.com/v1/trmi",
+    run: async () => {
+      const r = await noSignalFetch("https://tasas.eltoque.com/v1/trmi", {
+        headers: { 'Authorization': `Bearer ${OLD_TOKEN}` }
+      });
+      const json = await r.json();
+      return extractFromApiJson(json);
+    }
+  },
+  // ── Grupo 2: eltoque.online (sitio espejo con HTML estático)
+  {
+    id: "online_allorigins",
+    icon: "🌐",
+    name: "eltoque.online via allorigins",
+    desc: "Sitio espejo con HTML real",
+    run: async () => {
+      const target = "https://eltoque.online/tasas-de-cambio-de-moneda-en-cuba-hoy";
+      const r = await noSignalFetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`);
+      const html = await r.text();
+      return extractFromHtml(html, "eltoque.online");
+    }
   },
   {
-    id: "allorigins_get",
-    name: "allorigins.win (get)",
-    url: () => `https://api.allorigins.win/get?url=${encodeURIComponent(TARGET)}`,
-    parseJson: true // returns { contents: "html..." }
+    id: "online_codetabs",
+    icon: "🌐",
+    name: "eltoque.online via codetabs",
+    desc: "Proxy alternativo",
+    run: async () => {
+      const target = "https://eltoque.online/tasas-de-cambio-de-moneda-en-cuba-hoy";
+      const r = await noSignalFetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(target)}`);
+      const html = await r.text();
+      return extractFromHtml(html, "eltoque.online codetabs");
+    }
   },
+  // ── Grupo 3: eltoque.com /tasas-de-cambio-cuba (URL nueva)
   {
-    id: "corsproxy",
-    name: "corsproxy.io",
-    url: () => `https://corsproxy.io/?${encodeURIComponent(TARGET)}`,
-    fetchOpts: {}
+    id: "new_url",
+    icon: "🔗",
+    name: "eltoque.com/tasas-de-cambio-cuba",
+    desc: "URL nueva del sitio",
+    run: async () => {
+      const target = "https://eltoque.com/tasas-de-cambio-cuba";
+      const r = await noSignalFetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`);
+      const html = await r.text();
+      return extractFromHtml(html, "new url");
+    }
   },
+  // ── Grupo 4: Next.js data endpoint (SSG JSON)
   {
-    id: "codetabs",
-    name: "codetabs.com proxy",
-    url: () => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(TARGET)}`,
-    fetchOpts: {}
+    id: "nextjs_json",
+    icon: "⚡",
+    name: "Next.js _next/data JSON",
+    desc: "Endpoint interno de Next.js",
+    run: async () => {
+      // Next.js SSG expone los datos en /_next/data/{buildId}/page.json
+      // El buildId lo vimos en el HTML: zOiLZtafGePTT1qQZ-PTe
+      const buildId = "zOiLZtafGePTT1qQZ-PTe";
+      const jsonUrl = `https://eltoque.com/_next/data/${buildId}/tasas-de-cambio-de-moneda-en-cuba-hoy.json`;
+      const r = await noSignalFetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(jsonUrl)}`);
+      const json = await r.json();
+      return extractFromNextJson(json);
+    }
   },
+  // ── Grupo 5: Yadio.io API (alternativa confiable)
   {
-    id: "htmldriven",
-    name: "htmldriven cors",
-    url: () => `https://cors-proxy.htmldriven.com/?url=${encodeURIComponent(TARGET)}`,
-    fetchOpts: {}
+    id: "yadio",
+    icon: "💱",
+    name: "Yadio.io API (alternativa)",
+    desc: "API abierta de tasas Cuba",
+    run: async () => {
+      const r = await noSignalFetch("https://api.yadio.io/exrates/CUP");
+      const json = await r.json();
+      // Yadio devuelve CUP como base, necesitamos invertir
+      const usd = json.CUP?.USD ? (1 / json.CUP.USD).toFixed(0) : null;
+      const eur = json.CUP?.EUR ? (1 / json.CUP.EUR).toFixed(0) : null;
+      return { usd, eur, mlc: null, source: "yadio.io" };
+    }
   },
+  // ── Grupo 6: cambio.today
   {
-    id: "thingproxy",
-    name: "thingproxy.freeboard",
-    url: () => `https://thingproxy.freeboard.io/fetch/${TARGET}`,
-    fetchOpts: {}
+    id: "cambio_today",
+    icon: "📊",
+    name: "cambio.today scrape",
+    desc: "Sitio de tasas cubanas",
+    run: async () => {
+      const target = "https://cambio.today/cuc/cup/1";
+      const r = await noSignalFetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`);
+      const html = await r.text();
+      const m = html.match(/(\d{3,4}(?:[.,]\d+)?)\s*(?:CUP|peso)/i);
+      const val = m ? Math.round(parseFloat(m[1].replace(',', '.'))).toString() : null;
+      return { usd: val, eur: null, mlc: null, source: "cambio.today" };
+    }
   },
 ];
 
-// ── State ────────────────────────────────────────────────────────────────────
-let rawHtml = "";
-let running = false;
-let foundRates = null;
-
-// ── DOM helpers ──────────────────────────────────────────────────────────────
-function log(msg, type = "") {
-  const box = document.getElementById("logBox");
-  const now = new Date().toLocaleTimeString("es", { hour12: false });
-  const line = document.createElement("div");
-  line.className = `log-line log-${type}`;
-  line.innerHTML = `<span class="log-time">[${now}]</span><span class="log-msg">${msg}</span>`;
-  box.appendChild(line);
-  box.scrollTop = box.scrollHeight;
+// ─────────────────────────────────────────────────────────────────
+// FETCH SIN AbortSignal (compatible con todos los browsers)
+// ─────────────────────────────────────────────────────────────────
+async function noSignalFetch(url, opts = {}) {
+  const fetchPromise = fetch(url, opts);
+  const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error("Timeout 12s")), 12000));
+  const res = await Promise.race([fetchPromise, timeout]);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res;
 }
 
-function clearLog() {
-  document.getElementById("logBox").innerHTML = "";
-}
+// ─────────────────────────────────────────────────────────────────
+// EXTRACTORES
+// ─────────────────────────────────────────────────────────────────
+function inRange(v) { const n = parseInt(v); return n >= 100 && n <= 9999; }
 
-function copyHtml() {
-  if (!rawHtml) { log("Aún no hay HTML capturado.", "warn"); return; }
-  navigator.clipboard.writeText(rawHtml).then(() => log("📋 HTML copiado al portapapeles (son " + rawHtml.length + " chars)", "ok")).catch(() => {
-    log("No se pudo copiar automáticamente. Usa el botón 👁 Ver HTML crudo y cópialo a mano.", "warn");
-  });
-}
-
-function toggleHtml() {
-  const el = document.getElementById("htmlPreview");
-  if (!rawHtml) { log("Aún no hay HTML capturado.", "warn"); return; }
-  el.style.display = el.style.display === "none" || !el.style.display ? "block" : "none";
-  el.textContent = rawHtml.slice(0, 8000) + (rawHtml.length > 8000 ? "\n\n[... truncado ...]" : "");
-}
-
-function setBadge(id, state, extra = "") {
-  const el = document.getElementById(`badge-${id}`);
-  const status = document.getElementById(`status-${id}`);
-  if (!el) return;
-  el.className = `method-badge badge-${state}`;
-  el.textContent = { pending: "ESPERA", running: "PROBANDO...", ok: "✓ OK", fail: "✗ FALLO" }[state] || state;
-  if (status && extra) status.textContent = extra;
-}
-
-function setRate(currency, value) {
-  const el = document.getElementById(`val-${currency}`);
-  const card = document.getElementById(`card-${currency}`);
-  if (!el) return;
-  if (value && value !== "---") {
-    el.textContent = value;
-    el.className = "rate-value";
-    card.className = "rate-card success";
-  } else {
-    el.textContent = "N/D";
-    el.className = "rate-value failed";
-    card.className = "rate-card error";
+function extractFromApiJson(json) {
+  // Formato: { tasas: { USD: 380, ECU: 420, MLC: 210 } }
+  if (json?.tasas) {
+    return {
+      usd: json.tasas.USD?.toString(),
+      eur: (json.tasas.EUR || json.tasas.ECU)?.toString(),
+      mlc: json.tasas.MLC?.toString(),
+      source: "API oficial"
+    };
   }
+  throw new Error("JSON sin formato esperado: " + JSON.stringify(json).slice(0, 200));
 }
 
-// ── Build method cards ────────────────────────────────────────────────────────
-function buildMethodCards() {
-  const grid = document.getElementById("methodsGrid");
-  grid.innerHTML = METHODS.map(m => `
-    <div class="method-card" id="mc-${m.id}">
-      <div class="method-icon">🔌</div>
-      <div class="method-info">
-        <div class="method-name">${m.name}</div>
-        <div class="method-status" id="status-${m.id}">En espera...</div>
-      </div>
-      <div class="method-badge badge-pending" id="badge-${m.id}">ESPERA</div>
-    </div>
-  `).join("");
+function extractFromNextJson(json) {
+  // Next.js SSG pageProps
+  const str = JSON.stringify(json);
+  const find = (codes) => {
+    for (const code of codes) {
+      const m = str.match(new RegExp(`"${code}"[^\\d]{0,20}?(\\d{3,4})`, 'i'));
+      if (m && inRange(m[1])) return m[1];
+    }
+    return null;
+  };
+  return {
+    usd: find(['USD']),
+    eur: find(['EUR', 'ECU']),
+    mlc: find(['MLC']),
+    source: "Next.js SSG JSON"
+  };
 }
 
-// ── Extraction logic ──────────────────────────────────────────────────────────
-function extractRates(html) {
-  const results = {};
+function extractFromHtml(html, sourceName) {
+  if (!html || html.length < 500) throw new Error("HTML vacío o muy corto (" + html.length + " chars)");
+  
+  rawHtml = html;
+  log(`📄 ${sourceName}: ${html.length.toLocaleString()} chars recibidos`, "");
 
-  const currencies = [
-    { key: "usd", codes: ["USD"] },
-    { key: "eur", codes: ["EUR", "ECU"] },
-    { key: "mlc", codes: ["MLC"] },
-  ];
-
-  // Strategy A: JSON-LD / script tags with structured data
-  const scriptMatch = html.match(/<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi);
-  if (scriptMatch) {
-    scriptMatch.forEach(s => {
-      try {
-        const json = JSON.parse(s.replace(/<script[^>]*>|<\/script>/gi, ""));
-        const text = JSON.stringify(json);
-        currencies.forEach(({ key, codes }) => {
-          if (results[key]) return;
-          codes.forEach(code => {
-            const m = text.match(new RegExp(`"${code}"[^\\d]{1,20}(\\d{2,4})`, "i"));
-            if (m && inRange(m[1])) results[key] = m[1];
-          });
-        });
-      } catch {}
-    });
-    if (Object.keys(results).length > 0) log(`✅ Estrategia JSON-LD encontró: ${JSON.stringify(results)}`, "ok");
+  // Check if it's also a 404
+  if (html.includes('"Page not found"') || html.includes('>404<') || html.includes('Página no encontrada')) {
+    throw new Error("El proxy recibió una página 404");
   }
 
-  // Strategy B: meta tags
-  currencies.forEach(({ key, codes }) => {
-    if (results[key]) return;
-    codes.forEach(code => {
-      const m = html.match(new RegExp(`<meta[^>]*content="[^"]*${code}[^"]*?(\\d{3,4})[^"]*"`, "i"));
-      if (m && inRange(m[1])) results[key] = m[1];
-    });
-  });
-
-  // Strategy C: table cells / td patterns  
-  currencies.forEach(({ key, codes }) => {
-    if (results[key]) return;
-    codes.forEach(code => {
-      // Look for table row with currency code
-      const rowPattern = new RegExp(
-        `${code}[\\s\\S]{1,200}?<td[^>]*>[^<]*(\\d{2,4}(?:[.,]\\d+)?)[^<]*<\\/td>`,
-        "i"
-      );
-      const m = html.match(rowPattern);
-      if (m) {
-        const val = Math.round(parseFloat(m[1].replace(",", ".")));
-        if (inRange(val)) results[key] = String(val);
-      }
-    });
-  });
-
-  // Strategy D: flexible regex — currency code near a number
-  currencies.forEach(({ key, codes }) => {
-    if (results[key]) return;
-    codes.forEach(code => {
+  const find = (codes) => {
+    for (const code of codes) {
       const patterns = [
-        // "USD</...>...>380"
-        new RegExp(`>${code}<\\/[^>]+>[\\s\\S]{1,100}?>(\\d{2,4}(?:[.,]\\d+)?)<`, "i"),
-        // "USD": 380
-        new RegExp(`"${code}"\\s*:\\s*(\\d{2,4})`, "i"),
-        // USD ... 380 CUP
-        new RegExp(`\\b${code}\\b[^\\d]{0,30}?(\\d{2,4})(?:[.,]\\d+)?\\s*(?:CUP)?`, "i"),
+        // JSON dentro de script
+        new RegExp(`"${code}"\\s*:\\s*(\\d{3,4})`, 'i'),
+        // Tabla: código seguido de número en celda
+        new RegExp(`${code}[\\s\\S]{1,150}?<td[^>]*>[^<]*(\\d{3,4})[^<]*<\\/td>`, 'i'),
+        // Span/div con número
+        new RegExp(`>${code}</[^>]+>[\\s\\S]{1,100}?>(\\d{3,4})<`, 'i'),
+        // Texto plano
+        new RegExp(`\\b${code}\\b[^\\d]{0,25}(\\d{3,4})`, 'i'),
       ];
       for (const pat of patterns) {
         const m = html.match(pat);
-        if (m) {
-          const val = Math.round(parseFloat(m[1].replace(",", ".")));
-          if (inRange(val)) { results[key] = String(val); break; }
-        }
+        if (m && inRange(m[1])) return m[1];
       }
-    });
-  });
-
-  return results;
-}
-
-function inRange(v) {
-  const n = parseInt(v, 10);
-  return n >= 100 && n <= 9999;
-}
-
-// ── Fetch a single method ─────────────────────────────────────────────────────
-async function tryMethod(method) {
-  setBadge(method.id, "running");
-  log(`🔌 Intentando: ${method.name}...`, "info");
-
-  try {
-    const url = method.url();
-    const fetchPromise = fetch(url, { ...(method.fetchOpts || {}) });
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Timeout 12s")), 12000)
-    );
-    const res = await Promise.race([fetchPromise, timeoutPromise]);
-
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    let html;
-    if (method.parseJson) {
-      const json = await res.json();
-      html = json.contents || "";
-    } else {
-      html = await res.text();
     }
-
-    if (!html || html.length < 500) throw new Error("Respuesta vacía o muy corta");
-
-    log(`📄 HTML recibido: ${html.length.toLocaleString()} caracteres`, "");
-    log(`🔎 Primeros 800 chars: ${html.slice(0, 800).replace(/\s+/g, ' ')}`, "");
-    rawHtml = html;
-
-    const rates = extractRates(html);
-    log(`🔍 Extracción: ${JSON.stringify(rates)}`, Object.keys(rates).length > 0 ? "ok" : "warn");
-
-    const found = rates.usd || rates.eur || rates.mlc;
-
-    if (found) {
-      setBadge(method.id, "ok", `${html.length.toLocaleString()} chars`);
-      return rates;
-    } else {
-      setBadge(method.id, "fail", "Sin tasas en el HTML");
-      log(`⚠️ ${method.name}: HTML ok pero no se encontraron tasas`, "warn");
-      return null;
-    }
-
-  } catch (err) {
-    setBadge(method.id, "fail", err.message);
-    log(`✗ ${method.name}: ${err.message}`, "err");
     return null;
+  };
+
+  return {
+    usd: find(['USD']),
+    eur: find(['EUR', 'ECU']),
+    mlc: find(['MLC']),
+    source: sourceName
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────
+// UI
+// ─────────────────────────────────────────────────────────────────
+let rawHtml = "", running = false, winner = null;
+
+function log(msg, type = "") {
+  const box = document.getElementById("logBox");
+  const t = new Date().toLocaleTimeString("es", { hour12: false });
+  const d = document.createElement("div");
+  d.className = `ll l${type}`;
+  d.innerHTML = `<span class="lt">[${t}]</span><span class="lm">${msg}</span>`;
+  box.appendChild(d); box.scrollTop = box.scrollHeight;
+}
+function clearLog() { document.getElementById("logBox").innerHTML = ""; }
+function toggleHtml() {
+  const b = document.getElementById("htmlBox");
+  if (!rawHtml) { log("Sin HTML capturado aún.", "warn"); return; }
+  b.style.display = b.style.display === "block" ? "none" : "block";
+  b.textContent = rawHtml.slice(0, 10000);
+}
+function copyHtml() {
+  if (!rawHtml) { log("Sin HTML capturado.", "warn"); return; }
+  navigator.clipboard.writeText(rawHtml)
+    .then(() => log("📋 HTML copiado (" + rawHtml.length + " chars)", "ok"))
+    .catch(() => log("No se pudo copiar automáticamente.", "warn"));
+}
+function setBadge(id, state, extra = "") {
+  const el = document.getElementById("badge-" + id);
+  const st = document.getElementById("status-" + id);
+  if (!el) return;
+  el.className = "badge b" + state[0];
+  el.textContent = { p: "ESPERA", r: "PROBANDO...", o: "✓ OK", f: "✗ FALLO" }[state[0]] || state;
+  if (st && extra) st.textContent = extra;
+}
+function setRate(c, v) {
+  const el = document.getElementById("val-" + c);
+  const card = document.getElementById("card-" + c);
+  if (v && inRange(v)) {
+    el.textContent = v; el.className = "rv"; card.className = "rc ok";
+  } else {
+    el.textContent = "N/D"; el.className = "rv f"; card.className = "rc err";
   }
 }
+function buildCards() {
+  document.getElementById("methodsGrid").innerHTML = METHODS.map(m => `
+    <div class="mc">
+      <div class="mi">${m.icon}</div>
+      <div class="mn">
+        <div class="mname">${m.name}</div>
+        <div class="mst" id="status-${m.id}">${m.desc}</div>
+      </div>
+      <div class="badge bp" id="badge-${m.id}">ESPERA</div>
+    </div>`).join("");
+}
 
-// ── Run all ───────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────
+// RUN
+// ─────────────────────────────────────────────────────────────────
 async function runAll() {
   if (running) return;
-  running = true;
-  foundRates = null;
-
+  running = true; winner = null;
   document.getElementById("btnRun").disabled = true;
-
-  // Reset UI
-  ["usd", "eur", "mlc"].forEach(c => {
-    document.getElementById(`val-${c}`).textContent = "···";
-    document.getElementById(`val-${c}`).className = "rate-value pending";
-    document.getElementById(`card-${c}`).className = "rate-card";
+  ["usd","eur","mlc"].forEach(c => {
+    document.getElementById("val-" + c).textContent = "···";
+    document.getElementById("val-" + c).className = "rv p";
+    document.getElementById("card-" + c).className = "rc";
   });
-  METHODS.forEach(m => setBadge(m.id, "pending", "En espera..."));
+  METHODS.forEach(m => setBadge(m.id, "pending", m.desc));
 
   log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "");
-  log(`🚀 Iniciando prueba con ${METHODS.length} métodos...`, "info");
-  log(`🎯 Target: ${TARGET}`, "info");
+  log("🚀 Iniciando " + METHODS.length + " métodos...", "info");
   log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "");
 
-  for (const method of METHODS) {
-    if (foundRates) {
-      setBadge(method.id, "pending", "Saltado (ya encontrado)");
-      log(`⏭ Saltando ${method.name} — ya tenemos tasas`, "");
+  for (const m of METHODS) {
+    if (winner) {
+      setBadge(m.id, "pending", "Saltado");
       continue;
     }
-
-    const rates = await tryMethod(method);
-
-    if (rates && (rates.usd || rates.eur || rates.mlc)) {
-      foundRates = rates;
-      log(`🎉 ¡ÉXITO CON: ${method.name}!`, "ok");
-
-      setRate("usd", rates.usd);
-      setRate("eur", rates.eur);
-      setRate("mlc", rates.mlc);
-
-      log(`💵 USD = ${rates.usd || "N/D"} CUP`, "ok");
-      log(`💶 EUR = ${rates.eur || "N/D"} CUP`, "ok");
-      log(`💳 MLC = ${rates.mlc || "N/D"} CUP`, "ok");
-      log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "");
-      log(`✅ Proxy ganador: ${method.name}`, "ok");
-      log(`📋 Copia el ID para usar en tu script: "${method.id}"`, "ok");
+    setBadge(m.id, "running");
+    log(`🔌 ${m.name}...`, "info");
+    try {
+      const rates = await m.run();
+      log(`   Resultado: USD=${rates.usd||'null'} EUR=${rates.eur||'null'} MLC=${rates.mlc||'null'}`, "");
+      
+      if (rates.usd || rates.eur || rates.mlc) {
+        winner = { method: m, rates };
+        setBadge(m.id, "ok", "¡GANADOR!");
+        setRate("usd", rates.usd); setRate("eur", rates.eur); setRate("mlc", rates.mlc);
+        log(`🎉 ¡ÉXITO! Fuente: ${rates.source}`, "ok");
+        log(`   💵 USD = ${rates.usd||'N/D'} CUP`, "ok");
+        log(`   💶 EUR = ${rates.eur||'N/D'} CUP`, "ok");
+        log(`   💳 MLC = ${rates.mlc||'N/D'} CUP`, "ok");
+        log(`   🔑 ID del método: "${m.id}"`, "ok");
+      } else {
+        setBadge(m.id, "fail", "Sin tasas");
+        log(`   ⚠️ Respondió pero sin tasas detectables`, "warn");
+      }
+    } catch (err) {
+      setBadge(m.id, "fail", err.message.slice(0, 40));
+      log(`   ✗ Error: ${err.message}`, "err");
     }
-
-    // Small pause between methods
-    await new Promise(r => setTimeout(r, 400));
+    await new Promise(r => setTimeout(r, 300));
   }
 
-  if (!foundRates) {
-    log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "");
-    log("❌ TODOS LOS MÉTODOS FALLARON", "err");
-    log("💡 Sugerencias:", "warn");
-    log("   1. El Toque puede estar bloqueando scrapers", "warn");
-    log("   2. Prueba abrir el HTML crudo (botón 'Ver HTML crudo')", "warn");
-    log("   3. Considera una alternativa: yadio.io, cambio.today", "warn");
-    ["usd", "eur", "mlc"].forEach(c => {
-      document.getElementById(`val-${c}`).textContent = "Error";
-      document.getElementById(`val-${c}`).className = "rate-value failed";
-      document.getElementById(`card-${c}`).className = "rate-card error";
+  log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "");
+  if (!winner) {
+    log("❌ Ningún método devolvió tasas.", "err");
+    log("💡 Pulsa '👁 HTML crudo' para ver qué llegó.", "warn");
+    log("💡 O considera ingresar las tasas manualmente.", "warn");
+    ["usd","eur","mlc"].forEach(c => {
+      document.getElementById("val-" + c).textContent = "Error";
+      document.getElementById("val-" + c).className = "rv f";
+      document.getElementById("card-" + c).className = "rc err";
     });
+  } else {
+    log(`✅ MÉTODO GANADOR: ${winner.method.id}`, "ok");
+    log("   Usa este ID para configurar tu script.js", "ok");
   }
 
   running = false;
   document.getElementById("btnRun").disabled = false;
 }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
-buildMethodCards();
-log("👋 Listo. Pulsa ▶ Iniciar prueba para comenzar.", "info");
-log("🌐 Se probarán 6 proxies CORS distintos en orden.", "");
-log("⏱ Cada proxy tiene 12 segundos de timeout.", "");
+buildCards();
+log("👋 Listo. Pulsa ▶ para iniciar.", "info");
+log("🔍 Esta versión prueba 7 métodos incluyendo fuentes alternativas.", "");
 </script>
 </body>
 </html>
-
