@@ -3,428 +3,304 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Morro & Imperium | Comando Naval</title>
+    <title>Morro & Imperium | Captain's Quarters</title>
     <style>
         :root {
-            --bg-deep-ocean: #050a0f;
-            --bg-panel: rgba(13, 22, 33, 0.85);
-            --row-bg: rgba(20, 34, 48, 0.7);
-            --row-hover: rgba(30, 48, 66, 0.9);
-            --text-main: #c4d4e6;
-            --text-muted: #6b849c;
-            --gold-primary: #d4af37;
-            --gold-glow: rgba(212, 175, 55, 0.4);
-            --border-bronze: #8b5a2b;
-            --border-light: rgba(139, 90, 43, 0.3);
-            --accent-blue: #3498db;
-            --accent-red: #e74c3c;
-            --accent-green: #2ecc71;
-            --player-row: rgba(46, 36, 18, 0.8);
+            --gold: #c5a059;
+            --gold-glow: rgba(197, 160, 89, 0.3);
+            --deep-ink: #0a0e12;
+            --parchment: #e4d5b7;
+            --accent-red: #8b2626;
+            --glass: rgba(15, 25, 35, 0.85);
+            --wood-dark: #1a120b;
         }
 
         body {
-            background: radial-gradient(circle at center top, #111f2e 0%, var(--bg-deep-ocean) 100%);
-            color: var(--text-main);
-            font-family: 'Segoe UI', system-ui, sans-serif;
             margin: 0;
-            padding: 40px 20px;
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-        }
-
-        .tactical-console {
-            width: 100%;
-            max-width: 1100px;
-            background: var(--bg-panel);
-            border: 1px solid var(--border-bronze);
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0,0,0,0.5);
-            backdrop-filter: blur(10px);
+            padding: 0;
+            background: radial-gradient(circle, #1a2a3a 0%, #05080a 100%);
+            color: var(--parchment);
+            font-family: 'Cinzel', serif; /* Fuente estilo épico/romano si está disponible */
+            height: 100vh;
             overflow: hidden;
             display: flex;
             flex-direction: column;
         }
 
-        /* Cabecera de Navegación */
-        .console-header {
-            background: linear-gradient(180deg, rgba(28, 43, 57, 0.9) 0%, rgba(18, 29, 38, 0.9) 100%);
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--border-bronze);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        /* --- CAPA DE AMBIENTE --- */
+        .vignette {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 100%);
+            pointer-events: none;
+            z-index: 10;
         }
 
-        .sector-title {
-            font-size: 18px;
-            color: var(--gold-primary);
+        /* --- CABECERA DE RECURSOS (HUD SUPERIOR) --- */
+        header {
+            height: 70px;
+            background: linear-gradient(to bottom, var(--wood-dark), transparent);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 40px;
+            z-index: 20;
+            border-bottom: 1px solid rgba(197, 160, 89, 0.2);
+        }
+
+        .resource-bar {
+            display: flex;
+            gap: 50px;
+            background: var(--glass);
+            padding: 10px 40px;
+            border-radius: 0 0 30px 30px;
+            border: 1px solid var(--gold);
+            border-top: none;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .res-item {
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .res-item label {
+            display: block;
+            font-size: 10px;
+            color: var(--gold);
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin: 0;
+        }
+
+        .res-item span {
+            font-size: 18px;
+            font-weight: bold;
             text-shadow: 0 0 10px var(--gold-glow);
         }
 
-        .nav-controls {
+        /* --- CONTENEDOR PRINCIPAL --- */
+        .game-world {
+            flex: 1;
             display: flex;
-            align-items: center;
-            gap: 15px;
+            position: relative;
+            padding: 20px;
+            gap: 20px;
         }
 
-        .coord-input {
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--border-bronze);
-            color: var(--gold-primary);
-            padding: 8px;
-            font-size: 16px;
-            width: 50px;
-            text-align: center;
-            border-radius: 4px;
-            font-weight: bold;
-            outline: none;
+        /* --- VISTA DE LA CIUDAD (CENTRO) --- */
+        .city-view {
+            flex: 1;
+            background: url('https://www.transparenttextures.com/patterns/old-map-dark.png'), #0f1a24;
+            border: 2px solid #3d2b1f;
+            border-radius: 15px;
+            position: relative;
+            box-shadow: inset 0 0 100px #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Simulación de Isla Central */
+        .island-core {
+            width: 500px;
+            height: 350px;
+            background: url('https://cdn-icons-png.flaticon.com/512/3554/3554030.png') no-repeat center; /* Icono de castillo/fuerte */
+            background-size: contain;
+            filter: drop-shadow(0 0 30px rgba(0,0,0,1));
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .building-label {
+            position: absolute;
+            background: rgba(0,0,0,0.7);
+            border: 1px solid var(--gold);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
             transition: 0.3s;
         }
 
-        .coord-input:focus {
-            box-shadow: 0 0 8px var(--gold-glow);
-            border-color: var(--gold-primary);
+        .building-label:hover {
+            background: var(--gold);
+            color: black;
+            transform: scale(1.1);
         }
 
-        .btn-nav {
-            background: transparent;
-            border: 1px solid var(--text-muted);
-            color: var(--text-main);
-            padding: 8px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-transform: uppercase;
-            font-size: 12px;
-            letter-spacing: 1px;
-            font-weight: bold;
-        }
-
-        .btn-nav:hover {
-            background: var(--text-main);
-            color: var(--bg-deep-ocean);
-            box-shadow: 0 0 10px rgba(255,255,255,0.3);
-        }
-
-        /* Tabla de Sectores */
-        .grid-container {
-            padding: 20px;
-        }
-
-        .tactical-grid {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0 6px;
-        }
-
-        .tactical-grid th {
-            padding: 10px 15px;
-            font-size: 11px;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            letter-spacing: 1px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-light);
-        }
-
-        .tactical-grid td {
-            background: var(--row-bg);
-            padding: 12px 15px;
-            vertical-align: middle;
-            font-size: 14px;
-            border-top: 1px solid rgba(255,255,255,0.03);
-            border-bottom: 1px solid rgba(0,0,0,0.5);
-            transition: all 0.2s ease;
-        }
-
-        /* Bordes redondeados para las filas */
-        .tactical-grid td:first-child { border-top-left-radius: 6px; border-bottom-left-radius: 6px; border-left: 2px solid transparent; }
-        .tactical-grid td:last-child { border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
-
-        .tactical-grid tr:hover td {
-            background: var(--row-hover);
-            transform: scale(1.005);
-        }
-
-        .tactical-grid tr:hover td:first-child {
-            border-left: 2px solid var(--gold-primary);
-        }
-
-        /* Estilos de Celdas */
-        .pos-number {
-            color: var(--text-muted);
-            font-weight: bold;
-            font-size: 16px;
-            width: 30px;
-            text-align: center;
-        }
-
-        .island-name {
-            color: #ffffff;
-            font-weight: 600;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        .island-name:hover { color: var(--gold-primary); }
-
-        /* Badges de Estado */
-        .badges-container { display: flex; gap: 5px; margin-top: 4px; }
-        .badge {
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-size: 9px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .badge-strong { background: rgba(231, 76, 60, 0.2); color: var(--accent-red); border: 1px solid rgba(231, 76, 60, 0.5); }
-        .badge-weak { background: rgba(46, 204, 113, 0.2); color: var(--accent-green); border: 1px solid rgba(46, 204, 113, 0.5); }
-        .badge-inactive { background: rgba(107, 132, 156, 0.2); color: var(--text-muted); border: 1px solid rgba(107, 132, 156, 0.5); }
-        .badge-vacation { background: rgba(52, 152, 219, 0.2); color: var(--accent-blue); border: 1px solid rgba(52, 152, 219, 0.5); }
-
-        /* Alianzas */
-        .alliance-tag {
-            color: var(--accent-blue);
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            padding: 4px 8px;
-            background: rgba(52, 152, 219, 0.1);
-            border-radius: 4px;
-            transition: 0.2s;
-        }
-        .alliance-tag:hover { background: rgba(52, 152, 219, 0.3); }
-
-        /* Restos / Naufragios */
-        .wreckage-box {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(212, 175, 55, 0.1);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            color: var(--gold-primary);
-        }
-
-        /* Fila del Jugador Propio */
-        .row-player td {
-            background: var(--player-row);
-            border-top: 1px solid rgba(212, 175, 55, 0.2);
-        }
-        .row-player td:first-child { border-left: 2px solid var(--gold-primary); }
-
-        /* Espacio Vacío */
-        .row-empty td {
-            background: rgba(10, 17, 26, 0.4);
-            color: var(--text-muted);
-            font-style: italic;
-        }
-
-        /* Botones de Acción (Quick Actions) */
-        .action-group {
+        /* --- PANELES LATERALES (CONTROL) --- */
+        aside {
+            width: 280px;
             display: flex;
-            gap: 12px;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 15;
         }
-        .btn-action {
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            opacity: 0.6;
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            padding: 0;
-            filter: grayscale(0.5);
-        }
-        .btn-action:hover {
-            opacity: 1;
-            transform: scale(1.3);
-            filter: grayscale(0);
-        }
-        .act-spy { text-shadow: 0 0 8px var(--accent-blue); }
-        .act-atk { text-shadow: 0 0 8px var(--accent-red); }
-        .act-rec { text-shadow: 0 0 8px var(--accent-green); }
 
-        /* Footer del Servidor VPS */
-        .server-status {
-            background: #030609;
-            padding: 12px 20px;
-            font-size: 11px;
-            color: #4a5c6e;
+        .panel {
+            background: var(--glass);
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .panel-header {
+            border-bottom: 1px solid var(--gold);
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            font-size: 14px;
+            color: var(--gold);
+            text-transform: uppercase;
+        }
+
+        /* Bitácora de Eventos */
+        .log-entry {
+            font-size: 12px;
+            margin-bottom: 10px;
+            padding-left: 10px;
+            border-left: 2px solid var(--gold);
+            font-style: italic;
+            color: #bdc3c7;
+        }
+
+        /* Menú de Acciones */
+        .nav-menu {
+            list-style: none; padding: 0; margin: 0;
+        }
+
+        .nav-menu li {
+            padding: 12px;
+            margin-bottom: 5px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-menu li:hover {
+            background: rgba(197, 160, 89, 0.2);
+            padding-left: 20px;
+            color: var(--gold);
+        }
+
+        /* --- FOOTER TÉCNICO --- */
+        footer {
+            height: 40px;
+            background: var(--deep-ink);
             display: flex;
             justify-content: space-between;
-            border-top: 1px solid var(--border-bronze);
-            font-family: monospace;
+            align-items: center;
+            padding: 0 30px;
+            font-size: 11px;
+            color: #555;
+            border-top: 1px solid #1a1a1a;
         }
-        .status-online { color: var(--accent-green); font-weight: bold; }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #2ecc71;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+            box-shadow: 0 0 5px #2ecc71;
+        }
     </style>
 </head>
 <body>
 
-<div class="tactical-console">
-    <div class="console-header">
-        <h2 class="sector-title">Cartografía Naval</h2>
-        <div class="nav-controls">
-            <button class="btn-nav">◀ Ant</button>
-            <span style="color: var(--text-muted); font-size: 14px; text-transform: uppercase;">
-                G <input type="text" class="coord-input" value="4"> 
-                S <input type="text" class="coord-input" value="120">
-            </span>
-            <button class="btn-nav">Sig ▶</button>
+<div class="vignette"></div>
+
+<header>
+    <div class="resource-bar">
+        <div class="res-item">
+            <label>Piedra</label>
+            <span>24.850</span>
+        </div>
+        <div class="res-item">
+            <label>Caoba</label>
+            <span>12.400</span>
+        </div>
+        <div class="res-item">
+            <label>Doblones</label>
+            <span style="color: #f1c40f;">5.120</span>
+        </div>
+        <div class="res-item">
+            <label>Raciones</label>
+            <span>92%</span>
         </div>
     </div>
+</header>
 
-    <div class="grid-container">
-        <table class="tactical-grid">
-            <thead>
-                <tr>
-                    <th class="pos-number">#</th>
-                    <th>Enclave</th>
-                    <th>Restos Navales</th>
-                    <th>Gobernador / Estado</th>
-                    <th>Pabellón</th>
-                    <th>Órdenes</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="pos-number">1</td>
-                    <td><div class="island-name">Fortaleza de Sangre</div></td>
-                    <td></td>
-                    <td>
-                        Capitán Kidd
-                        <div class="badges-container"><span class="badge badge-strong">Fuerte</span></div>
-                    </td>
-                    <td><span class="alliance-tag">[CORSAIR]</span></td>
-                    <td class="action-group">
-                        <button class="btn-action act-spy" title="Enviar Goleta Espía">👁️</button>
-                        <button class="btn-action act-atk" title="Ataque de Flota">⚔️</button>
-                    </td>
-                </tr>
+<div class="game-world">
+    <aside>
+        <div class="panel">
+            <div class="panel-header">Mando Naval</div>
+            <ul class="nav-menu">
+                <li><span>🏰</span> Ciudadela</li>
+                <li><span>⚓</span> Astillero Real</li>
+                <li><span>⚔️</span> Cuartel de Milicias</li>
+                <li><span>🔭</span> Academia de Ciencias</li>
+                <li><span>🗺️</span> Mapa del Caribe</li>
+            </ul>
+        </div>
+        
+        <div class="panel" style="flex: 1;">
+            <div class="panel-header">Bitácora del Capitán</div>
+            <div class="log-entry">14:20 - Una fragata enemiga fue avistada en el sector [4:120].</div>
+            <div class="log-entry">12:05 - La ampliación del Castillo del Morro ha finalizado.</div>
+            <div class="log-entry">09:15 - Mercaderes de la Española ofrecen trato por madera.</div>
+            <div class="log-entry" style="color: var(--accent-red);">04:30 - ¡ALERTA! Un huracán se aproxima desde el Este.</div>
+        </div>
+    </aside>
 
-                <tr class="row-empty">
-                    <td class="pos-number">2</td>
-                    <td colspan="4">Aguas inexploradas (Cayos desiertos)</td>
-                    <td class="action-group"><button class="btn-action act-rec" title="Fundar Colonia">⛵</button></td>
-                </tr>
+    <main class="city-view">
+        <div class="island-core"></div>
+        
+        <div class="building-label" style="top: 30%; left: 45%;">Castillo del Morro (Nivel 12)</div>
+        <div class="building-label" style="top: 55%; left: 35%;">Muelle de Carga</div>
+        <div class="building-label" style="top: 65%; left: 55%;">Cantera Real</div>
+        
+        <div style="position: absolute; bottom: 20px; left: 20px; color: var(--gold);">
+            <small>Coordenadas actuales:</small><br>
+            <strong>La Habana [4:120:4]</strong>
+        </div>
+    </main>
 
-                <tr>
-                    <td class="pos-number">3</td>
-                    <td><div class="island-name">Puerto Príncipe</div></td>
-                    <td></td>
-                    <td>Almirante Blas</td>
-                    <td><span class="alliance-tag" style="background: rgba(46, 204, 113, 0.2); color: var(--accent-green);">[ARMADA]</span></td>
-                    <td class="action-group">
-                        <button class="btn-action" title="Enviar Mensaje">📜</button>
-                        <button class="btn-action act-rec" title="Desplegar Escolta">🛡️</button>
-                    </td>
-                </tr>
+    <aside>
+        <div class="panel">
+            <div class="panel-header">Flota Disponible</div>
+            <div style="font-size: 13px;">
+                <p>Galeones de Guerra: <strong>3</strong></p>
+                <p>Fragatas Rápidas: <strong>8</strong></p>
+                <p>Lanchas de Espionaje: <strong>12</strong></p>
+            </div>
+            <button style="width:100%; padding: 10px; background: var(--gold); border:none; font-weight:bold; cursor:pointer;">Gestionar Flota</button>
+        </div>
 
-                <tr class="row-player">
-                    <td class="pos-number">4</td>
-                    <td><div class="island-name">San Cristóbal de La Habana</div></td>
-                    <td></td>
-                    <td style="color: var(--gold-primary); font-weight: bold;">Tú</td>
-                    <td><span class="alliance-tag" style="background: rgba(46, 204, 113, 0.2); color: var(--accent-green);">[ARMADA]</span></td>
-                    <td class="action-group"></td>
-                </tr>
-
-                <tr>
-                    <td class="pos-number">5</td>
-                    <td><div class="island-name">Isla Tortuga</div></td>
-                    <td>
-                        <div class="wreckage-box" title="2.5M Piedra / 1.1M Madera">
-                            ⚓ 3.6M
-                        </div>
-                    </td>
-                    <td>
-                        Barbanegra
-                        <div class="badges-container"><span class="badge badge-strong">Fuerte</span></div>
-                    </td>
-                    <td><span class="alliance-tag">[CORSAIR]</span></td>
-                    <td class="action-group">
-                        <button class="btn-action act-spy" title="Espiar">👁️</button>
-                        <button class="btn-action act-atk" title="Atacar">⚔️</button>
-                        <button class="btn-action act-rec" title="Rescatar Maderas">♻️</button>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td class="pos-number">6</td>
-                    <td><div class="island-name">Bahía Cochinos</div></td>
-                    <td></td>
-                    <td>
-                        Gobernador Corrupto
-                        <div class="badges-container">
-                            <span class="badge badge-weak">Débil</span>
-                            <span class="badge badge-inactive">Inactivo 7d</span>
-                        </div>
-                    </td>
-                    <td></td>
-                    <td class="action-group">
-                        <button class="btn-action act-spy" title="Espiar">👁️</button>
-                        <button class="btn-action act-atk" title="Saquear Oro">⚔️</button>
-                    </td>
-                </tr>
-
-                <tr class="row-empty"><td class="pos-number">7</td><td colspan="4">Aguas inexploradas</td><td class="action-group"><button class="btn-action act-rec">⛵</button></td></tr>
-                <tr class="row-empty"><td class="pos-number">8</td><td colspan="4">Aguas inexploradas</td><td class="action-group"><button class="btn-action act-rec">⛵</button></td></tr>
-                <tr class="row-empty"><td class="pos-number">9</td><td colspan="4">Aguas inexploradas</td><td class="action-group"><button class="btn-action act-rec">⛵</button></td></tr>
-
-                <tr>
-                    <td class="pos-number">10</td>
-                    <td><div class="island-name">Cayo Hueso</div></td>
-                    <td></td>
-                    <td>
-                        Mercader Holandés
-                        <div class="badges-container"><span class="badge badge-vacation">Vacaciones</span></div>
-                    </td>
-                    <td><span class="alliance-tag">[WIC]</span></td>
-                    <td class="action-group"></td>
-                </tr>
-
-                <tr>
-                    <td class="pos-number">11</td>
-                    <td><div class="island-name">Santo Domingo</div></td>
-                    <td></td>
-                    <td>General L'Olonnois</td>
-                    <td><span class="alliance-tag">[FRANCS]</span></td>
-                    <td class="action-group">
-                        <button class="btn-action act-spy" title="Espiar">👁️</button>
-                        <button class="btn-action act-atk" title="Atacar">⚔️</button>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td class="pos-number">12</td>
-                    <td><div class="island-name" style="color: var(--text-muted);">Antiguo Asentamiento</div></td>
-                    <td>
-                        <div class="wreckage-box" title="150k Piedra">
-                            ⚓ 150k
-                        </div>
-                    </td>
-                    <td><span style="color: var(--text-muted); font-style: italic;">Ruinas</span></td>
-                    <td></td>
-                    <td class="action-group">
-                        <button class="btn-action act-rec" title="Rescatar Maderas">♻️</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="server-status">
-        <span>[ <span class="status-online">● ONLINE</span> ] Motor de Sincronización v2.4</span>
-        <span>MAIN_NODE: dns.madaras.work.gd | DATA_LINK: 200.55.128.130:53 (ETECSA_ROUTE_A)</span>
-    </div>
+        <div class="panel">
+            <div class="panel-header">Estado del Viento</div>
+            <div style="text-align:center;">
+                <span style="font-size: 30px;">🧭</span>
+                <p>Noreste - 15 Nudos<br><small>(Bonificación a velocidad: +5%)</small></p>
+            </div>
+        </div>
+    </aside>
 </div>
+
+<footer>
+    <div><span class="status-dot"></span> Servidor: dns.madaras.work.gd | Nodo: 200.55.128.130</div>
+    <div>2026 © Morro & Imperium | v. 2.0.4-Stable</div>
+</footer>
 
 </body>
 </html>
-
