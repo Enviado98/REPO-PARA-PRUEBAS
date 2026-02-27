@@ -39,7 +39,7 @@
 </head>
 <body>
 <h1>🔍 El Toque – Test v4 (umbral corregido: > 10)</h1>
-<p>Replica exactamente cómo El Toque decide qué valor mostrar: <code>median</code> si hay suficientes muestras, <code>ema_value</code> si hay pocas.</p>
+<p>Replica exactamente cómo El Toque decide qué valor mostrar: <code>median</code> si hay suficientes muestras, <code>ema_value</code> si hay pocas. <strong>CLA siempre usa <code>ema_value</code>.</strong></p>
 
 <button onclick="runTest()">▶ Ejecutar test</button>
 <button class="sec" onclick="toggleRaw()">📦 JSON crudo</button>
@@ -47,10 +47,10 @@
 <span id="timestamp"></span>
 
 <div class="info-box">
-  📐 <strong>Lógica de El Toque:</strong>
-  Si <code>count_values > 10</code> → usa <code>median</code> (hay datos suficientes del día)<br>
-  Si <code>count_values &lt;= 10</code>  → usa <code>ema_value</code> (media móvil histórica, más estable)<br>
-  <span class="warn">⚠️ MXN (10 muestras, límite exacto) y CLA/BRL (pocas muestras) → usan <code>ema_value</code></span>
+  📐 <strong>Lógica:</strong>
+  Si <code>count_values &gt;= 11</code> → usa <code>median</code> (hay datos suficientes del día)<br>
+  Si <code>count_values &lt; 11</code>  → usa <code>ema_value</code> (media móvil histórica, más estable)<br>
+  <span class="warn">⚠️ CLA siempre usa <code>ema_value</code> (independiente del count)</span>
 </div>
 
 <div class="card" id="resultado"><em class="dim">Haz clic en "Ejecutar test"…</em></div>
@@ -71,10 +71,8 @@
 </div>
 
 <script>
-// ─── Umbral: si count_values < MIN_SAMPLES → usar ema_value en vez de median
-const MIN_SAMPLES = 11; // El Toque usa > 10 (estricto)
+const MIN_SAMPLES = 11;
 
-// ─── Monedas objetivo ─────────────────────────────────────────────────────────
 const CURRENCIES = [
   { key: 'USD', label: 'Dólar USD',        icon: '🇺🇸', decimals: 0 },
   { key: 'ECU', label: 'Euro EUR',          icon: '🇪🇺', decimals: 0 },
@@ -82,13 +80,15 @@ const CURRENCIES = [
   { key: 'CAD', label: 'Dólar Canadiense', icon: '🇨🇦', decimals: 0 },
   { key: 'MXN', label: 'Peso Mexicano',    icon: '🇲🇽', decimals: 2 },
   { key: 'BRL', label: 'Real Brasileño',   icon: '🇧🇷', decimals: 2 },
-  { key: 'CLA', label: 'Clásica CLA',      icon: '💎',  decimals: 2 },
+  { key: 'CLA', label: 'Clásica CLA',      icon: '💎',  decimals: 2, alwaysEma: true },
 ];
 
-// ─── Función clave: replica la lógica de El Toque ────────────────────────────
-// Devuelve { value, method } donde method es 'median' o 'ema_value'
-function elToqueValue(s) {
+// CLA siempre usa ema_value; el resto sigue la lógica de count
+function elToqueValue(s, alwaysEma = false) {
   if (!s) return { value: null, method: null };
+  if (alwaysEma) {
+    return { value: s.ema_value ?? s.median, method: 'ema_value ⭐' };
+  }
   const count = s.count_values ?? 0;
   if (count >= MIN_SAMPLES && s.median != null) {
     return { value: s.median, method: 'median' };
@@ -99,14 +99,12 @@ function elToqueValue(s) {
   return { value: s.median, method: 'median (fallback)' };
 }
 
-// ─── Proxies ──────────────────────────────────────────────────────────────────
 const PROXIES = [
   url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
   url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
 ];
 const TARGET = 'https://eltoque.com/tasas-de-cambio-cuba';
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 function log(msg, cls = '') {
   const pre = document.getElementById('log');
   const ts  = new Date().toLocaleTimeString('es-ES');
@@ -131,7 +129,6 @@ function fmtVal(val, dec) {
   return dec === 0 ? Math.round(val) : Number(val).toFixed(dec);
 }
 
-// ─── Fetch ────────────────────────────────────────────────────────────────────
 async function fetchViaProxy(proxyFn) {
   const url = proxyFn(TARGET);
   log(`⏳ Proxy: ${url.slice(0, 55)}…`);
@@ -149,7 +146,6 @@ function extractStats(html) {
   return stats;
 }
 
-// ─── Test principal ───────────────────────────────────────────────────────────
 async function runTest() {
   document.getElementById('resultado').innerHTML = '<em class="dim">⏳ Consultando…</em>';
   document.getElementById('all-keys-card').style.display = 'none';
@@ -185,20 +181,18 @@ async function runTest() {
     return;
   }
 
-  // Todas las claves
   const allKeys = Object.keys(stats).sort();
   document.getElementById('all-keys').innerHTML = allKeys.map(k => {
-    const { method } = elToqueValue(stats[k]);
-    const cls = method === 'ema_value' ? 'badge ema' : 'badge new';
+    const cur = CURRENCIES.find(c => c.key === k);
+    const { method } = elToqueValue(stats[k], cur?.alwaysEma ?? false);
+    const cls = method?.includes('ema') ? 'badge ema' : 'badge new';
     return `<span class="${cls}" title="${k}: ${method}">${k} (${method ?? '?'})</span> `;
   }).join('');
   document.getElementById('all-keys-card').style.display = 'block';
 
-  // JSON crudo
   const targetKeys = CURRENCIES.reduce((acc, c) => { acc[c.key] = stats[c.key] ?? null; return acc; }, {});
   document.getElementById('raw-json').textContent = JSON.stringify(targetKeys, null, 2);
 
-  // Tabla
   let rows = '';
   const results = {};
 
@@ -211,22 +205,20 @@ async function runTest() {
       continue;
     }
 
-    const count        = s.count_values ?? 0;
-    const { value, method } = elToqueValue(s);
-    const median       = s.median;
-    const ema          = s.ema_value;
-    const isEma        = method === 'ema_value';
-    const displayVal   = fmtVal(value, cur.decimals);
-    results[cur.key]   = value != null ? (cur.decimals === 0 ? Math.round(value) : +value.toFixed(cur.decimals)) : null;
+    const count = s.count_values ?? 0;
+    const { value, method } = elToqueValue(s, cur.alwaysEma ?? false);
+    const isEma = method?.includes('ema');
+    const displayVal = fmtVal(value, cur.decimals);
+    results[cur.key] = value != null ? (cur.decimals === 0 ? Math.round(value) : +value.toFixed(cur.decimals)) : null;
 
     const methodBadge = isEma
-      ? `<span class="badge ema" title="pocas muestras (${count})">ema_value ⚠️</span>`
-      : `<span class="badge new" title="${count} muestras">median ✅</span>`;
+      ? `<span class="badge ema">${method} ⚠️</span>`
+      : `<span class="badge new">median ✅</span>`;
 
     const countCls = count < MIN_SAMPLES ? 'warn' : 'ok';
 
     log(
-      `${cur.icon} ${cur.key}: ${method}=${fmt(value, cur.decimals)} | count=${count} | median=${fmt(median, cur.decimals)} | ema=${fmt(ema, cur.decimals)}`,
+      `${cur.icon} ${cur.key}: ${method}=${fmt(value, cur.decimals)} | count=${count} | median=${fmt(s.median, cur.decimals)} | ema=${fmt(s.ema_value, cur.decimals)}`,
       isEma ? 'warn' : 'ok'
     );
 
@@ -237,8 +229,8 @@ async function runTest() {
         <td class="val">${displayVal} CUP</td>
         <td>${methodBadge}</td>
         <td class="${countCls}">${count}</td>
-        <td class="dim">${fmt(median, cur.decimals)}</td>
-        <td class="dim">${fmt(ema, cur.decimals)}</td>
+        <td class="dim">${fmt(s.median, cur.decimals)}</td>
+        <td class="dim">${fmt(s.ema_value, cur.decimals)}</td>
       </tr>`;
   }
 
@@ -251,47 +243,14 @@ async function runTest() {
     <table>
       <thead>
         <tr>
-          <th>Moneda</th>
-          <th>Clave</th>
-          <th>Valor mostrado ✅</th>
-          <th>Método usado</th>
-          <th>count_values</th>
-          <th>median</th>
-          <th>ema_value</th>
+          <th>Moneda</th><th>Clave</th><th>Valor mostrado ✅</th>
+          <th>Método usado</th><th>count_values</th><th>median</th><th>ema_value</th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
-    </table>
-    <br>
-    <div class="section-title">📋 Snippet para script.js (lógica correcta)</div>
-    <pre>${generateSnippet(results)}</pre>
-  `;
+    </table>`;
 
   log('✅ Test v4 completado', 'ok');
-}
-
-function generateSnippet(results) {
-  return `// Lógica correcta: median si count_values >= ${MIN_SAMPLES}, sino ema_value
-function elToqueVal(s) {
-    if (!s) return null;
-    const v = (s.count_values ?? 0) >= ${MIN_SAMPLES} && s.median != null
-        ? s.median
-        : s.ema_value ?? s.median;
-    return v != null ? String(Math.round(v * 100) / 100) : null;
-}
-
-return {
-    usd: elToqueVal(stats.USD),   // siempre median (muchas muestras)
-    eur: elToqueVal(stats.ECU),   // siempre median
-    mlc: elToqueVal(stats.MLC),   // siempre median
-    cad: elToqueVal(stats.CAD),   // siempre median
-    mxn: elToqueVal(stats.MXN),   // ema_value cuando hay pocas muestras
-    brl: elToqueVal(stats.BRL),   // casi siempre ema_value
-    cla: elToqueVal(stats.CLA),   // casi siempre ema_value
-};
-
-// Valores actuales detectados:
-${Object.entries(results).map(([k, v]) => `// ${k}: ${v} CUP`).join('\n')}`;
 }
 </script>
 </body>
